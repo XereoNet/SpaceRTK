@@ -60,15 +60,14 @@ public class ServerActions {
                     result = false;
                 }
             }
-            if (!SpaceRTK.getInstance().getWorldContainer().equals(".")) {
-                directoriesNames_ = Arrays.asList(SpaceRTK.getInstance().getWorldContainer()
+            if (!SpaceRTK.getInstance().worldContainer.equals(".")) {
+                directoriesNames_ = Arrays.asList(SpaceRTK.getInstance().worldContainer
                         .list(DirectoryFileFilter.INSTANCE));
                 for (final String directoryName : directoriesNames_) {
-                    final File oldDirectory = new File(SpaceRTK.getInstance().getWorldContainer().getPath()
-                            + File.separator + directoryName);
-                    final File newDirectory = new File(SpaceRTK.getInstance().getWorldContainer().getPath()
-                            + File.separator + "backups" + File.separator + dateFormat.format(date) + File.separator
+                    final File oldDirectory = new File(SpaceRTK.getInstance().worldContainer.getPath() + File.separator
                             + directoryName);
+                    final File newDirectory = new File(SpaceRTK.getInstance().worldContainer.getPath() + File.separator
+                            + "backups" + File.separator + dateFormat.format(date) + File.separator + directoryName);
                     newDirectory.mkdir();
                     try {
                         FileUtils.copyDirectory(oldDirectory, newDirectory);
@@ -79,9 +78,9 @@ public class ServerActions {
                 }
             }
         } else {
-            final File oldDirectory = new File(SpaceRTK.getInstance().getWorldContainer().getPath() + File.separator
+            final File oldDirectory = new File(SpaceRTK.getInstance().worldContainer.getPath() + File.separator
                     + directory);
-            final File newDirectory = new File(SpaceRTK.getInstance().getWorldContainer().getPath() + File.separator
+            final File newDirectory = new File(SpaceRTK.getInstance().worldContainer.getPath() + File.separator
                     + "backups" + File.separator + dateFormat.format(date) + File.separator + directory);
             newDirectory.mkdir();
             try {
@@ -123,6 +122,12 @@ public class ServerActions {
     }
 
     @Action(
+            aliases = {"getAllWorlds", "allWorlds"})
+    public List<String> getAllWorlds() {
+        return Arrays.asList(SpaceRTK.getInstance().worldContainer.list(WorldFileFilter.INSTANCE));
+    }
+
+    @Action(
             aliases = {"getBackups", "backups"})
     public LinkedHashMap<String, LinkedList<String>> getBackups() {
         final LinkedHashMap<String, LinkedList<String>> backups = new LinkedHashMap<String, LinkedList<String>>();
@@ -134,9 +139,8 @@ public class ServerActions {
                     directories.add(directoryName);
                 backups.put(backupName, directories);
             }
-        if (!SpaceRTK.getInstance().getWorldContainer().equals(".")) {
-            backupDirectory = new File(SpaceRTK.getInstance().getWorldContainer().getPath() + File.separator
-                    + "backups");
+        if (!SpaceRTK.getInstance().worldContainer.equals(".")) {
+            backupDirectory = new File(SpaceRTK.getInstance().worldContainer.getPath() + File.separator + "backups");
             if (backupDirectory.exists())
                 for (final String backupName : backupDirectory.list(DirectoryFileFilter.INSTANCE)) {
                     final LinkedList<String> directories = new LinkedList<String>();
@@ -150,12 +154,6 @@ public class ServerActions {
                 }
         }
         return backups;
-    }
-
-    @Action(
-            aliases = {"getAllWorlds", "allWorlds"})
-    public List<String> getWorlds() {
-        return Arrays.asList(SpaceRTK.getInstance().getWorldContainer().list(WorldFileFilter.INSTANCE));
     }
 
     @Action(
@@ -218,13 +216,13 @@ public class ServerActions {
                     result = false;
                 }
             }
-            if (!SpaceRTK.getInstance().getWorldContainer().equals(".")) {
-                backupDirectory = new File(SpaceRTK.getInstance().getWorldContainer().getPath() + File.separator
-                        + "backups" + File.separator + date);
+            if (!SpaceRTK.getInstance().worldContainer.equals(".")) {
+                backupDirectory = new File(SpaceRTK.getInstance().worldContainer.getPath() + File.separator + "backups"
+                        + File.separator + date);
                 for (final String directoryName_ : Arrays.asList(backupDirectory.list(DirectoryFileFilter.INSTANCE))) {
                     final File oldDirectory = new File(backupDirectory.getPath() + File.separator + directoryName_);
-                    final File newDirectory = new File(SpaceRTK.getInstance().getWorldContainer().getPath()
-                            + File.separator + directoryName_);
+                    final File newDirectory = new File(SpaceRTK.getInstance().worldContainer.getPath() + File.separator
+                            + directoryName_);
                     if (newDirectory.exists()) {
                         newDirectory.delete();
                         newDirectory.mkdir();
@@ -267,11 +265,11 @@ public class ServerActions {
                     result = false;
                 }
             }
-            if (!SpaceRTK.getInstance().getWorldContainer().equals(".")) {
-                backupDirectory = new File(SpaceRTK.getInstance().getWorldContainer() + File.separator + "backups"
+            if (!SpaceRTK.getInstance().worldContainer.equals(".")) {
+                backupDirectory = new File(SpaceRTK.getInstance().worldContainer + File.separator + "backups"
                         + File.separator + date);
                 oldDirectory = new File(backupDirectory.getPath() + File.separator + directory);
-                newDirectory = new File(SpaceRTK.getInstance().getWorldContainer() + File.separator + directory);
+                newDirectory = new File(SpaceRTK.getInstance().worldContainer + File.separator + directory);
                 if (oldDirectory.exists()) {
                     if (newDirectory.exists()) {
                         newDirectory.delete();
@@ -292,8 +290,8 @@ public class ServerActions {
     }
 
     @Action(
-            aliases = {"rollOverLog"})
-    public boolean rollOverLog() {
+            aliases = {"rollOverLog", "rollOver"})
+    public boolean rollOver() {
         final File oldLog = new File("server.log");
         final SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd_HH-mm");
         final File newLog = new File("server_" + format.format(new Date()) + ".log");

@@ -46,7 +46,7 @@ public class SpaceRTK {
     public int            port;
     public int            rPort;
     public String         salt;
-    public String         worldContainer;
+    public File           worldContainer;
 
     public SpaceRTK() {
         try {
@@ -56,13 +56,6 @@ public class SpaceRTK {
         } catch (final Exception e) {
             e.printStackTrace();
         }
-    }
-
-    public File getWorldContainer() {
-        File worldContainer_ = new File(worldContainer);
-        if (!worldContainer_.isDirectory())
-            worldContainer_ = worldContainer_.getParentFile();
-        return worldContainer_;
     }
 
     public void onDisable() {
@@ -84,7 +77,7 @@ public class SpaceRTK {
             salt = UUID.randomUUID().toString().replaceAll("-", "").toUpperCase();
             configuration.setProperty("General.Salt", salt);
         }
-        worldContainer = configuration.getString("General.WorldContainer", ".");
+        worldContainer = new File(configuration.getString("General.WorldContainer", "."));
         if (type.equals("Bukkit"))
             port = configuration.getInt("SpaceBukkit.Port", 2011);
         rPort = configuration.getInt("SpaceRTK.Port", 2012);

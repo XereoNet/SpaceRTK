@@ -110,7 +110,8 @@ public class PluginsManager {
 
     public File getPluginFile(String pluginName) {
         pluginName = pluginName.toLowerCase().replace(" ", "");
-        final Configuration configuration = new Configuration(new File("SpaceModule", "jars.yml"));
+        final Configuration configuration = new Configuration(new File("SpaceModule" + File.separator + "SpaceBukkit",
+                "jars.yml"));
         configuration.load();
         final String fileName = configuration.getString(pluginName);
         configuration.save();
