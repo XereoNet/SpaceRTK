@@ -135,7 +135,8 @@ public class ServerActions {
         if (backupDirectory.exists())
             for (final String backupName : backupDirectory.list(DirectoryFileFilter.INSTANCE)) {
                 final LinkedList<String> directories = new LinkedList<String>();
-                for (final String directoryName : new File(backupName).list(DirectoryFileFilter.INSTANCE))
+                for (final String directoryName : new File(backupDirectory.getPath() + File.separator + backupName)
+                        .list(DirectoryFileFilter.INSTANCE))
                     directories.add(directoryName);
                 backups.put(backupName, directories);
             }
@@ -144,7 +145,8 @@ public class ServerActions {
             if (backupDirectory.exists())
                 for (final String backupName : backupDirectory.list(DirectoryFileFilter.INSTANCE)) {
                     final LinkedList<String> directories = new LinkedList<String>();
-                    for (final String directoryName : new File(backupName).list(DirectoryFileFilter.INSTANCE))
+                    for (final String directoryName : new File(backupDirectory.getPath() + File.separator + backupName)
+                            .list(DirectoryFileFilter.INSTANCE))
                         directories.add(directoryName);
                     if (backups.containsKey(backupName)) {
                         final LinkedList<String> directories_ = backups.get(backupName);
