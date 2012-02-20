@@ -21,17 +21,19 @@ import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 
 public class Plugin {
-    public List<String>  authors    = new ArrayList<String>();
-    public List<String>  categories = new ArrayList<String>();
-    public String        link       = "";
-    public String        name       = "";
-    public String        status     = "";
-    public List<Version> versions   = new ArrayList<Version>();
+    public List<String>  authors     = new ArrayList<String>();
+    public List<String>  categories  = new ArrayList<String>();
+    public String        description = "";
+    public String        link        = "";
+    public String        name        = "";
+    public String        status      = "";
+    public List<Version> versions    = new ArrayList<Version>();
 
     public Plugin(final JSONObject plugin) {
         name = (String) plugin.get("name");
         status = (String) plugin.get("status");
         link = (String) plugin.get("bukkitdev_link");
+        description = (String) plugin.get("desc");
         final JSONArray authorsJSONArray = (JSONArray) plugin.get("authors");
         @SuppressWarnings("unchecked")
         final List<Object> authorsListObject = authorsJSONArray.subList(0, authorsJSONArray.size());
