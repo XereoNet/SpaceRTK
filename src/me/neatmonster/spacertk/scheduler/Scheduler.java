@@ -76,6 +76,7 @@ public class Scheduler {
     }
 
     public static void removeJob(final String jobName) {
+        jobs.get(jobName).abort();
         jobs.remove(jobName);
         saveJobs();
     }

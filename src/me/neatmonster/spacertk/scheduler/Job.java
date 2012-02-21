@@ -74,6 +74,10 @@ public class Job extends TimerTask {
         Scheduler.saveJobs();
     }
 
+    public void abort() {
+        timer.cancel();
+    }
+
     @Override
     public void run() {
         if (SpaceRTK.getInstance().actionsManager.contains(actionName))
