@@ -25,6 +25,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import me.hwei.mctool.MapAutoTrim;
+import me.neatmonster.spacemodule.SpaceModule;
 import me.neatmonster.spacemodule.api.Action;
 import me.neatmonster.spacertk.RemoteToolkit;
 import me.neatmonster.spacertk.SpaceRTK;
@@ -156,6 +157,30 @@ public class ServerActions {
                 }
         }
         return backups;
+    }
+
+    @Action(
+            aliases = {"getSpaceModuleVersion", "SpaceModuleVersion", "SpaceModule"})
+    public String getSpaceModuleVersion() {
+        try {
+            SpaceModule.class.getMethod("getVersion");
+            return SpaceModule.getInstance().getVersion();
+        } catch (final Exception e) {
+            System.out.println("This version of SpaceModule doesn't support this feature!");
+            return "<unknown>";
+        }
+    }
+
+    @Action(
+            aliases = {"getVersion", "version"})
+    public String getSpaceRTKVersion() {
+        try {
+            SpaceModule.class.getMethod("getModuleVersion");
+            return SpaceModule.getInstance().getModuleVersion();
+        } catch (final Exception e) {
+            System.out.println("This version of SpaceModule doesn't support this feature!");
+            return "<unknown>";
+        }
     }
 
     @Action(
