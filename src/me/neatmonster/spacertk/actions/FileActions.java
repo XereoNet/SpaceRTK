@@ -106,7 +106,7 @@ public class FileActions {
     }
 
     @Action(
-            aliases = {"getFileContent", "fileContent", "getContent"})
+            aliases = {"getFileContent", "getContent"})
     public String getFileContent(final String file) {
         try {
             return FileUtils.readFileToString(new File(file), "UTF-8");
@@ -176,7 +176,7 @@ public class FileActions {
     }
 
     @Action(
-            aliases = {"setFileContent", "fileContent", "setContent"})
+            aliases = {"setFileContent", "setContent"})
     public boolean setFileContent(final String file, final String content) {
         try {
             FileUtils.write(new File(file), content, "UTF-8");
