@@ -51,12 +51,6 @@
             <name>3rd party</name>
             <url>http://dev.drdanick.com/repo/content/repositories/thirdparty</url>
         </repository>
-        <!-- SnakeYAML's repository -->
-        <repository>
-            <id>snakeyaml</id>
-            <name>SnakeYAML</name>
-            <url>http://oss.sonatype.org/content/groups/public/</url>
-        </repository>
     </repositories>
 
     <!-- Dependencies -->
@@ -72,14 +66,6 @@
             <groupId>com.drdanick.McRKit</groupId>
             <artifactId>McRKitLauncher</artifactId>
             <version>R10A12</version>
-            <scope>provided</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>org.yaml</groupId>
-            <artifactId>snakeyaml</artifactId>
-            <version>1.9</version>
-            <type>jar</type>
             <scope>provided</scope>
         </dependency>
 
