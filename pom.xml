@@ -80,7 +80,7 @@
             <artifactId>snakeyaml</artifactId>
             <version>1.9</version>
             <type>jar</type>
-            <scope>compile</scope>
+            <scope>provided</scope>
         </dependency>
 
         <dependency>
