@@ -1,28 +1,28 @@
 /*
  * This file is part of SpaceRTK (http://spacebukkit.xereo.net/).
- * 
+ *
  * SpaceRTK is free software: you can redistribute it and/or modify it under the terms of the
  * Attribution-NonCommercial-ShareAlike Unported (CC BY-NC-SA) license as published by the Creative
  * Common organization, either version 3.0 of the license, or (at your option) any later version.
- * 
- * SpaceRTK is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without 
- * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the 
+ *
+ * SpaceRTK is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
+ * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * Attribution-NonCommercial-ShareAlike Unported (CC BY-NC-SA) license for more details.
- * 
+ *
  * You should have received a copy of the Attribution-NonCommercial-ShareAlike Unported (CC BY-NC-SA)
  * license along with this program. If not, see <http://creativecommons.org/licenses/by-nc-sa/3.0/>.
  */
-package me.neatmonster.spacertk.actions;
+package net.xereo.spacertk.actions;
 
 import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 
-import me.neatmonster.spacemodule.api.Action;
-import me.neatmonster.spacemodule.api.UnhandledActionException;
-import me.neatmonster.spacertk.scheduler.Job;
-import me.neatmonster.spacertk.scheduler.Scheduler;
-import me.neatmonster.spacertk.scheduler.UnschedulableException;
+import net.xereo.spacemodule.api.Action;
+import net.xereo.spacemodule.api.UnhandledActionException;
+import net.xereo.spacertk.scheduler.Job;
+import net.xereo.spacertk.scheduler.Scheduler;
+import net.xereo.spacertk.scheduler.UnschedulableException;
 
 public class SchedulerActions {
 

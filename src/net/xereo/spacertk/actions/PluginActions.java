@@ -1,31 +1,31 @@
 /*
  * This file is part of SpaceRTK (http://spacebukkit.xereo.net/).
- * 
+ *
  * SpaceRTK is free software: you can redistribute it and/or modify it under the terms of the
  * Attribution-NonCommercial-ShareAlike Unported (CC BY-NC-SA) license as published by the Creative
  * Common organization, either version 3.0 of the license, or (at your option) any later version.
- * 
- * SpaceRTK is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without 
- * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the 
+ *
+ * SpaceRTK is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
+ * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * Attribution-NonCommercial-ShareAlike Unported (CC BY-NC-SA) license for more details.
- * 
+ *
  * You should have received a copy of the Attribution-NonCommercial-ShareAlike Unported (CC BY-NC-SA)
  * license along with this program. If not, see <http://creativecommons.org/licenses/by-nc-sa/3.0/>.
  */
-package me.neatmonster.spacertk.actions;
+package net.xereo.spacertk.actions;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.LinkedHashMap;
 
-import me.neatmonster.spacemodule.api.Action;
-import me.neatmonster.spacertk.RemoteToolkit;
-import me.neatmonster.spacertk.SpaceRTK;
-import me.neatmonster.spacertk.plugins.PluginsManager;
-import me.neatmonster.spacertk.plugins.templates.Plugin;
-import me.neatmonster.spacertk.plugins.templates.Version;
-import me.neatmonster.spacertk.utilities.Utilities;
-import me.neatmonster.spacertk.utilities.ZIP;
+import net.xereo.spacemodule.api.Action;
+import net.xereo.spacertk.RemoteToolkit;
+import net.xereo.spacertk.SpaceRTK;
+import net.xereo.spacertk.plugins.PluginsManager;
+import net.xereo.spacertk.plugins.templates.Plugin;
+import net.xereo.spacertk.plugins.templates.Version;
+import net.xereo.spacertk.utilities.Utilities;
+import net.xereo.spacertk.utilities.ZIP;
 
 import org.apache.commons.io.FileUtils;
 

@@ -1,32 +1,32 @@
 /*
  * This file is part of SpaceRTK (http://spacebukkit.xereo.net/).
- * 
+ *
  * SpaceRTK is free software: you can redistribute it and/or modify it under the terms of the
  * Attribution-NonCommercial-ShareAlike Unported (CC BY-NC-SA) license as published by the Creative
  * Common organization, either version 3.0 of the license, or (at your option) any later version.
- * 
- * SpaceRTK is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without 
- * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the 
+ *
+ * SpaceRTK is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
+ * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * Attribution-NonCommercial-ShareAlike Unported (CC BY-NC-SA) license for more details.
- * 
+ *
  * You should have received a copy of the Attribution-NonCommercial-ShareAlike Unported (CC BY-NC-SA)
  * license along with this program. If not, see <http://creativecommons.org/licenses/by-nc-sa/3.0/>.
  */
-package me.neatmonster.spacertk;
+package net.xereo.spacertk;
 
 import java.io.File;
 import java.util.UUID;
 import java.util.logging.Handler;
 import java.util.logging.Logger;
 
-import me.neatmonster.spacemodule.api.ActionsManager;
-import me.neatmonster.spacertk.actions.FileActions;
-import me.neatmonster.spacertk.actions.PluginActions;
-import me.neatmonster.spacertk.actions.SchedulerActions;
-import me.neatmonster.spacertk.actions.ServerActions;
-import me.neatmonster.spacertk.plugins.PluginsManager;
-import me.neatmonster.spacertk.scheduler.Scheduler;
-import me.neatmonster.spacertk.utilities.Format;
+import net.xereo.spacemodule.api.ActionsManager;
+import net.xereo.spacertk.actions.FileActions;
+import net.xereo.spacertk.actions.PluginActions;
+import net.xereo.spacertk.actions.SchedulerActions;
+import net.xereo.spacertk.actions.ServerActions;
+import net.xereo.spacertk.plugins.PluginsManager;
+import net.xereo.spacertk.scheduler.Scheduler;
+import net.xereo.spacertk.utilities.Format;
 
 import org.bukkit.util.config.Configuration;
 
