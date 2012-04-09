@@ -32,6 +32,7 @@ import net.xereo.spacertk.SpaceRTK;
 import net.xereo.spacertk.utilities.Utilities;
 import net.xereo.spacertk.utilities.WorldFileFilter;
 
+import net.xereo.spacertk.utilities.ZIP;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.filefilter.DirectoryFileFilter;
 import org.json.simple.JSONArray;
@@ -40,52 +41,36 @@ import org.json.simple.JSONValue;
 import chunkster.Chunkster;
 
 public class ServerActions {
-
     @Action(
             aliases = {"backup", "backupDirectory", "backupDir"})
     public boolean backup(final String directory) {
         boolean result = true;
         final DateFormat dateFormat = new SimpleDateFormat("MM_dd_yyyy_HH_mm");
         final Date date = new Date();
+        File backupDir = new File("backups");
+        if(!backupDir.exists())
+            backupDir.mkdirs();
         if (directory.equals("*")) {
-            List<String> directoriesNames_ = Arrays.asList(new File(".").list(DirectoryFileFilter.INSTANCE));
-            for (final String directoryName : directoriesNames_) {
-                final File oldDirectory = new File(directoryName);
-                final File newDirectory = new File("backups" + File.separator + dateFormat.format(date)
-                        + File.separator + directoryName);
-                newDirectory.mkdir();
-                try {
-                    FileUtils.copyDirectory(oldDirectory, newDirectory);
-                } catch (final IOException e) {
-                    e.printStackTrace();
-                    result = false;
+            final File oldDirectory = new File(System.getProperty("user.dir"));
+            final File zipFile = new File(SpaceRTK.getInstance().worldContainer.getPath() + File.separator + "backups"
+                    + File.separator + "full_" + dateFormat.format(date)+ ".zip");
+            try {
+                if (!SpaceRTK.getInstance().worldContainer.equals(".")) {
+                    ZIP.zip(zipFile, true, oldDirectory, SpaceRTK.getInstance().worldContainer);
+                } else {
+                    ZIP.zip(zipFile, true, oldDirectory);
                 }
-            }
-            if (!SpaceRTK.getInstance().worldContainer.equals(".")) {
-                directoriesNames_ = Arrays.asList(SpaceRTK.getInstance().worldContainer
-                        .list(DirectoryFileFilter.INSTANCE));
-                for (final String directoryName : directoriesNames_) {
-                    final File oldDirectory = new File(SpaceRTK.getInstance().worldContainer.getPath() + File.separator
-                            + directoryName);
-                    final File newDirectory = new File(SpaceRTK.getInstance().worldContainer.getPath() + File.separator
-                            + "backups" + File.separator + dateFormat.format(date) + File.separator + directoryName);
-                    newDirectory.mkdir();
-                    try {
-                        FileUtils.copyDirectory(oldDirectory, newDirectory);
-                    } catch (final IOException e) {
-                        e.printStackTrace();
-                        result = false;
-                    }
-                }
+            } catch (final IOException e) {
+                e.printStackTrace();
+                result = false;
             }
         } else {
             final File oldDirectory = new File(SpaceRTK.getInstance().worldContainer.getPath() + File.separator
                     + directory);
-            final File newDirectory = new File(SpaceRTK.getInstance().worldContainer.getPath() + File.separator
-                    + "backups" + File.separator + dateFormat.format(date) + File.separator + directory);
-            newDirectory.mkdir();
+            final File zipFile = new File(SpaceRTK.getInstance().worldContainer.getPath() + File.separator + "backups"
+                    + File.separator + directory + "_" + dateFormat.format(date)+".zip");
             try {
-                FileUtils.copyDirectory(oldDirectory, newDirectory);
+                ZIP.zip(zipFile, false, oldDirectory);
             } catch (final IOException e) {
                 e.printStackTrace();
                 result = false;
