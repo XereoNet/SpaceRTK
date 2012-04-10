@@ -151,6 +151,7 @@ public class BackupManager {
         String currentFile;
         String status = "Initializing";
         String error;
+        String backupFolderName = "backups";
         boolean running = true;
 
         BackupThread(File[] folders, File outputFile, boolean ignoreImmediateFiles) {
@@ -180,13 +181,13 @@ public class BackupManager {
                 for(File folder : folders) { //Perform the backup
                     File[] files = folder.listFiles();
                     if(!ignoreImmediateFiles) {
-                        if(!(folder.getName() == 'backups')) {
+                        if(folder.getName() != backupFolderName) {
                             addDirectoryToZipStream(folder.getName(), folder, zip);
                         }
                     } else {
                         for(File f : files) {
-                            if(!(f.getName() == 'backups')) {
-                                if(f.isDirectory()) addDirectoryToZipStream(f.getName(), f, zip);
+                            if(f.getName() != backupFolderName) {
+                               if(f.isDirectory()) addDirectoryToZipStream(f.getName(), f, zip); 
                             }
                         }
                     }
