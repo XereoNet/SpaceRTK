@@ -180,10 +180,14 @@ public class BackupManager {
                 for(File folder : folders) { //Perform the backup
                     File[] files = folder.listFiles();
                     if(!ignoreImmediateFiles) {
-                        addDirectoryToZipStream(folder.getName(), folder, zip);
+                        if(!(folder.getName() == 'backups')) {
+                            addDirectoryToZipStream(folder.getName(), folder, zip);
+                        }
                     } else {
                         for(File f : files) {
-                            if(f.isDirectory()) addDirectoryToZipStream(f.getName(), f, zip);
+                            if(!(f.getName() == 'backups')) {
+                                if(f.isDirectory()) addDirectoryToZipStream(f.getName(), f, zip);
+                            }
                         }
                     }
                 }
