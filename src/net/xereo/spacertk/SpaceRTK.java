@@ -26,6 +26,7 @@ import net.xereo.spacertk.actions.SchedulerActions;
 import net.xereo.spacertk.actions.ServerActions;
 import net.xereo.spacertk.plugins.PluginsManager;
 import net.xereo.spacertk.scheduler.Scheduler;
+import net.xereo.spacertk.utilities.BackupManager;
 import net.xereo.spacertk.utilities.Format;
 
 import org.bukkit.util.config.Configuration;
@@ -48,11 +49,14 @@ public class SpaceRTK {
     public String         salt;
     public File           worldContainer;
 
+    private BackupManager backupManager;
+
     public SpaceRTK() {
         try {
             final Logger rootlog = Logger.getLogger("");
             for (final Handler h : rootlog.getHandlers())
                 h.setFormatter(new Format());
+            backupManager = new BackupManager();
         } catch (final Exception e) {
             e.printStackTrace();
         }
@@ -90,5 +94,9 @@ public class SpaceRTK {
         actionsManager.register(ServerActions.class);
         panelListener = new PanelListener();
         Scheduler.loadJobs();
+    }
+
+    public BackupManager getBackupManager() {
+        return backupManager;
     }
 }

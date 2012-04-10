@@ -29,6 +29,7 @@ import net.xereo.spacemodule.SpaceModule;
 import net.xereo.spacemodule.api.Action;
 import net.xereo.spacertk.RemoteToolkit;
 import net.xereo.spacertk.SpaceRTK;
+import net.xereo.spacertk.utilities.BackupManager;
 import net.xereo.spacertk.utilities.Utilities;
 import net.xereo.spacertk.utilities.WorldFileFilter;
 
@@ -41,42 +42,85 @@ import org.json.simple.JSONValue;
 import chunkster.Chunkster;
 
 public class ServerActions {
+
     @Action(
             aliases = {"backup", "backupDirectory", "backupDir"})
     public boolean backup(final String directory) {
-        boolean result = true;
-        final DateFormat dateFormat = new SimpleDateFormat("MM_dd_yyyy_HH_mm");
-        final Date date = new Date();
-        File backupDir = new File("backups");
+        BackupManager bManager = SpaceRTK.getInstance().getBackupManager();
+        if(bManager.isBackupRunning())
+            return false;
+
+        DateFormat dateFormat = new SimpleDateFormat("MM_dd_yyyy_HH_mm");
+        Date date = new Date();
+        File backupDir = new File(SpaceRTK.getInstance().worldContainer.getPath() + File.separator + "backups");
         if(!backupDir.exists())
             backupDir.mkdirs();
-        if (directory.equals("*")) {
-            final File oldDirectory = new File(System.getProperty("user.dir"));
-            final File zipFile = new File(SpaceRTK.getInstance().worldContainer.getPath() + File.separator + "backups"
-                    + File.separator + "full_" + dateFormat.format(date)+ ".zip");
-            try {
-                if (!SpaceRTK.getInstance().worldContainer.equals(".")) {
-                    ZIP.zip(zipFile, true, oldDirectory, SpaceRTK.getInstance().worldContainer);
-                } else {
-                    ZIP.zip(zipFile, true, oldDirectory);
-                }
-            } catch (final IOException e) {
-                e.printStackTrace();
-                result = false;
+
+        if(directory.equals("*")) {
+            File oldDirectory = new File(System.getProperty("user.dir"));
+            File zipFile = new File(backupDir + File.separator + "full_" + dateFormat.format(date)+ ".zip");
+
+            if (!SpaceRTK.getInstance().worldContainer.equals(".")) {
+                return bManager.performBackup(true, zipFile, oldDirectory, SpaceRTK.getInstance().worldContainer);
+            } else {
+                return bManager.performBackup(true, zipFile, oldDirectory);
             }
+
         } else {
-            final File oldDirectory = new File(SpaceRTK.getInstance().worldContainer.getPath() + File.separator
-                    + directory);
-            final File zipFile = new File(SpaceRTK.getInstance().worldContainer.getPath() + File.separator + "backups"
-                    + File.separator + directory + "_" + dateFormat.format(date)+".zip");
-            try {
-                ZIP.zip(zipFile, false, oldDirectory);
-            } catch (final IOException e) {
-                e.printStackTrace();
-                result = false;
-            }
+            File oldDirectory = new File(SpaceRTK.getInstance().worldContainer.getPath() + File.separator + directory);
+            File zipFile = new File(backupDir + File.separator + directory + "_" + dateFormat.format(date)+ ".zip");
+
+            return bManager.performBackup(true, zipFile, oldDirectory);
         }
-        return result;
+
+    }
+
+    @Action(
+            aliases = {"backupStatus", "getBackupStatus"})
+    public String getBackupStatus() {
+        return SpaceRTK.getInstance().getBackupManager().getBackupStatus();
+    }
+
+    @Action(
+            aliases = {"backupSize", "getBackupSize"})
+    public long getBackupSize() {
+        return SpaceRTK.getInstance().getBackupManager().getBackupSize();
+    }
+
+    @Action(
+            aliases = {"dataBackedUp", "getDataBackedUp", "bytesBackedUp", "getBytesBackedUp"})
+    public long getDataBackedUp() {
+        return SpaceRTK.getInstance().getBackupManager().getDataBackedUp();
+    }
+
+    @Action(
+            aliases = {"currentBackupFile", "getCurrentBackupFile"})
+    public String getCurrentBackupFile() {
+        return SpaceRTK.getInstance().getBackupManager().getCurrentFile();
+    }
+
+    @Action(
+            aliases = {"currentBackupFolder", "getCurrentBackupFolder"})
+    public String getCurrentBackupFolder() {
+        return SpaceRTK.getInstance().getBackupManager().getCurrentFolder();
+    }
+
+    @Action(
+            aliases = {"currentBackupProgress", "getCurrentBackupProgress"})
+    public String getBackupProgress() {
+        return SpaceRTK.getInstance().getBackupManager().getBackupProgress();
+    }
+
+    @Action(
+            aliases = {"lastBackupError", "getLastBackupError"})
+    public String getLastBackupError() {
+        return SpaceRTK.getInstance().getBackupManager().getLastError();
+    }
+
+    @Action(
+            aliases = {"isBackupRunning", "backupRunning"})
+    public boolean isBackupRunning() {
+        return SpaceRTK.getInstance().getBackupManager().isBackupRunning();
     }
 
     @Action(

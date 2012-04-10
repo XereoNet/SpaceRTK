@@ -103,7 +103,7 @@ public class PanelListener extends Thread {
                             if (wasRunning)
                                 RemoteToolkit.hold();
                             final File file = new File(string.split("\"")[1] + ".zip");
-                            ZIP.zip(file, false, new File(string.split("\"")[1]));
+                            ZIP.zip(file, new File(string.split("\"")[1]));
                             if (file.exists()) {
                                 final FileInputStream fileInputStream = new FileInputStream(file);
                                 final byte[] fileData = new byte[65536];

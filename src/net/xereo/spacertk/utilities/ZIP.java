@@ -14,8 +14,6 @@
  */
 package net.xereo.spacertk.utilities;
 
-import org.apache.commons.io.filefilter.DirectoryFileFilter;
-
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.File;
@@ -24,8 +22,6 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.util.Arrays;
-import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
@@ -137,34 +133,22 @@ public class ZIP {
      *
      * @param archive
      *            the archive
-     * @param folders
-     *            the folders
-     * @param onlyDirs false if files under the given folder should be ignored
+     * @param folder
+     *            the folder
      */
-    public static void zip(final File archive, boolean onlyDirs, final File... folders) throws IOException {
-        ZipOutputStream zip = null;
+    public static void zip(final File archive, final File folder) {
+        if (archive.exists())
+            archive.delete();
         try {
-            if (archive.exists())
-                archive.delete();
+            ZipOutputStream zip = null;
             FileOutputStream fileWriter = null;
             fileWriter = new FileOutputStream(archive);
             zip = new ZipOutputStream(fileWriter);
-            for(File f : folders) {
-                if(!onlyDirs) {
-                    addFolderToZip("", f.getPath(), zip);
-                } else {
-                    List<String> directoryNames = Arrays.asList(new File(".").list(DirectoryFileFilter.INSTANCE));
-                    for(String d : directoryNames) {
-                        addFolderToZip("", f.getPath() + File.separator + d, zip);
-                    }
-                }
-            }
-        }catch(IOException e) {
-            zip.close();
-            throw e;
-        }finally{
+            addFolderToZip("", folder.getPath(), zip);
             zip.flush();
             zip.close();
+        } catch (final Exception e) {
+            e.printStackTrace();
         }
     }
 }
