@@ -61,16 +61,16 @@ public class ServerActions {
             File zipFile = new File(backupDir + File.separator + "full_" + dateFormat.format(date)+ ".zip");
 
             if (!SpaceRTK.getInstance().worldContainer.equals(".")) {
-                return bManager.performBackup(true, zipFile, oldDirectory, SpaceRTK.getInstance().worldContainer);
+                return bManager.performBackup(false, zipFile, oldDirectory, SpaceRTK.getInstance().worldContainer);
             } else {
-                return bManager.performBackup(true, zipFile, oldDirectory);
+                return bManager.performBackup(false, zipFile, oldDirectory);
             }
 
         } else {
             File oldDirectory = new File(SpaceRTK.getInstance().worldContainer.getPath() + File.separator + directory);
             File zipFile = new File(backupDir + File.separator + directory + "_" + dateFormat.format(date)+ ".zip");
 
-            return bManager.performBackup(true, zipFile, oldDirectory);
+            return bManager.performBackup(false, zipFile, oldDirectory);
         }
 
     }
