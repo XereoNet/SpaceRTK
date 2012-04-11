@@ -48,6 +48,7 @@ public class SpaceRTK {
     public int            rPort;
     public String         salt;
     public File           worldContainer;
+    public String         backupDirName;
 
     private BackupManager backupManager;
 
@@ -85,6 +86,7 @@ public class SpaceRTK {
         if (type.equals("Bukkit"))
             port = configuration.getInt("SpaceBukkit.Port", 2011);
         rPort = configuration.getInt("SpaceRTK.Port", 2012);
+        backupDirName = configuration.getString("General.BackupDirectory", "Backups");
         configuration.save();
         pluginsManager = new PluginsManager();
         actionsManager = new ActionsManager();
