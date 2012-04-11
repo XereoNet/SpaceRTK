@@ -51,6 +51,7 @@ public class SpaceRTK {
     public String         backupDirName;
 
     private BackupManager backupManager;
+    
 
     public SpaceRTK() {
         try {

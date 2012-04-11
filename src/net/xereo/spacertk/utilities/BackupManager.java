@@ -22,6 +22,8 @@ import java.io.InputStream;
 import java.math.RoundingMode;
 import java.net.URL;
 import java.text.DecimalFormat;
+import java.util.Arrays;
+import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
@@ -35,7 +37,6 @@ public class BackupManager {
     private BackupThread bThread;
     private DecimalFormat formatter;
 
-
     public BackupManager() {
         formatter = new DecimalFormat("##0.00");
         formatter.setRoundingMode(RoundingMode.HALF_EVEN);
@@ -43,14 +44,18 @@ public class BackupManager {
 
     /**
      * Attempt to perform a backup.
-     * @param folders The folders to backup.
+     *
+     * @param ignoreImmediateFiles True if regular files in the backup directory
+     * root should be ignored, false otherwise.
      * @param outputFile The file to save the backup to.
-     * @param ignoreImmediateFiles True if regular files in the backup directory root should be ignored, false otherwise.
+     * @param ignoredFolders Folders to ignore in the root of folders being
+     * backed up.
+     * @param folders The folders to backup.
      * @return true if the backup was started, false otherwise.
      */
-    public synchronized boolean performBackup(boolean ignoreImmediateFiles, File outputFile, File... folders) {
-        if(bThread == null || !bThread.running) {
-            bThread = new BackupThread(folders, outputFile, ignoreImmediateFiles);
+    public synchronized boolean performBackup(boolean ignoreImmediateFiles, File outputFile, String[] ignoredFolders, File... folders) {
+        if (bThread == null || !bThread.running) {
+            bThread = new BackupThread(folders, ignoredFolders, outputFile, ignoreImmediateFiles);
             bThread.start();
             return true;
         }
@@ -59,90 +64,108 @@ public class BackupManager {
 
     /**
      * Get the size of the current, or last backup in bytes.
+     *
      * @return the size of the last or current backup in bytes.
      */
     public long getBackupSize() {
-        if(bThread == null)
+        if (bThread == null) {
             return 0l;
+        }
         return bThread.backupSize;
     }
 
     /**
      * Get the total number of bytes that have been backed up.
+     *
      * @return the total number of bytes that have been backed up.
      */
     public long getDataBackedUp() {
-        if(bThread == null)
+        if (bThread == null) {
             return 0l;
+        }
         return bThread.dataBackedUp;
     }
 
     /**
      * Get the current folder being backed up.
+     *
      * @return the folder currently being backed up.
      */
     public String getCurrentFolder() {
-        if(bThread == null)
+        if (bThread == null) {
             return null;
+        }
 
         return bThread.currentFolder;
     }
 
     /**
      * Get the current file being backed up.
+     *
      * @return the file currently being backed up.
      */
     public String getCurrentFile() {
-        if(bThread == null)
+        if (bThread == null) {
             return null;
+        }
 
         return bThread.currentFile;
     }
 
     /**
      * Get the backup progress, from 0 to 100 percent.
+     *
      * @return The total backup progress.
      */
     public String getBackupProgress() {
-        if(bThread == null || bThread.backupSize == 0)
+        if (bThread == null || bThread.backupSize == 0) {
             return "0.00";
-        float progress = (float)bThread.dataBackedUp / (float)bThread.backupSize;
+        }
+        float progress = (float) bThread.dataBackedUp / (float) bThread.backupSize;
 
         return formatter.format(progress * 100f);
     }
 
     /**
      * Get the status of the last or current backup.
+     *
      * @return the status of the last or current backup.
      */
     public String getBackupStatus() {
-        if(bThread == null)
+        if (bThread == null) {
             return null;
+        }
         return bThread.status;
     }
 
     /**
      * Get the last error reported by the current or last backup.
+     *
      * @return the last error reported by the current or last backup.
      */
     public String getLastError() {
-        if(bThread == null)
+        if (bThread == null) {
             return null;
+        }
         return bThread.error;
     }
 
     /**
      * Check if a backup is in progress.
+     *
      * @return true if a backup is in progress, false otherwise.
      */
     public boolean isBackupRunning() {
-        if(bThread == null)
+        if (bThread == null) {
             return false;
+        }
         return bThread.running;
     }
 
     private class BackupThread extends Thread {
+
         private File[] folders;
+        private List<String> ignoredFolders;
         private File outputFile;
         private boolean ignoreImmediateFiles;
         long backupSize = 0l;
@@ -154,8 +177,9 @@ public class BackupManager {
         String backupFolderName = "backups";
         boolean running = true;
 
-        BackupThread(File[] folders, File outputFile, boolean ignoreImmediateFiles) {
+        BackupThread(File[] folders, String[] ignoredFolders, File outputFile, boolean ignoreImmediateFiles) {
             this.folders = folders;
+            this.ignoredFolders = Arrays.asList(ignoredFolders);
             this.outputFile = outputFile;
             this.ignoreImmediateFiles = ignoreImmediateFiles;
         }
@@ -165,29 +189,30 @@ public class BackupManager {
             ZipOutputStream zip = null;
             backupSize = 0l;
             try {
-                for(File folder : folders) {
+                for (File folder : folders) {
                     File[] files = folder.listFiles();
-                    if(!ignoreImmediateFiles) {
+                    if (!ignoreImmediateFiles) {
                         backupSize += calculateBackupSize(folder);
                     } else {
-                        for(File f : files) {
-                            if(f.isDirectory())
+                        for (File f : files) {
+                            if (f.isDirectory()) {
                                 backupSize += calculateBackupSize(f);
+                            }
                         }
                     }
                 }
 
                 zip = new ZipOutputStream(new FileOutputStream(outputFile));
-                for(File folder : folders) { //Perform the backup
+                for (File folder : folders) { //Perform the backup
                     File[] files = folder.listFiles();
-                    if(!ignoreImmediateFiles) {
-                        if(folder.getName() != backupFolderName) {
-                            addDirectoryToZipStream(folder.getName(), folder, zip);
-                        }
+                    if (!ignoreImmediateFiles) {
+                        addDirectoryToZipStream(folder.getName(), folder, ignoredFolders, zip);
                     } else {
-                        for(File f : files) {
-                            if(f.getName() != backupFolderName) {
-                               if(f.isDirectory()) addDirectoryToZipStream(f.getName(), f, zip); 
+                        for (File f : files) {
+                            if (f.isDirectory()) {
+                                if (ignoredFolders != null && ignoredFolders.contains(f.getAbsolutePath()))
+                                    continue; //Do not back up the folder if it is in the ignore list
+                                addDirectoryToZipStream(f.getName(), f, null, zip);
                             }
                         }
                     }
@@ -196,14 +221,17 @@ public class BackupManager {
                 status = "Done";
             } catch (IOException e) {
                 e.printStackTrace();
-                for(StackTraceElement el : e.getStackTrace())
+                for (StackTraceElement el : e.getStackTrace()) {
                     error += el + "\n";
+                }
 
                 status = "Error";
                 return;
             } finally {
                 try {
-                    if(zip != null) zip.close();
+                    if (zip != null) {
+                        zip.close();
+                    }
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
@@ -211,15 +239,19 @@ public class BackupManager {
             }
         }
 
-        private void addDirectoryToZipStream(String entryPath, File dir, ZipOutputStream zip) throws IOException {
+        private void addDirectoryToZipStream(String entryPath, File dir, List<String> ignoredFolders, ZipOutputStream zip) throws IOException {
             File[] files = dir.listFiles();
-            status = "Backing up " +entryPath + File.separator + dir.getName();
+            status = "Backing up " + entryPath + File.separator + dir.getName();
             currentFolder = entryPath + File.separator + dir.getName();
-            for(File f : files) {
-                if(f.isDirectory())
-                    addDirectoryToZipStream(entryPath + File.separator + f.getName(), f, zip);
-                else
+            for (File f : files) {
+                if (f.isDirectory()) {
+                    if (ignoredFolders != null && ignoredFolders.contains(f.getAbsolutePath())) {
+                        continue; //Do not back up the folder if it is in the ignore list
+                    }
+                    addDirectoryToZipStream(entryPath + File.separator + f.getName(), f, null, zip);
+                } else {
                     addFileToZipStream(entryPath, f, zip);
+                }
             }
         }
 
@@ -231,8 +263,9 @@ public class BackupManager {
             try {
                 in = new FileInputStream(file);
                 zip.putNextEntry(new ZipEntry(entryPath + File.separator + file.getName()));
-                while ((len = in.read(buf)) > 0)
+                while ((len = in.read(buf)) > 0) {
                     zip.write(buf, 0, len);
+                }
             } catch (IOException e) {
                 throw e;
             } finally {
@@ -247,11 +280,12 @@ public class BackupManager {
         private long calculateBackupSize(File folder) throws IOException {
             long size = 0l;
             File[] files = folder.listFiles();
-            for(File f : files) {
-                if(f.isDirectory())
+            for (File f : files) {
+                if (f.isDirectory()) {
                     size += calculateBackupSize(f);
-                else
+                } else {
                     size += getFileSize(f);
+                }
             }
 
             return size;
@@ -268,6 +302,5 @@ public class BackupManager {
                 stream.close();
             }
         }
-
     }
 }

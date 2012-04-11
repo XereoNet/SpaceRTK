@@ -52,7 +52,7 @@ public class ServerActions {
 
         DateFormat dateFormat = new SimpleDateFormat("MM_dd_yyyy_HH_mm");
         Date date = new Date();
-        File backupDir = new File(SpaceRTK.getInstance().worldContainer.getPath() + File.separator + "backups");
+        File backupDir = new File(SpaceRTK.getInstance().worldContainer.getPath() + File.separator + SpaceRTK.getInstance().backupDirName);
         if(!backupDir.exists())
             backupDir.mkdirs();
 
@@ -60,17 +60,17 @@ public class ServerActions {
             File oldDirectory = new File(System.getProperty("user.dir"));
             File zipFile = new File(backupDir + File.separator + "full_" + dateFormat.format(date)+ ".zip");
 
-            if (!SpaceRTK.getInstance().worldContainer.equals(".")) {
-                return bManager.performBackup(false, zipFile, oldDirectory, SpaceRTK.getInstance().worldContainer);
+            if (!SpaceRTK.getInstance().worldContainer.equals(new File("."))) {
+                return bManager.performBackup(false, zipFile, new String[]{backupDir.getAbsolutePath()}, oldDirectory,SpaceRTK.getInstance().worldContainer);
             } else {
-                return bManager.performBackup(false, zipFile, oldDirectory);
+                return bManager.performBackup(false, zipFile, new String[]{backupDir.getAbsolutePath()}, oldDirectory);
             }
 
         } else {
             File oldDirectory = new File(SpaceRTK.getInstance().worldContainer.getPath() + File.separator + directory);
             File zipFile = new File(backupDir + File.separator + directory + "_" + dateFormat.format(date)+ ".zip");
 
-            return bManager.performBackup(false, zipFile, oldDirectory);
+            return bManager.performBackup(false, zipFile, new String[]{backupDir.getAbsolutePath()}, oldDirectory);
         }
 
     }
