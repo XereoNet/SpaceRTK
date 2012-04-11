@@ -47,19 +47,53 @@ public class BackupManager {
      *
      * @param ignoreImmediateFiles True if regular files in the backup directory
      * root should be ignored, false otherwise.
+     * @param backupName the name of the backup.
      * @param outputFile The file to save the backup to.
-     * @param ignoredFolders Folders to ignore in the root of folders being
+     * @param ignoredFolders Folders to ignore in the root of the folder(s) being
      * backed up.
      * @param folders The folders to backup.
      * @return true if the backup was started, false otherwise.
      */
-    public synchronized boolean performBackup(boolean ignoreImmediateFiles, File outputFile, String[] ignoredFolders, File... folders) {
+    public synchronized boolean performBackup(boolean ignoreImmediateFiles, String backupName, File outputFile, String[] ignoredFolders, File... folders) {
         if (bThread == null || !bThread.running) {
-            bThread = new BackupThread(folders, ignoredFolders, outputFile, ignoreImmediateFiles);
+            bThread = new BackupThread(folders, ignoredFolders, outputFile, backupName, ignoreImmediateFiles);
             bThread.start();
             return true;
         }
         return false;
+    }
+
+    /**
+     * Get the name of the current or previous backup.
+     * @return the name of the current or previous backup.
+     */
+    public String getBackupName() {
+        if(bThread == null)
+            return null;
+
+        return bThread.backupName;
+    }
+
+    /**
+     * Get the name of the file the last backup was saved to.
+     * @return the name of the file the last backup was saved to.
+     */
+    public String getBackupFileName() {
+        if(bThread == null)
+            return null;
+
+        return bThread.outputFile.getName();
+    }
+
+    /**
+     * Get the time (in milliseconds) the last backup was started.
+     * @return The time (in milliseconds) the last backup was started.
+     */
+    public long getStartTime() {
+        if(bThread == null)
+            return 0l;
+
+        return bThread.startTime;
     }
 
     /**
@@ -68,9 +102,9 @@ public class BackupManager {
      * @return the size of the last or current backup in bytes.
      */
     public long getBackupSize() {
-        if (bThread == null) {
+        if (bThread == null)
             return 0l;
-        }
+
         return bThread.backupSize;
     }
 
@@ -80,9 +114,9 @@ public class BackupManager {
      * @return the total number of bytes that have been backed up.
      */
     public long getDataBackedUp() {
-        if (bThread == null) {
+        if (bThread == null)
             return 0l;
-        }
+
         return bThread.dataBackedUp;
     }
 
@@ -92,9 +126,8 @@ public class BackupManager {
      * @return the folder currently being backed up.
      */
     public String getCurrentFolder() {
-        if (bThread == null) {
+        if (bThread == null)
             return null;
-        }
 
         return bThread.currentFolder;
     }
@@ -118,9 +151,9 @@ public class BackupManager {
      * @return The total backup progress.
      */
     public String getBackupProgress() {
-        if (bThread == null || bThread.backupSize == 0) {
+        if (bThread == null || bThread.backupSize == 0)
             return "0.00";
-        }
+
         float progress = (float) bThread.dataBackedUp / (float) bThread.backupSize;
 
         return formatter.format(progress * 100f);
@@ -132,9 +165,9 @@ public class BackupManager {
      * @return the status of the last or current backup.
      */
     public String getBackupStatus() {
-        if (bThread == null) {
+        if (bThread == null)
             return null;
-        }
+
         return bThread.status;
     }
 
@@ -144,9 +177,9 @@ public class BackupManager {
      * @return the last error reported by the current or last backup.
      */
     public String getLastError() {
-        if (bThread == null) {
+        if (bThread == null)
             return null;
-        }
+
         return bThread.error;
     }
 
@@ -156,9 +189,9 @@ public class BackupManager {
      * @return true if a backup is in progress, false otherwise.
      */
     public boolean isBackupRunning() {
-        if (bThread == null) {
+        if (bThread == null)
             return false;
-        }
+
         return bThread.running;
     }
 
@@ -166,26 +199,29 @@ public class BackupManager {
 
         private File[] folders;
         private List<String> ignoredFolders;
-        private File outputFile;
         private boolean ignoreImmediateFiles;
+        File outputFile;
+        long startTime;
         long backupSize = 0l;
         long dataBackedUp = 0l;
+        String backupName;
         String currentFolder;
         String currentFile;
         String status = "Initializing";
         String error;
-        String backupFolderName = "backups";
         boolean running = true;
 
-        BackupThread(File[] folders, String[] ignoredFolders, File outputFile, boolean ignoreImmediateFiles) {
+        BackupThread(File[] folders, String[] ignoredFolders, File outputFile, String backupName, boolean ignoreImmediateFiles) {
             this.folders = folders;
             this.ignoredFolders = Arrays.asList(ignoredFolders);
             this.outputFile = outputFile;
+            this.backupName = backupName;
             this.ignoreImmediateFiles = ignoreImmediateFiles;
         }
 
         public void run() {
             status = "Calculating backup size";
+            startTime = System.currentTimeMillis();
             ZipOutputStream zip = null;
             backupSize = 0l;
             try {
@@ -210,7 +246,7 @@ public class BackupManager {
                     } else {
                         for (File f : files) {
                             if (f.isDirectory()) {
-                                if (ignoredFolders != null && ignoredFolders.contains(f.getAbsolutePath()))
+                                if (ignoredFolders != null && ignoredFolders.contains(f.getCanonicalPath()))
                                     continue; //Do not back up the folder if it is in the ignore list
                                 addDirectoryToZipStream(f.getName(), f, null, zip);
                             }
@@ -245,7 +281,7 @@ public class BackupManager {
             currentFolder = entryPath + File.separator + dir.getName();
             for (File f : files) {
                 if (f.isDirectory()) {
-                    if (ignoredFolders != null && ignoredFolders.contains(f.getAbsolutePath())) {
+                    if (ignoredFolders != null && ignoredFolders.contains(f.getCanonicalPath())) {
                         continue; //Do not back up the folder if it is in the ignore list
                     }
                     addDirectoryToZipStream(entryPath + File.separator + f.getName(), f, null, zip);

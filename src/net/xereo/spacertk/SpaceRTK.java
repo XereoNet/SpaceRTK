@@ -51,7 +51,8 @@ public class SpaceRTK {
     public String         backupDirName;
 
     private BackupManager backupManager;
-    
+
+    public static final File baseDir = new File(System.getProperty("user.dir"));
 
     public SpaceRTK() {
         try {

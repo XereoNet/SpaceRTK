@@ -18,6 +18,7 @@ import java.io.File;
 import java.io.IOException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.LinkedHashMap;
@@ -45,7 +46,7 @@ public class ServerActions {
 
     @Action(
             aliases = {"backup", "backupDirectory", "backupDir"})
-    public boolean backup(final String directory) {
+    public boolean backup(String name, String directory) {
         BackupManager bManager = SpaceRTK.getInstance().getBackupManager();
         if(bManager.isBackupRunning())
             return false;
@@ -53,62 +54,55 @@ public class ServerActions {
         DateFormat dateFormat = new SimpleDateFormat("MM_dd_yyyy_HH_mm");
         Date date = new Date();
         File backupDir = new File(SpaceRTK.getInstance().worldContainer.getPath() + File.separator + SpaceRTK.getInstance().backupDirName);
+
         if(!backupDir.exists())
             backupDir.mkdirs();
+        try {
+            if(directory.equals("*")) {
+                File oldDirectory = new File(System.getProperty("user.dir"));
+                File zipFile = new File(backupDir + File.separator + name + "_" + dateFormat.format(date)+ ".zip");
 
-        if(directory.equals("*")) {
-            File oldDirectory = new File(System.getProperty("user.dir"));
-            File zipFile = new File(backupDir + File.separator + "full_" + dateFormat.format(date)+ ".zip");
+                if (!SpaceRTK.getInstance().worldContainer.equals(new File("."))) {
+                    return bManager.performBackup(false, name, zipFile, new String[]{backupDir.getCanonicalPath()}, oldDirectory,SpaceRTK.getInstance().worldContainer);
+                } else {
+                    return bManager.performBackup(false, name, zipFile, new String[]{backupDir.getCanonicalPath()}, oldDirectory);
+                }
 
-            if (!SpaceRTK.getInstance().worldContainer.equals(new File("."))) {
-                return bManager.performBackup(false, zipFile, new String[]{backupDir.getAbsolutePath()}, oldDirectory,SpaceRTK.getInstance().worldContainer);
             } else {
-                return bManager.performBackup(false, zipFile, new String[]{backupDir.getAbsolutePath()}, oldDirectory);
+                File oldDirectory = new File(SpaceRTK.getInstance().worldContainer.getPath() + File.separator + directory);
+                String dirPath = oldDirectory.getCanonicalPath();
+
+                if(!dirPath.startsWith(SpaceRTK.getInstance().baseDir.getCanonicalPath()))
+                    return false;
+
+                File zipFile = new File(backupDir + File.separator + name + "_" + dateFormat.format(date)+ ".zip");
+
+                return bManager.performBackup(false, name, zipFile, new String[]{backupDir.getCanonicalPath()}, oldDirectory);
             }
-
-        } else {
-            File oldDirectory = new File(SpaceRTK.getInstance().worldContainer.getPath() + File.separator + directory);
-            File zipFile = new File(backupDir + File.separator + directory + "_" + dateFormat.format(date)+ ".zip");
-
-            return bManager.performBackup(false, zipFile, new String[]{backupDir.getAbsolutePath()}, oldDirectory);
+        } catch(IOException e) {
+            e.printStackTrace();
+            return false;
         }
 
     }
 
     @Action(
-            aliases = {"backupStatus", "getBackupStatus"})
-    public String getBackupStatus() {
-        return SpaceRTK.getInstance().getBackupManager().getBackupStatus();
-    }
+            aliases = {"getBackupInfo", "backupInfo"})
+    public List<String> getBackupInfo() {
+        BackupManager bManager = SpaceRTK.getInstance().getBackupManager();
 
-    @Action(
-            aliases = {"backupSize", "getBackupSize"})
-    public long getBackupSize() {
-        return SpaceRTK.getInstance().getBackupManager().getBackupSize();
-    }
+        List<String> info = new ArrayList<String>(9);
+        info.add(bManager.getBackupName());
+        info.add(bManager.getBackupFileName());
+        info.add(""+bManager.getStartTime());
+        info.add(""+bManager.getBackupProgress());
+        info.add(bManager.getBackupStatus());
+        info.add(bManager.getCurrentFile());
+        info.add(bManager.getCurrentFolder());
+        info.add(""+bManager.getDataBackedUp());
+        info.add(""+bManager.getBackupSize());
 
-    @Action(
-            aliases = {"dataBackedUp", "getDataBackedUp", "bytesBackedUp", "getBytesBackedUp"})
-    public long getDataBackedUp() {
-        return SpaceRTK.getInstance().getBackupManager().getDataBackedUp();
-    }
-
-    @Action(
-            aliases = {"currentBackupFile", "getCurrentBackupFile"})
-    public String getCurrentBackupFile() {
-        return SpaceRTK.getInstance().getBackupManager().getCurrentFile();
-    }
-
-    @Action(
-            aliases = {"currentBackupFolder", "getCurrentBackupFolder"})
-    public String getCurrentBackupFolder() {
-        return SpaceRTK.getInstance().getBackupManager().getCurrentFolder();
-    }
-
-    @Action(
-            aliases = {"currentBackupProgress", "getCurrentBackupProgress"})
-    public String getBackupProgress() {
-        return SpaceRTK.getInstance().getBackupManager().getBackupProgress();
+        return info;
     }
 
     @Action(
