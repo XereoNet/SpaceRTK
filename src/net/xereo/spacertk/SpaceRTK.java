@@ -90,6 +90,17 @@ public class SpaceRTK {
         rPort = configuration.getInt("SpaceRTK.Port", 2012);
         backupDirName = configuration.getString("General.BackupDirectory", "Backups");
         configuration.save();
+
+        File backupDir = new File(SpaceRTK.getInstance().worldContainer.getPath() + File.separator + SpaceRTK.getInstance().backupDirName);
+        File userDir = new File(System.getProperty("user.dir"));
+        for(File f : userDir.listFiles()) {
+            if(f.isDirectory()) {
+                if(f.getName().equalsIgnoreCase(backupDirName) && !f.getName().equals(backupDirName)) {
+                    f.renameTo(backupDir);
+                }
+            }
+        }
+
         pluginsManager = new PluginsManager();
         actionsManager = new ActionsManager();
         actionsManager.register(FileActions.class);

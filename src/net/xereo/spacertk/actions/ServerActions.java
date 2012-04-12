@@ -17,6 +17,7 @@ package net.xereo.spacertk.actions;
 import java.io.File;
 import java.io.IOException;
 import java.text.DateFormat;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -95,10 +96,10 @@ public class ServerActions {
         info.add(bManager.getBackupName());
         info.add(bManager.getBackupFileName());
         info.add(""+bManager.getStartTime());
-        info.add(""+bManager.getBackupProgress());
+        info.add(""+bManager.getBackupProgress().replaceAll(",", "."));
         info.add(bManager.getBackupStatus());
         info.add(bManager.getCurrentFile());
-        info.add(bManager.getCurrentFolder());
+        info.add(bManager.getCurrentFolder() + File.separator);
         info.add(""+bManager.getDataBackedUp());
         info.add(""+bManager.getBackupSize());
 
@@ -153,32 +154,36 @@ public class ServerActions {
 
     @Action(
             aliases = {"getBackups", "backups"})
-    public LinkedHashMap<String, LinkedList<String>> getBackups() {
-        final LinkedHashMap<String, LinkedList<String>> backups = new LinkedHashMap<String, LinkedList<String>>();
-        File backupDirectory = new File(File.separator + "backups");
-        if (backupDirectory.exists())
-            for (final String backupName : backupDirectory.list(DirectoryFileFilter.INSTANCE)) {
-                final LinkedList<String> directories = new LinkedList<String>();
-                for (final String directoryName : new File(backupDirectory.getPath() + File.separator + backupName)
-                        .list(DirectoryFileFilter.INSTANCE))
-                    directories.add(directoryName);
-                backups.put(backupName, directories);
-            }
-        if (!SpaceRTK.getInstance().worldContainer.equals(".")) {
-            backupDirectory = new File(SpaceRTK.getInstance().worldContainer.getPath() + File.separator + "backups");
-            if (backupDirectory.exists())
-                for (final String backupName : backupDirectory.list(DirectoryFileFilter.INSTANCE)) {
-                    final LinkedList<String> directories = new LinkedList<String>();
-                    for (final String directoryName : new File(backupDirectory.getPath() + File.separator + backupName)
-                            .list(DirectoryFileFilter.INSTANCE))
-                        directories.add(directoryName);
-                    if (backups.containsKey(backupName)) {
-                        final LinkedList<String> directories_ = backups.get(backupName);
-                        directories.addAll(directories_);
+    public List<List<String>> getBackups() {
+        final List<List<String>> backups = new ArrayList<List<String>>();
+        File backupDirectory = new File(SpaceRTK.getInstance().worldContainer.getPath() + File.separator + SpaceRTK.getInstance().backupDirName);
+        DateFormat dateFormat = new SimpleDateFormat("MM_dd_yyyy_HH_mm");
+
+        if (backupDirectory.exists()) {
+            for (File f : backupDirectory.listFiles()) {
+                if(f.getName().endsWith(".zip")) {
+                    int splitIndex = f.getName().indexOf("_");
+                    String backupName = f.getName().substring(0, splitIndex);
+                    String timeString = f.getName().substring(splitIndex + 1);
+                    Date time;
+                    try {
+                        time = dateFormat.parse(timeString);
+                    } catch(ParseException e) {
+                        e.printStackTrace();
+                        continue;
                     }
-                    backups.put(backupName, directories);
+
+                    List<String> entry = new ArrayList<String>();
+                    entry.add(f.getName());
+                    entry.add(backupName);
+                    entry.add(""+f.length());
+                    entry.add(""+time.getTime());
+
+                    backups.add(entry);
                 }
+            }
         }
+
         return backups;
     }
 
