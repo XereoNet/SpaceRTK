@@ -262,9 +262,8 @@ public class BackupManager {
                 for (StackTraceElement el : e.getStackTrace()) {
                     error += el + "\n";
                 }
-
                 status = "Error";
-                return;
+
             } finally {
                 try {
                     if (zip != null) {
@@ -307,7 +306,8 @@ public class BackupManager {
             } catch (IOException e) {
                 throw e;
             } finally {
-                in.close();
+                if(in != null)
+                    in.close();
                 dataBackedUp += getFileSize(file);
             }
         }
@@ -340,7 +340,8 @@ public class BackupManager {
 
                 return stream.available();
             } finally {
-                stream.close();
+                if(stream != null)
+                    stream.close();
             }
         }
     }
