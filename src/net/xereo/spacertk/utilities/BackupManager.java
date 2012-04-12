@@ -228,11 +228,13 @@ public class BackupManager {
                 for (File folder : folders) {
                     File[] files = folder.listFiles();
                     if (!ignoreImmediateFiles) {
-                        backupSize += calculateBackupSize(folder);
+                        backupSize += calculateBackupSize(folder, ignoredFolders);
                     } else {
                         for (File f : files) {
                             if (f.isDirectory()) {
-                                backupSize += calculateBackupSize(f);
+                                if (ignoredFolders != null && ignoredFolders.contains(f.getCanonicalPath()))
+                                    continue; //Do not back up the folder if it is in the ignore list
+                                backupSize += calculateBackupSize(f, ignoredFolders);
                             }
                         }
                     }
@@ -277,8 +279,8 @@ public class BackupManager {
 
         private void addDirectoryToZipStream(String entryPath, File dir, List<String> ignoredFolders, ZipOutputStream zip) throws IOException {
             File[] files = dir.listFiles();
-            status = "Backing up " + entryPath + File.separator + dir.getName();
-            currentFolder = entryPath + File.separator + dir.getName();
+            status = "Backing up " + entryPath;
+            currentFolder = entryPath;
             for (File f : files) {
                 if (f.isDirectory()) {
                     if (ignoredFolders != null && ignoredFolders.contains(f.getCanonicalPath())) {
@@ -313,12 +315,15 @@ public class BackupManager {
         /**
          * Calculate the size of a backup
          */
-        private long calculateBackupSize(File folder) throws IOException {
+        private long calculateBackupSize(File folder, List<String> ignoredFolders) throws IOException {
             long size = 0l;
             File[] files = folder.listFiles();
             for (File f : files) {
                 if (f.isDirectory()) {
-                    size += calculateBackupSize(f);
+                    if (ignoredFolders != null && ignoredFolders.contains(f.getCanonicalPath())) {
+                        continue; //Do not back up the folder if it is in the ignore list
+                    }
+                    size += calculateBackupSize(f, null);
                 } else {
                     size += getFileSize(f);
                 }
