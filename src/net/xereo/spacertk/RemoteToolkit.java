@@ -17,7 +17,9 @@ package net.xereo.spacertk;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 
+import com.drdanick.McRKit.Scheduler;
 import com.drdanick.McRKit.ToolkitAction;
 import com.drdanick.McRKit.Wrapper;
 
@@ -50,11 +52,71 @@ public class RemoteToolkit {
     }
 
     public static void forceStop() {
-        Wrapper.getInterface().performAction(ToolkitAction.FORCESTOP, null);
+        try {
+            final Field restarting = Wrapper.getInstance().getClass().getDeclaredField("restarting");
+            final Field serverRunning = Wrapper.getInstance().getClass().getDeclaredField("serverRunning");
+            final Field pauseMode = Wrapper.getInstance().getClass().getDeclaredField("pauseMode");
+            final Field saveOnServerStop = Wrapper.getInstance().getClass().getDeclaredField("saveOnServerStop");
+            restarting.setAccessible(true);
+            serverRunning.setAccessible(true);
+            pauseMode.setAccessible(true);
+            saveOnServerStop.setAccessible(true);
+            restarting.setBoolean(Wrapper.getInstance(), false);
+
+            if(serverRunning.getBoolean(Wrapper.getInstance())) {
+                Method cancelTasks = Wrapper.getInstance().getClass().getDeclaredMethod("cancelTasks", Scheduler.Type.class);
+                Method saveAndWait = Wrapper.getInstance().getClass().getDeclaredMethod("saveAndWait");
+                cancelTasks.setAccessible(true);
+                saveAndWait.setAccessible(true);
+
+                cancelTasks.invoke(Wrapper.getInstance(), Scheduler.Type.SAVE);
+
+                if(saveOnServerStop.getBoolean(Wrapper.getInstance()))
+                    saveAndWait.invoke(Wrapper.getInstance());
+                consoleCommand("kickallstop");
+                Thread.sleep(1000);
+                consoleCommand("stop");
+            } else {
+                pauseMode.setBoolean(Wrapper.getInstance(), false);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     public static void hold() {
-        Wrapper.getInterface().performAction(ToolkitAction.HOLD, null);
+        try {
+            final Field restarting = Wrapper.getInstance().getClass().getDeclaredField("restarting");
+            final Field serverRunning = Wrapper.getInstance().getClass().getDeclaredField("serverRunning");
+            final Field pauseMode = Wrapper.getInstance().getClass().getDeclaredField("pauseMode");
+            final Field saveOnServerStop = Wrapper.getInstance().getClass().getDeclaredField("saveOnServerStop");
+            restarting.setAccessible(true);
+            serverRunning.setAccessible(true);
+            pauseMode.setAccessible(true);
+            saveOnServerStop.setAccessible(true);
+
+            if (serverRunning.getBoolean(Wrapper.getInstance())) {
+                Method cancelTasks = Wrapper.getInstance().getClass().getDeclaredMethod("cancelTasks", Scheduler.Type.class);
+                Method saveAndWait = Wrapper.getInstance().getClass().getDeclaredMethod("saveAndWait");
+                cancelTasks.setAccessible(true);
+                saveAndWait.setAccessible(true);
+
+                restarting.setBoolean(Wrapper.getInstance(), true);
+                pauseMode.setBoolean(Wrapper.getInstance(), true);
+
+                cancelTasks.invoke(Wrapper.getInstance(), Scheduler.Type.SAVE);
+
+                if(saveOnServerStop.getBoolean(Wrapper.getInstance()))
+                    saveAndWait.invoke(Wrapper.getInstance());
+
+                consoleCommand("kickallhold");
+                Thread.sleep(1000);
+                consoleCommand("stop");
+
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     public static void rescheduleRestart(final String date) {
