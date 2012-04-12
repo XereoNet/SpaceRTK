@@ -77,14 +77,18 @@ public class PanelListener extends Thread {
     @Override
     public void run() {
         if (mode == 0) {
+
+            try {
+                serverSocket = new ServerSocket(SpaceRTK.getInstance().rPort);
+            } catch(IOException e) {
+                e.printStackTrace();
+                return;
+            }
+
             while (!serverSocket.isClosed()) {
                 try {
-                    serverSocket = new ServerSocket(SpaceRTK.getInstance().rPort);
                     final Socket clientSocket = serverSocket.accept();
                     new PanelListener(clientSocket);
-                } catch (BindException e) {
-                    System.err.println(e);
-                    break;
                 } catch (Exception e) {
                     if (!e.getMessage().contains("socket closed"))
                         e.printStackTrace();
