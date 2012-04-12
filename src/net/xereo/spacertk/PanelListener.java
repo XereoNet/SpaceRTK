@@ -20,6 +20,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
+import java.net.BindException;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketException;
@@ -75,20 +76,21 @@ public class PanelListener extends Thread {
 
     @Override
     public void run() {
-        if (mode == 0)
-            try {
-                serverSocket = new ServerSocket(SpaceRTK.getInstance().rPort);
-                while (!serverSocket.isClosed()) {
+        if (mode == 0) {
+            while (!serverSocket.isClosed()) {
+                try {
+                    serverSocket = new ServerSocket(SpaceRTK.getInstance().rPort);
                     final Socket clientSocket = serverSocket.accept();
                     new PanelListener(clientSocket);
+                } catch (BindException e) {
+                    System.err.println(e);
+                    break;
+                } catch (Exception e) {
+                    if (!e.getMessage().contains("socket closed"))
+                        e.printStackTrace();
                 }
-            } catch (final SocketException e) {
-                if (!e.getMessage().contains("socket closed"))
-                    e.printStackTrace();
-            } catch (final Exception e) {
-                e.printStackTrace();
             }
-        else
+        } else {
             try {
                 final BufferedReader input = new BufferedReader(new InputStreamReader(socket.getInputStream()));
                 String string = input.readLine();
@@ -142,6 +144,7 @@ public class PanelListener extends Thread {
             } catch (final Exception e) {
                 e.printStackTrace();
             }
+        }
     }
 
     public void stopServer() throws IOException {
