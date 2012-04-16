@@ -12,22 +12,22 @@
  * You should have received a copy of the Attribution-NonCommercial-ShareAlike Unported (CC BY-NC-SA)
  * license along with this program. If not, see <http://creativecommons.org/licenses/by-nc-sa/3.0/>.
  */
-package net.xereo.spacertk;
+package me.neatmonster.spacertk;
 
 import java.io.File;
 import java.util.UUID;
 import java.util.logging.Handler;
 import java.util.logging.Logger;
 
-import net.xereo.spacemodule.api.ActionsManager;
-import net.xereo.spacertk.actions.FileActions;
-import net.xereo.spacertk.actions.PluginActions;
-import net.xereo.spacertk.actions.SchedulerActions;
-import net.xereo.spacertk.actions.ServerActions;
-import net.xereo.spacertk.plugins.PluginsManager;
-import net.xereo.spacertk.scheduler.Scheduler;
-import net.xereo.spacertk.utilities.BackupManager;
-import net.xereo.spacertk.utilities.Format;
+import me.neatmonster.spacemodule.api.ActionsManager;
+import me.neatmonster.spacertk.actions.FileActions;
+import me.neatmonster.spacertk.actions.PluginActions;
+import me.neatmonster.spacertk.actions.SchedulerActions;
+import me.neatmonster.spacertk.actions.ServerActions;
+import me.neatmonster.spacertk.plugins.PluginsManager;
+import me.neatmonster.spacertk.scheduler.Scheduler;
+import me.neatmonster.spacertk.utilities.BackupManager;
+import me.neatmonster.spacertk.utilities.Format;
 
 import org.bukkit.util.config.Configuration;
 

@@ -12,7 +12,7 @@
  * You should have received a copy of the Attribution-NonCommercial-ShareAlike Unported (CC BY-NC-SA)
  * license along with this program. If not, see <http://creativecommons.org/licenses/by-nc-sa/3.0/>.
  */
-package net.xereo.spacertk;
+package me.neatmonster.spacertk;
 
 import java.io.IOException;
 import java.io.OutputStream;

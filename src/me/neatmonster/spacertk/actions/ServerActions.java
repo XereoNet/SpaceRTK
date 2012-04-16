@@ -12,7 +12,7 @@
  * You should have received a copy of the Attribution-NonCommercial-ShareAlike Unported (CC BY-NC-SA)
  * license along with this program. If not, see <http://creativecommons.org/licenses/by-nc-sa/3.0/>.
  */
-package net.xereo.spacertk.actions;
+package me.neatmonster.spacertk.actions;
 
 import java.io.File;
 import java.io.IOException;
@@ -22,20 +22,17 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
-import java.util.LinkedHashMap;
-import java.util.LinkedList;
 import java.util.List;
 
 import me.hwei.mctool.MapAutoTrim;
-import net.xereo.spacemodule.SpaceModule;
-import net.xereo.spacemodule.api.Action;
-import net.xereo.spacertk.RemoteToolkit;
-import net.xereo.spacertk.SpaceRTK;
-import net.xereo.spacertk.utilities.BackupManager;
-import net.xereo.spacertk.utilities.Utilities;
-import net.xereo.spacertk.utilities.WorldFileFilter;
+import me.neatmonster.spacemodule.SpaceModule;
+import me.neatmonster.spacemodule.api.Action;
+import me.neatmonster.spacertk.RemoteToolkit;
+import me.neatmonster.spacertk.SpaceRTK;
+import me.neatmonster.spacertk.utilities.BackupManager;
+import me.neatmonster.spacertk.utilities.Utilities;
+import me.neatmonster.spacertk.utilities.WorldFileFilter;
 
-import net.xereo.spacertk.utilities.ZIP;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.filefilter.DirectoryFileFilter;
 import org.json.simple.JSONArray;

@@ -12,7 +12,7 @@
  * You should have received a copy of the Attribution-NonCommercial-ShareAlike Unported (CC BY-NC-SA) license along with
  * this program. If not, see <http://creativecommons.org/licenses/by-nc-sa/3.0/>.
  */
-package net.xereo.spacertk.utilities;
+package me.neatmonster.spacertk.utilities;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -233,7 +233,7 @@ public class BackupManager {
                         for (File f : files) {
                             if (f.isDirectory()) {
                                 if (ignoredFolders != null && ignoredFolders.contains(f.getCanonicalPath()))
-                                    continue; //Do not back up the folder if it is in the ignore list
+                                    continue; //Do not count the folder if it is in the ignore list
                                 backupSize += calculateBackupSize(f, ignoredFolders);
                             }
                         }
