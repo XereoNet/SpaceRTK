@@ -64,10 +64,10 @@ public class PluginActions {
         final File pluginFile = pluginsManager.getPluginFile(pluginName);
         if (pluginFile == null)
             return false;
-        final boolean wasRunning = RemoteToolkit.running();
+        final boolean wasRunning = RemoteToolkit.isRunning();
         if (wasRunning)
             RemoteToolkit.hold();
-        while (RemoteToolkit.running())
+        while (RemoteToolkit.isRunning())
             try {
                 Thread.sleep(1000);
             } catch (final InterruptedException e) {
@@ -86,7 +86,7 @@ public class PluginActions {
         if (pluginFile == null)
             return false;
         final boolean result = new File(pluginFile.getPath() + ".DISABLED").renameTo(pluginFile);
-        if (RemoteToolkit.running())
+        if (RemoteToolkit.isRunning())
             Utilities.sendMethod("reload", "[]");
         return result;
     }
@@ -135,7 +135,7 @@ public class PluginActions {
             }
             file.delete();
         }
-        if (RemoteToolkit.running())
+        if (RemoteToolkit.isRunning())
             Utilities.sendMethod("reload", "[]");
         return "SUCCESS";
     }
@@ -153,7 +153,7 @@ public class PluginActions {
             }
             file_.delete();
         }
-        if (RemoteToolkit.running())
+        if (RemoteToolkit.isRunning())
             Utilities.sendMethod("reload", "[]");
         return "SUCCESS";
     }
@@ -164,10 +164,10 @@ public class PluginActions {
         final File pluginFile = pluginsManager.getPluginFile(pluginName);
         if (pluginFile == null)
             return "FILENOTFOUND";
-        final boolean wasRunning = RemoteToolkit.running();
+        final boolean wasRunning = RemoteToolkit.isRunning();
         if (wasRunning) {
             RemoteToolkit.hold();
-            while (RemoteToolkit.running())
+            while (RemoteToolkit.isRunning())
                 try {
                     Thread.sleep(1000);
                 } catch (final InterruptedException e) {
@@ -195,10 +195,10 @@ public class PluginActions {
             return result;
         final Plugin plugin = pluginsManager.getPlugin(pluginName);
         final File pluginFile = pluginsManager.getPluginFile(plugin.name);
-        final boolean wasRunning = RemoteToolkit.running();
+        final boolean wasRunning = RemoteToolkit.isRunning();
         if (wasRunning) {
             RemoteToolkit.hold();
-            while (RemoteToolkit.running())
+            while (RemoteToolkit.isRunning())
                 try {
                     Thread.sleep(1000);
                 } catch (final InterruptedException e) {

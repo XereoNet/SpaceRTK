@@ -103,7 +103,7 @@ public class PanelListener extends Thread {
                     final String method = string.substring(12, string.indexOf("&args="));
                     if (string.contains("&key=" + Utilities.crypt(method + SpaceRTK.getInstance().salt))) {
                         if (string.startsWith("call?method=DOWNLOAD_WORLD")) {
-                            final boolean wasRunning = RemoteToolkit.running();
+                            final boolean wasRunning = RemoteToolkit.isRunning();
                             if (wasRunning)
                                 RemoteToolkit.hold();
                             final File file = new File(string.split("\"")[1] + ".zip");

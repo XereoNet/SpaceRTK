@@ -44,7 +44,7 @@ public class ServerActions {
 
     @Action(
             aliases = {"backup", "backupDirectory", "backupDir"})
-    public boolean backup(String name, String directory) {
+    public boolean backup(String name, String directory, boolean offlineBackup) {
         BackupManager bManager = SpaceRTK.getInstance().getBackupManager();
         if(bManager.isBackupRunning())
             return false;
@@ -61,9 +61,9 @@ public class ServerActions {
                 File zipFile = new File(backupDir + File.separator + name + "_" + dateFormat.format(date)+ ".zip");
 
                 if (!SpaceRTK.getInstance().worldContainer.equals(new File("."))) {
-                    return bManager.performBackup(false, name, zipFile, new String[]{backupDir.getCanonicalPath()}, oldDirectory,SpaceRTK.getInstance().worldContainer);
+                    return bManager.performBackup(offlineBackup, false, name, zipFile, new String[]{backupDir.getCanonicalPath()}, oldDirectory,SpaceRTK.getInstance().worldContainer);
                 } else {
-                    return bManager.performBackup(false, name, zipFile, new String[]{backupDir.getCanonicalPath()}, oldDirectory);
+                    return bManager.performBackup(offlineBackup, false, name, zipFile, new String[]{backupDir.getCanonicalPath()}, oldDirectory);
                 }
 
             } else {
@@ -75,7 +75,7 @@ public class ServerActions {
 
                 File zipFile = new File(backupDir + File.separator + name + "_" + dateFormat.format(date)+ ".zip");
 
-                return bManager.performBackup(false, name, zipFile, new String[]{backupDir.getCanonicalPath()}, oldDirectory);
+                return bManager.performBackup(offlineBackup, false, name, zipFile, new String[]{backupDir.getCanonicalPath()}, oldDirectory);
             }
         } catch(IOException e) {
             e.printStackTrace();
@@ -243,10 +243,10 @@ public class ServerActions {
     public boolean restore(final String date, final String directory) {
         if (directory.equals("*")) {
             boolean result = true;
-            final boolean wasRunning = RemoteToolkit.running();
+            final boolean wasRunning = RemoteToolkit.isRunning();
             if (wasRunning) {
                 RemoteToolkit.hold();
-                while (RemoteToolkit.running())
+                while (RemoteToolkit.isRunning())
                     try {
                         Thread.sleep(1000);
                     } catch (final InterruptedException e) {
@@ -292,10 +292,10 @@ public class ServerActions {
             return result;
         } else {
             boolean result = true;
-            final boolean wasRunning = RemoteToolkit.running();
+            final boolean wasRunning = RemoteToolkit.isRunning();
             if (wasRunning) {
                 RemoteToolkit.hold();
-                while (RemoteToolkit.running())
+                while (RemoteToolkit.isRunning())
                     try {
                         Thread.sleep(1000);
                     } catch (final InterruptedException e) {
@@ -417,7 +417,7 @@ public class ServerActions {
     @Action(
             aliases = {"isRunning", "isServerRunning", "running"})
     public boolean running() {
-        return RemoteToolkit.running();
+        return RemoteToolkit.isRunning();
     }
 
     @Action(

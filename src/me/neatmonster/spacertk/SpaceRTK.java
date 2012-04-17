@@ -19,11 +19,15 @@ import java.util.UUID;
 import java.util.logging.Handler;
 import java.util.logging.Logger;
 
+import com.drdanick.rtoolkit.EventDispatcher;
+import com.drdanick.rtoolkit.event.ToolkitEventPriority;
+import me.neatmonster.spacemodule.SpaceModule;
 import me.neatmonster.spacemodule.api.ActionsManager;
 import me.neatmonster.spacertk.actions.FileActions;
 import me.neatmonster.spacertk.actions.PluginActions;
 import me.neatmonster.spacertk.actions.SchedulerActions;
 import me.neatmonster.spacertk.actions.ServerActions;
+import me.neatmonster.spacertk.event.BackupEvent;
 import me.neatmonster.spacertk.plugins.PluginsManager;
 import me.neatmonster.spacertk.scheduler.Scheduler;
 import me.neatmonster.spacertk.utilities.BackupManager;
@@ -59,6 +63,8 @@ public class SpaceRTK {
             final Logger rootlog = Logger.getLogger("");
             for (final Handler h : rootlog.getHandlers())
                 h.setFormatter(new Format());
+            EventDispatcher edt = SpaceModule.getInstance().getEdt();
+            edt.registerListener(new BackupListener(), SpaceModule.getInstance().getEventHandler(), ToolkitEventPriority.SYSTEM, BackupEvent.class);
             backupManager = new BackupManager();
         } catch (final Exception e) {
             e.printStackTrace();

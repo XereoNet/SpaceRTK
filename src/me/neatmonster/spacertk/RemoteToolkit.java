@@ -129,7 +129,7 @@ public class RemoteToolkit {
         Wrapper.getInterface().performAction(ToolkitAction.RESTART, null);
     }
 
-    public static boolean running() {
+    public static boolean isRunning() {
         try {
             final Field field = Wrapper.getInstance().getClass().getDeclaredField("serverRunning");
             field.setAccessible(true);

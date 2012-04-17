@@ -14,6 +14,13 @@
  */
 package me.neatmonster.spacertk.utilities;
 
+import com.drdanick.rtoolkit.EventDispatcher;
+import com.drdanick.rtoolkit.event.ToolkitEventListener;
+import com.drdanick.rtoolkit.event.ToolkitEventPriority;
+import me.neatmonster.spacemodule.SpaceModule;
+import me.neatmonster.spacertk.SpaceRTK;
+import me.neatmonster.spacertk.event.BackupEvent;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -40,6 +47,16 @@ public class BackupManager {
     public BackupManager() {
         formatter = new DecimalFormat("##0.00");
         formatter.setRoundingMode(RoundingMode.HALF_EVEN);
+        EventDispatcher edt = SpaceModule.getInstance().getEdt();
+
+        ToolkitEventListener backupListener = new ToolkitEventListener() {
+            public void onBackupEvent(BackupEvent e) {
+                if(!e.isCanceled() && e.getBackupName().equals(bThread.backupName))
+                    bThread.start();
+            }
+        };
+
+        edt.registerListener(backupListener, SpaceModule.getInstance().getEventHandler(),ToolkitEventPriority.MONITOR, BackupEvent.class);
     }
 
     /**
@@ -54,10 +71,11 @@ public class BackupManager {
      * @param folders The folders to backup.
      * @return true if the backup was started, false otherwise.
      */
-    public synchronized boolean performBackup(boolean ignoreImmediateFiles, String backupName, File outputFile, String[] ignoredFolders, File... folders) {
+    public synchronized boolean performBackup(boolean offlineBackup, boolean ignoreImmediateFiles, String backupName, File outputFile, String[] ignoredFolders, File... folders) {
         if (bThread == null || !bThread.running) {
-            bThread = new BackupThread(folders, ignoredFolders, outputFile, backupName, ignoreImmediateFiles);
-            bThread.start();
+            bThread = new BackupThread(folders, ignoredFolders, outputFile, backupName, ignoreImmediateFiles, offlineBackup);
+            BackupEvent e = new BackupEvent(-1, -1, offlineBackup, backupName);
+            SpaceModule.getInstance().getEdt().fireToolkitEvent(e);
             return true;
         }
         return false;
@@ -200,6 +218,7 @@ public class BackupManager {
         private File[] folders;
         private List<String> ignoredFolders;
         private boolean ignoreImmediateFiles;
+        private boolean offlineBackup;
         File outputFile;
         long startTime;
         long backupSize = 0l;
@@ -211,12 +230,13 @@ public class BackupManager {
         String error;
         boolean running = true;
 
-        BackupThread(File[] folders, String[] ignoredFolders, File outputFile, String backupName, boolean ignoreImmediateFiles) {
+        BackupThread(File[] folders, String[] ignoredFolders, File outputFile, String backupName, boolean ignoreImmediateFiles, boolean offlineBackup) {
             this.folders = folders;
             this.ignoredFolders = Arrays.asList(ignoredFolders);
             this.outputFile = outputFile;
             this.backupName = backupName;
             this.ignoreImmediateFiles = ignoreImmediateFiles;
+            this.offlineBackup = offlineBackup;
         }
 
         public void run() {
@@ -272,6 +292,8 @@ public class BackupManager {
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
+                BackupEvent e = new BackupEvent(startTime, System.currentTimeMillis(), offlineBackup, backupName);
+                SpaceModule.getInstance().getEdt().fireToolkitEvent(e);
                 running = false;
             }
         }
