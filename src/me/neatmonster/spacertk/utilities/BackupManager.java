@@ -51,6 +51,7 @@ public class BackupManager {
 
         ToolkitEventListener backupListener = new ToolkitEventListener() {
             public void onBackupEvent(BackupEvent e) {
+                System.out.println("DEBUG: Got backup event..."); //DEBUG
                 if(!e.isCanceled() && e.getBackupName().equals(bThread.backupName))
                     bThread.start();
             }
@@ -240,6 +241,7 @@ public class BackupManager {
         }
 
         public void run() {
+            System.out.println("Starting backup..."); //DEBUG
             status = "Calculating backup size";
             startTime = System.currentTimeMillis();
             ZipOutputStream zip = null;
