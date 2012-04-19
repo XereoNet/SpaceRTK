@@ -77,6 +77,7 @@ public class BackupManager {
             bThread = new BackupThread(folders, ignoredFolders, outputFile, backupName, ignoreImmediateFiles, offlineBackup);
             BackupEvent e = new BackupEvent(-1, -1, offlineBackup, backupName);
             SpaceModule.getInstance().getEdt().fireToolkitEvent(e);
+            System.out.println("Fired backup event..."); //DEBUG
             return true;
         }
         return false;

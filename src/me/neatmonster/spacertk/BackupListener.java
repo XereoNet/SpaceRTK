@@ -23,6 +23,7 @@ import me.neatmonster.spacertk.event.BackupEvent;
 public class BackupListener implements ToolkitEventListener {
 
     public void onBackupEvent(BackupEvent e) {
+        System.out.println("Got backupevent in system listener..."); //DEBUG
         if(e.isOfflineBackup()) {
             if(e.getEndTime() == -1) {
                 if(RemoteToolkit.isRunning()) {
@@ -36,6 +37,7 @@ public class BackupListener implements ToolkitEventListener {
                 e.setCanceled(true);
             }
         }
+        System.out.println("Event is canceled: "+e.isCanceled()); //DEBUG
     }
 
 }
