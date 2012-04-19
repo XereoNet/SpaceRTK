@@ -51,7 +51,7 @@ public class BackupManager {
 
         ToolkitEventListener backupListener = new ToolkitEventListener() {
             public void onBackupEvent(BackupEvent e) {
-                if(!e.isCanceled() && e.getBackupName().equals(bThread.backupName))
+                if(e.getEndTime() != -1 && !e.isCanceled() && e.getBackupName().equals(bThread.backupName))
                     bThread.start();
             }
         };
