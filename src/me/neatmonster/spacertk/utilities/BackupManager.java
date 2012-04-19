@@ -51,7 +51,6 @@ public class BackupManager {
 
         ToolkitEventListener backupListener = new ToolkitEventListener() {
             public void onBackupEvent(BackupEvent e) {
-                System.out.println("DEBUG: Got backup event..."); //DEBUG
                 if(!e.isCanceled() && e.getBackupName().equals(bThread.backupName))
                     bThread.start();
             }
@@ -77,7 +76,6 @@ public class BackupManager {
             bThread = new BackupThread(folders, ignoredFolders, outputFile, backupName, ignoreImmediateFiles, offlineBackup);
             BackupEvent e = new BackupEvent(-1, -1, offlineBackup, backupName);
             SpaceModule.getInstance().getEdt().fireToolkitEvent(e);
-            System.out.println("Fired backup event..."); //DEBUG
             return true;
         }
         return false;
@@ -242,7 +240,6 @@ public class BackupManager {
         }
 
         public void run() {
-            System.out.println("Starting backup..."); //DEBUG
             status = "Calculating backup size";
             startTime = System.currentTimeMillis();
             ZipOutputStream zip = null;
