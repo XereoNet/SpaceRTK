@@ -23,11 +23,12 @@ import java.util.List;
 
 import me.neatmonster.spacemodule.api.UnhandledActionException;
 
-import org.bukkit.util.config.Configuration;
+import org.bukkit.configuration.file.YamlConfiguration;
 import org.json.simple.JSONValue;
 
-@SuppressWarnings("deprecation")
 public class Scheduler {
+    public static final File JOBS_FILE = new File("SpaceModule", "jobs.yml");
+    
     private static LinkedHashMap<String, Job> jobs = new LinkedHashMap<String, Job>();
 
     public static void addJob(final String jobName, final Job job) {
@@ -42,17 +43,15 @@ public class Scheduler {
     }
 
     public static void loadJobs() {
-        final File file = new File("SpaceModule", "jobs.yml");
-        if (!file.exists())
+        if (!JOBS_FILE.exists())
             try {
-                file.createNewFile();
+                JOBS_FILE.createNewFile();
             } catch (final IOException e) {
                 e.printStackTrace();
             }
-        final Configuration configuration = new Configuration(file);
-        configuration.load();
+        final YamlConfiguration configuration = YamlConfiguration.loadConfiguration(JOBS_FILE);
         final LinkedList<String> jobsNames = new LinkedList<String>();
-        for (final String key : configuration.getAll().keySet())
+        for (final String key : configuration.getValues(false).keySet())
             if (key.contains("."))
                 jobsNames.add(key.split("\\.")[0]);
         for (final String jobName : jobsNames)
@@ -62,7 +61,7 @@ public class Scheduler {
                 final String actionName = configuration.getString(jobName + ".ActionName");
                 @SuppressWarnings("unchecked")
                 final Object[] actionArguments = ((List<Object>) JSONValue.parse((String) configuration
-                        .getProperty(jobName + ".ActionArguments"))).toArray();
+                        .get(jobName + ".ActionArguments"))).toArray();
                 try {
                     final Job job = new Job(actionName, actionArguments, timeType, timeArgument, true);
                     jobs.put(jobName, job);
@@ -72,7 +71,11 @@ public class Scheduler {
                     e.printStackTrace();
                 }
             }
-        configuration.save();
+        try {
+            configuration.save(JOBS_FILE);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     public static void removeJob(final String jobName) {
@@ -89,19 +92,23 @@ public class Scheduler {
             } catch (final IOException e) {
                 e.printStackTrace();
             }
-        final Configuration configuration = new Configuration(file);
+        final YamlConfiguration configuration = YamlConfiguration.loadConfiguration(file);
         for (final String jobName : jobs.keySet()) {
             final Job job = jobs.get(jobName);
             final String actionName = job.actionName;
             final List<Object> actionArguments = Arrays.asList(job.actionArguments);
             final String timeType = job.timeType;
             final String timeArgument = job.timeArgument;
-            configuration.setProperty(jobName + ".TimeType", timeType);
-            configuration.setProperty(jobName + ".TimeArgument", timeArgument);
-            configuration.setProperty(jobName + ".ActionName", actionName);
-            configuration.setProperty(jobName + ".ActionArguments",
+            configuration.set(jobName + ".TimeType", timeType);
+            configuration.set(jobName + ".TimeArgument", timeArgument);
+            configuration.set(jobName + ".ActionName", actionName);
+            configuration.set(jobName + ".ActionArguments",
                     JSONValue.toJSONString(actionArguments).replace("[[", "[").replace("],[", ",").replace("]]", "]"));
         }
-        configuration.save();
+        try {
+            configuration.save(JOBS_FILE);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }
