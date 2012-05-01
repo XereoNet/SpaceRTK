@@ -82,7 +82,7 @@ public class SpaceRTK {
 
     public void onEnable() {
         spaceRTK = this;
-        final YamlConfiguration configuration = YamlConfiguration.loadConfiguration(new File("SpaceModule", "configuration.yml"));
+        final YamlConfiguration configuration = YamlConfiguration.loadConfiguration(SpaceModule.CONFIGURATION);
         type = configuration.getString("SpaceModule.Type", "Bukkit");
         configuration.set("SpaceModule.Type", type = "Bukkit");
         salt = configuration.getString("General.Salt", "<default>");
@@ -96,14 +96,13 @@ public class SpaceRTK {
         rPort = configuration.getInt("SpaceRTK.Port", 2012);
         backupDirName = configuration.getString("General.BackupDirectory", "Backups");
         try {
-            configuration.save(new File("SpaceModule", "configuration.yml"));
+            configuration.save(SpaceModule.CONFIGURATION);
         } catch (IOException e) {
             e.printStackTrace();
         }
 
         File backupDir = new File(SpaceRTK.getInstance().worldContainer.getPath() + File.separator + SpaceRTK.getInstance().backupDirName);
-        File userDir = new File(System.getProperty("user.dir"));
-        for(File f : userDir.listFiles()) {
+        for(File f : baseDir.listFiles()) {
             if(f.isDirectory()) {
                 if(f.getName().equalsIgnoreCase(backupDirName) && !f.getName().equals(backupDirName)) {
                     f.renameTo(backupDir);
