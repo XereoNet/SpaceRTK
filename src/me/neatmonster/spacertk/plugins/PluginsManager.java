@@ -32,7 +32,6 @@ import org.bukkit.configuration.file.YamlConfiguration;
 import org.json.simple.JSONObject;
 import org.json.simple.JSONValue;
 
-@SuppressWarnings("deprecation")
 public class PluginsManager {
     private final File jarsFile = new File(SpaceModule.MAIN_DIRECTORY.getPath() + File.separator + "SpaceBukkit",
             "jars.yml");
