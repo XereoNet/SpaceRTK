@@ -20,7 +20,7 @@ import java.util.List;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 
-public class Plugin {
+public class SBPlugin {
     public List<String>  authors     = new ArrayList<String>();
     public List<String>  categories  = new ArrayList<String>();
     public String        description = "";
@@ -29,7 +29,7 @@ public class Plugin {
     public String        status      = "";
     public List<Version> versions    = new ArrayList<Version>();
 
-    public Plugin(final JSONObject plugin) {
+    public SBPlugin(final JSONObject plugin) {
         name = (String) plugin.get("name");
         status = (String) plugin.get("status");
         link = (String) plugin.get("bukkitdev_link");

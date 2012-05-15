@@ -22,7 +22,7 @@ import me.neatmonster.spacemodule.api.Action;
 import me.neatmonster.spacertk.RemoteToolkit;
 import me.neatmonster.spacertk.SpaceRTK;
 import me.neatmonster.spacertk.plugins.PluginsManager;
-import me.neatmonster.spacertk.plugins.templates.Plugin;
+import me.neatmonster.spacertk.plugins.templates.SBPlugin;
 import me.neatmonster.spacertk.plugins.templates.Version;
 import me.neatmonster.spacertk.utilities.Utilities;
 import me.neatmonster.spacertk.utilities.ZIP;
@@ -36,7 +36,7 @@ public class PluginActions {
             aliases = {"checkForUpdates", "pluginCheckUpdates"})
     public String checkForUpdates(final String pluginName) {
         try {
-            final Plugin plugin = pluginsManager.getPlugin(pluginName);
+            final SBPlugin plugin = pluginsManager.getPlugin(pluginName);
             if (plugin == null)
                 return "NOTONBUKKITDEV";
             final File pluginFile = pluginsManager.getPluginFile(plugin.name);
@@ -94,7 +94,7 @@ public class PluginActions {
     @Action(
             aliases = {"informations", "pluginInformations"})
     public LinkedHashMap<String, Object> informations(final String pluginName) {
-        final Plugin plugin = pluginsManager.getPlugin(pluginName);
+        final SBPlugin plugin = pluginsManager.getPlugin(pluginName);
         if (plugin != null) {
             final LinkedHashMap<String, Object> pluginInformations = new LinkedHashMap<String, Object>();
             pluginInformations.put("Name", plugin.name);
@@ -118,7 +118,7 @@ public class PluginActions {
     @Action(
             aliases = {"install", "pluginInstall"})
     public String install(final String pluginName) {
-        final Plugin plugin = pluginsManager.getPlugin(pluginName);
+        final SBPlugin plugin = pluginsManager.getPlugin(pluginName);
         if (plugin == null)
             return "NOTONBUKKITDEV";
         final File pluginFile = pluginsManager.getPluginFile(plugin.name);
@@ -193,7 +193,7 @@ public class PluginActions {
         final String result = checkForUpdates(pluginName);
         if (!result.startsWith("OUTDATED"))
             return result;
-        final Plugin plugin = pluginsManager.getPlugin(pluginName);
+        final SBPlugin plugin = pluginsManager.getPlugin(pluginName);
         final File pluginFile = pluginsManager.getPluginFile(plugin.name);
         final boolean wasRunning = RemoteToolkit.isRunning();
         if (wasRunning) {
