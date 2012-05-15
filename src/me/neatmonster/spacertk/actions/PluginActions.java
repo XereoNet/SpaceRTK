@@ -15,6 +15,7 @@
 package me.neatmonster.spacertk.actions;
 
 import java.io.File;
+import java.io.FileFilter;
 import java.io.IOException;
 import java.util.LinkedHashMap;
 
@@ -31,6 +32,16 @@ import org.apache.commons.io.FileUtils;
 
 public class PluginActions {
     private static PluginsManager pluginsManager = SpaceRTK.getInstance().pluginsManager;
+    
+    private static final FileFilter filter = new FileFilter() {
+        public boolean accept(File file) {
+            String name = file.getName();
+            if (name.contains(".jar") || name.contains(".yml") || file.isDirectory()) {
+                return true;
+            }
+            return false;
+        }
+    };
 
     @Action(
             aliases = {"checkForUpdates", "pluginCheckUpdates"})
@@ -129,7 +140,7 @@ public class PluginActions {
         final File file = new File("plugins", plugin.getLatestVersion().filename);
         if (file.getName().endsWith(".zip")) {
             try {
-                ZIP.unzip(file, new File("plugins"), false);
+                ZIP.unzip(file, new File("plugins"), false, filter);
             } catch (final Exception e) {
                 e.printStackTrace();
             }
@@ -147,7 +158,7 @@ public class PluginActions {
         final File file_ = new File("plugins", file);
         if (file.endsWith(".zip")) {
             try {
-                ZIP.unzip(file_, new File("plugins"), false);
+                ZIP.unzip(file_, new File("plugins"), false, filter);
             } catch (final Exception e) {
                 e.printStackTrace();
             }
@@ -211,7 +222,7 @@ public class PluginActions {
         final File file = new File("plugins", plugin.getLatestVersion().filename);
         if (file.getName().endsWith(".zip")) {
             try {
-                ZIP.unzip(file, new File("plugins"), override);
+                ZIP.unzip(file, new File("plugins"), override, filter);
             } catch (final Exception e) {
                 e.printStackTrace();
             }

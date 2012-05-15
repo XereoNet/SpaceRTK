@@ -17,6 +17,7 @@ package me.neatmonster.spacertk.utilities;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.File;
+import java.io.FileFilter;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -89,12 +90,14 @@ public class ZIP {
      *            the folder
      * @param jarOnly
      *            the jar only
+     * @param filter
+     *            the filter used in extraction, null if none
      * @throws FileNotFoundException
      *             the file not found exception
      * @throws IOException
      *             Signals that an I/O exception has occurred.
      */
-    public static void unzip(final File archive, final File folder, final boolean jarOnly)
+    public static void unzip(final File archive, final File folder, final boolean jarOnly, final FileFilter filter)
             throws FileNotFoundException, IOException {
         final ZipInputStream zis = new ZipInputStream(new BufferedInputStream(new FileInputStream(
                 archive.getCanonicalFile())));
@@ -103,29 +106,31 @@ public class ZIP {
             while ((ze = zis.getNextEntry()) != null)
                 if (!jarOnly || ze.getName().toLowerCase().replace(" ", "-").endsWith(".jar")) {
                     final File f = new File(folder.getCanonicalPath(), ze.getName());
-                    if (ze.isDirectory()) {
+                    if (f.isDirectory()) {
                         f.mkdirs();
                         continue;
                     }
-                    f.getParentFile().mkdirs();
-                    final OutputStream fos = new BufferedOutputStream(new FileOutputStream(f));
-                    try {
+                    if (filter == null || !filter.accept(f)) {
+                        f.getParentFile().mkdirs();
+                        final OutputStream fos = new BufferedOutputStream(new FileOutputStream(f));
                         try {
-                            final byte[] buf = new byte[8192];
-                            int bytesRead;
-                            while (-1 != (bytesRead = zis.read(buf)))
-                                fos.write(buf, 0, bytesRead);
-                        } finally {
-                            fos.close();
+                            try {
+                                final byte[] buf = new byte[8192];
+                                int bytesRead;
+                                while (-1 != (bytesRead = zis.read(buf)))
+                                    fos.write(buf, 0, bytesRead);
+                            } finally {
+                                fos.close();
+                            }
+                        } catch (final IOException ioe) {
+                            f.delete();
+                            throw ioe;
                         }
-                    } catch (final IOException ioe) {
-                        f.delete();
-                        throw ioe;
                     }
                 }
-        } finally {
-            zis.close();
-        }
+            } finally {
+                zis.close();
+            }
     }
 
     /**
