@@ -70,7 +70,7 @@ public class ServerActions {
                 File oldDirectory = new File(SpaceRTK.getInstance().worldContainer.getPath() + File.separator + directory);
                 String dirPath = oldDirectory.getCanonicalPath();
 
-                if(!dirPath.startsWith(SpaceRTK.getInstance().baseDir.getCanonicalPath()))
+                if(!dirPath.startsWith(SpaceRTK.baseDir.getCanonicalPath()))
                     return false;
 
                 File zipFile = new File(backupDir + File.separator + name + "_" + dateFormat.format(date)+ ".zip");

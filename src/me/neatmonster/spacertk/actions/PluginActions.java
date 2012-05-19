@@ -15,6 +15,7 @@
 package me.neatmonster.spacertk.actions;
 
 import java.io.File;
+import java.io.FileFilter;
 import java.io.IOException;
 import java.util.LinkedHashMap;
 
@@ -22,7 +23,7 @@ import me.neatmonster.spacemodule.api.Action;
 import me.neatmonster.spacertk.RemoteToolkit;
 import me.neatmonster.spacertk.SpaceRTK;
 import me.neatmonster.spacertk.plugins.PluginsManager;
-import me.neatmonster.spacertk.plugins.templates.Plugin;
+import me.neatmonster.spacertk.plugins.templates.SBPlugin;
 import me.neatmonster.spacertk.plugins.templates.Version;
 import me.neatmonster.spacertk.utilities.Utilities;
 import me.neatmonster.spacertk.utilities.ZIP;
@@ -31,12 +32,22 @@ import org.apache.commons.io.FileUtils;
 
 public class PluginActions {
     private static PluginsManager pluginsManager = SpaceRTK.getInstance().pluginsManager;
+    
+    private static final FileFilter filter = new FileFilter() {
+        public boolean accept(File file) {
+            String name = file.getName();
+            if (name.contains(".jar") || name.contains(".yml") || file.isDirectory()) {
+                return true;
+            }
+            return false;
+        }
+    };
 
     @Action(
             aliases = {"checkForUpdates", "pluginCheckUpdates"})
     public String checkForUpdates(final String pluginName) {
         try {
-            final Plugin plugin = pluginsManager.getPlugin(pluginName);
+            final SBPlugin plugin = pluginsManager.getPlugin(pluginName);
             if (plugin == null)
                 return "NOTONBUKKITDEV";
             final File pluginFile = pluginsManager.getPluginFile(plugin.name);
@@ -94,7 +105,7 @@ public class PluginActions {
     @Action(
             aliases = {"informations", "pluginInformations"})
     public LinkedHashMap<String, Object> informations(final String pluginName) {
-        final Plugin plugin = pluginsManager.getPlugin(pluginName);
+        final SBPlugin plugin = pluginsManager.getPlugin(pluginName);
         if (plugin != null) {
             final LinkedHashMap<String, Object> pluginInformations = new LinkedHashMap<String, Object>();
             pluginInformations.put("Name", plugin.name);
@@ -118,7 +129,7 @@ public class PluginActions {
     @Action(
             aliases = {"install", "pluginInstall"})
     public String install(final String pluginName) {
-        final Plugin plugin = pluginsManager.getPlugin(pluginName);
+        final SBPlugin plugin = pluginsManager.getPlugin(pluginName);
         if (plugin == null)
             return "NOTONBUKKITDEV";
         final File pluginFile = pluginsManager.getPluginFile(plugin.name);
@@ -129,7 +140,7 @@ public class PluginActions {
         final File file = new File("plugins", plugin.getLatestVersion().filename);
         if (file.getName().endsWith(".zip")) {
             try {
-                ZIP.unzip(file, new File("plugins"), false);
+                ZIP.unzip(file, new File("plugins"), false, filter);
             } catch (final Exception e) {
                 e.printStackTrace();
             }
@@ -147,7 +158,7 @@ public class PluginActions {
         final File file_ = new File("plugins", file);
         if (file.endsWith(".zip")) {
             try {
-                ZIP.unzip(file_, new File("plugins"), false);
+                ZIP.unzip(file_, new File("plugins"), false, filter);
             } catch (final Exception e) {
                 e.printStackTrace();
             }
@@ -193,7 +204,7 @@ public class PluginActions {
         final String result = checkForUpdates(pluginName);
         if (!result.startsWith("OUTDATED"))
             return result;
-        final Plugin plugin = pluginsManager.getPlugin(pluginName);
+        final SBPlugin plugin = pluginsManager.getPlugin(pluginName);
         final File pluginFile = pluginsManager.getPluginFile(plugin.name);
         final boolean wasRunning = RemoteToolkit.isRunning();
         if (wasRunning) {
@@ -211,7 +222,7 @@ public class PluginActions {
         final File file = new File("plugins", plugin.getLatestVersion().filename);
         if (file.getName().endsWith(".zip")) {
             try {
-                ZIP.unzip(file, new File("plugins"), override);
+                ZIP.unzip(file, new File("plugins"), override, filter);
             } catch (final Exception e) {
                 e.printStackTrace();
             }

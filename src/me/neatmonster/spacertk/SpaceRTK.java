@@ -15,9 +15,12 @@
 package me.neatmonster.spacertk;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.UUID;
 import java.util.logging.Handler;
 import java.util.logging.Logger;
+
+import org.bukkit.configuration.file.YamlConfiguration;
 
 import com.drdanick.rtoolkit.EventDispatcher;
 import com.drdanick.rtoolkit.event.ToolkitEventPriority;
@@ -33,9 +36,7 @@ import me.neatmonster.spacertk.scheduler.Scheduler;
 import me.neatmonster.spacertk.utilities.BackupManager;
 import me.neatmonster.spacertk.utilities.Format;
 
-import org.bukkit.util.config.Configuration;
 
-@SuppressWarnings("deprecation")
 public class SpaceRTK {
     private static SpaceRTK spaceRTK;
 
@@ -81,25 +82,27 @@ public class SpaceRTK {
 
     public void onEnable() {
         spaceRTK = this;
-        final Configuration configuration = new Configuration(new File("SpaceModule", "configuration.yml"));
-        configuration.load();
+        final YamlConfiguration configuration = YamlConfiguration.loadConfiguration(SpaceModule.CONFIGURATION);
         type = configuration.getString("SpaceModule.Type", "Bukkit");
-        configuration.setProperty("SpaceModule.Type", type = "Bukkit");
+        configuration.set("SpaceModule.Type", type = "Bukkit");
         salt = configuration.getString("General.Salt", "<default>");
         if (salt.equals("<default>")) {
             salt = UUID.randomUUID().toString().replaceAll("-", "").toUpperCase();
-            configuration.setProperty("General.Salt", salt);
+            configuration.set("General.Salt", salt);
         }
         worldContainer = new File(configuration.getString("General.WorldContainer", "."));
         if (type.equals("Bukkit"))
             port = configuration.getInt("SpaceBukkit.Port", 2011);
         rPort = configuration.getInt("SpaceRTK.Port", 2012);
         backupDirName = configuration.getString("General.BackupDirectory", "Backups");
-        configuration.save();
+        try {
+            configuration.save(SpaceModule.CONFIGURATION);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
 
         File backupDir = new File(SpaceRTK.getInstance().worldContainer.getPath() + File.separator + SpaceRTK.getInstance().backupDirName);
-        File userDir = new File(System.getProperty("user.dir"));
-        for(File f : userDir.listFiles()) {
+        for(File f : baseDir.listFiles()) {
             if(f.isDirectory()) {
                 if(f.getName().equalsIgnoreCase(backupDirName) && !f.getName().equals(backupDirName)) {
                     f.renameTo(backupDir);
