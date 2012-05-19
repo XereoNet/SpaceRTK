@@ -14,13 +14,6 @@
  */
 package me.neatmonster.spacertk.utilities;
 
-import com.drdanick.rtoolkit.EventDispatcher;
-import com.drdanick.rtoolkit.event.ToolkitEventListener;
-import com.drdanick.rtoolkit.event.ToolkitEventPriority;
-import me.neatmonster.spacemodule.SpaceModule;
-import me.neatmonster.spacertk.SpaceRTK;
-import me.neatmonster.spacertk.event.BackupEvent;
-
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -34,6 +27,13 @@ import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
+import me.neatmonster.spacemodule.SpaceModule;
+import me.neatmonster.spacertk.event.BackupEvent;
+
+import com.drdanick.rtoolkit.EventDispatcher;
+import com.drdanick.rtoolkit.event.ToolkitEventListener;
+import com.drdanick.rtoolkit.event.ToolkitEventPriority;
+
 /**
  * Manage backup threads
  *
@@ -44,6 +44,9 @@ public class BackupManager {
     private BackupThread bThread;
     private DecimalFormat formatter;
 
+    /**
+     * Creates a new BackupManager
+     */
     public BackupManager() {
         formatter = new DecimalFormat("##0.00");
         formatter.setRoundingMode(RoundingMode.HALF_EVEN);
@@ -213,6 +216,9 @@ public class BackupManager {
         return bThread.running;
     }
 
+    /**
+     * Thread to actually run the backup
+     */
     private class BackupThread extends Thread {
 
         private File[] folders;
@@ -230,6 +236,15 @@ public class BackupManager {
         String error;
         boolean running = true;
 
+        /**
+         * Creates a new BackupThread
+         * @param folders Folders to backup
+         * @param ignoredFolders Folders that are ignored
+         * @param outputFile File to output the backup in
+         * @param backupName Name of the backup
+         * @param ignoreImmediateFiles If immediate files are ignored
+         * @param offlineBackup If the backup is offline
+         */
         BackupThread(File[] folders, String[] ignoredFolders, File outputFile, String backupName, boolean ignoreImmediateFiles, boolean offlineBackup) {
             this.folders = folders;
             this.ignoredFolders = Arrays.asList(ignoredFolders);
@@ -298,6 +313,14 @@ public class BackupManager {
             }
         }
 
+        /**
+         * Adds a directory to the zip stream
+         * @param entryPath Base folder
+         * @param dir Directory to add
+         * @param ignoredFolders Folders to ignore
+         * @param zip Zip stream to add to
+         * @throws IOException If the file could not be read or transfered
+         */
         private void addDirectoryToZipStream(String entryPath, File dir, List<String> ignoredFolders, ZipOutputStream zip) throws IOException {
             File[] files = dir.listFiles();
             status = "Backing up " + entryPath;
@@ -314,6 +337,13 @@ public class BackupManager {
             }
         }
 
+        /**
+         * Adds a file to the zip stream
+         * @param entryPath Base folder
+         * @param file File to add
+         * @param zip Zip Stream to add to
+         * @throws IOException If the file could not be read or transfered
+         */
         private void addFileToZipStream(String entryPath, File file, ZipOutputStream zip) throws IOException {
             final byte[] buf = new byte[1024];
             int len;
@@ -354,6 +384,12 @@ public class BackupManager {
             return size;
         }
 
+        /**
+         * Gets the size of a file
+         * @param f File to get the size of
+         * @return Size of the fiel
+         * @throws IOException If the file could not be read
+         */
         private long getFileSize(File f) throws IOException {
             InputStream stream = null;
             try {

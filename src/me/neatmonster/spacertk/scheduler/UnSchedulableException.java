@@ -16,10 +16,17 @@ package me.neatmonster.spacertk.scheduler;
 
 import me.neatmonster.spacemodule.api.ActionException;
 
-public class UnschedulableException extends ActionException {
+/**
+ * Called when an action cannot be scheduled
+ */
+public class UnSchedulableException extends ActionException {
     private static final long serialVersionUID = 1669841526883856747L;
 
-    public UnschedulableException(final String message) {
+    /**
+     * Creates a new UnScheduleableException with the specified message
+     * @param message Error message
+     */
+    public UnSchedulableException(final String message) {
         super(message);
     }
 }

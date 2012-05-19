@@ -29,9 +29,23 @@ import me.neatmonster.spacertk.utilities.ZIP;
 
 import org.apache.commons.io.FileUtils;
 
+/**
+ * Actions handler for any Plugin-related actions
+ */
 public class PluginActions {
     private static PluginsManager pluginsManager = SpaceRTK.getInstance().pluginsManager;
 
+    /**
+     * Checks to see if a plugin needs updates
+     * 
+     * NOTONBUKKITDEV - Not on BukkitDev
+     * UPTODATE,VERSION=*** - The plugin is up to date and at version ***
+     * OUTDATED,OLDVERSION=***,NEWVERSION=^^^ - The plugin is not up to date, it is at version *** and the latest version is ^^^
+     * UNKNOWN,NEWVERSION=*** - Unable to find the version, the plugin's newest version is ***
+     * FILENOTFOUND - The file could not be found
+     * @param pluginName Plugin to check
+     * @return If a plugin needs updates
+     */
     @Action(
             aliases = {"checkForUpdates", "pluginCheckUpdates"})
     public String checkForUpdates(final String pluginName) {
@@ -58,6 +72,11 @@ public class PluginActions {
         return null;
     }
 
+    /**
+     * Disables a plugin
+     * @param pluginName Plugin to disable
+     * @return If successful
+     */
     @Action(
             aliases = {"disable", "pluginDisable"})
     public boolean disable(final String pluginName) {
@@ -79,6 +98,11 @@ public class PluginActions {
         return result;
     }
 
+    /**
+     * Enables a plugin
+     * @param pluginName Plugin to enable
+     * @return If successful
+     */
     @Action(
             aliases = {"enable", "pluginEnable"})
     public boolean enable(final String pluginName) {
@@ -91,6 +115,11 @@ public class PluginActions {
         return result;
     }
 
+    /**
+     * Gets information about a plugin
+     * @param pluginName Plugin to get information about
+     * @return Information about a plugin
+     */
     @Action(
             aliases = {"informations", "pluginInformations"})
     public LinkedHashMap<String, Object> informations(final String pluginName) {
@@ -115,6 +144,14 @@ public class PluginActions {
         return new LinkedHashMap<String, Object>();
     }
 
+    /**
+     * Installs a plugin from BukGet
+     * NOTONBUKKITDEV - Plugin is not on BukkitDev
+     * ALREADYINSTALLED - The plugin is already installed
+     * SUCCESS - The plugin was installed
+     * @param pluginName Plugin to install
+     * @return Result
+     */
     @Action(
             aliases = {"install", "pluginInstall"})
     public String install(final String pluginName) {
@@ -140,6 +177,13 @@ public class PluginActions {
         return "SUCCESS";
     }
 
+    /**
+     * Installs a plugin from a URL
+     * SUCCESS - The plugin was successfully installed
+     * @param url URL to install from
+     * @param file File to install to
+     * @return
+     */
     @Action(
             aliases = {"installByUrl", "pluginInstallByUrl"})
     public String installByUrl(final String url, final String file) {
@@ -158,6 +202,14 @@ public class PluginActions {
         return "SUCCESS";
     }
 
+    /**
+     * Removes a plugin from the server
+     * FILENOTFOUND - The file was not found
+     * SUCCESS - The removal was successful
+     * @param pluginName Plugin to remove
+     * @param removeDirectory Directory to remove from
+     * @return Result
+     */
     @Action(
             aliases = {"remove", "pluginRemove"})
     public String remove(final String pluginName, final Boolean removeDirectory) {
@@ -187,6 +239,17 @@ public class PluginActions {
         return "SUCCESS";
     }
 
+    /**
+     * Updates a plugin
+     * NOTONBUKKITDEV - Not on BukkitDev
+     * UPTODATE,VERSION=*** - The plugin is up to date and at version ***
+     * UNKNOWN,NEWVERSION=*** - Unable to find the version, the plugin's newest version is ***
+     * FILENOTFOUND - The file could not be found
+     * SUCCESS - The plugin was updated successfully
+     * @param pluginName Plugin to update
+     * @param override Only extract the JAR
+     * @return Result
+     */
     @Action(
             aliases = {"update", "pluginUpdate"})
     public String update(final String pluginName, final Boolean override) {

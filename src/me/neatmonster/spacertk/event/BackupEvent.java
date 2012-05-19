@@ -17,29 +17,36 @@ package me.neatmonster.spacertk.event;
 
 import com.drdanick.rtoolkit.event.ToolkitEvent;
 
-import java.io.File;
+//import java.io.File;
 
 /**
  * Defines an event that is fired when a backup either starts, or ends.
  */
 public class BackupEvent extends ToolkitEvent {
     private boolean offlineBackup;
-    private boolean ignoreImmediateFiles;
+    //private boolean ignoreImmediateFiles;
     private String backupName;
-    private File outputFile;
+    /*private File outputFile;
     private String[] ignoredFolders;
-    private File[] files;
+    private File[] files;*/
     private long startTime;
     private long endTime;
 
+    /**
+     * Creates a new BackupEvent
+     * @param startTime Start time of the backup
+     * @param endTime End time of the backup
+     * @param offlineBackup If the backup was offline
+     * @param backupName What the backup is called
+     */
     public BackupEvent(long startTime, long endTime, boolean offlineBackup, /*boolean ignoreImmediateFiles, */String backupName/*,
             File outputFile, String[] ignoredFolders, File... folders*/) {
         this.startTime = startTime;
         this.endTime = endTime;
         this.offlineBackup = offlineBackup;
-        this.ignoreImmediateFiles = ignoreImmediateFiles;
+        //this.ignoreImmediateFiles = ignoreImmediateFiles;
         this.backupName = backupName;
-        this.outputFile = outputFile;
+        //this.outputFile = outputFile;
         //this.ignoredFolders = new String[ignoredFolders.length];
         //this.files = new File[files.length];
 

@@ -20,17 +20,48 @@ import java.util.List;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 
+/**
+ * Holds BukGet information about a version of a plugin
+ */
 public class Version {
 
+    /**
+     * Builds in this version
+     */
     public List<String> builds           = new ArrayList<String>();
+    /**
+     * Date at which the version was released
+     */
     public long         date             = 0L;
+    /**
+     * Filename of the version
+     */
     public String       filename         = "";
+    /**
+     * A list of hard dependencies this version requires
+     */
     public List<String> hardDependencies = new ArrayList<String>();
+    /**
+     * A link to the download of this version
+     */
     public String       link             = "";
+    /**
+     * The MD5 of this version
+     */
     public String       md5              = "";
+    /**
+     * The name of this version
+     */
     public String       name             = "";
+    /**
+     * A list of soft dependencies this version requires
+     */
     public List<String> softDependencies = new ArrayList<String>();
 
+    /**
+     * Creates a new version
+     * @param version JSONObject containing the raw information from BukGet
+     */
     public Version(final JSONObject version) {
         date = (Long) version.get("date");
         name = (String) version.get("name");

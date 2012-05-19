@@ -39,6 +39,10 @@ import org.bukkit.util.config.Configuration;
 public class SpaceRTK {
     private static SpaceRTK spaceRTK;
 
+    /**
+     * Gets the RTK Instance
+     * @return RTK Instance
+     */
     public static SpaceRTK getInstance() {
         return spaceRTK;
     }
@@ -58,6 +62,9 @@ public class SpaceRTK {
 
     public static final File baseDir = new File(System.getProperty("user.dir"));
 
+    /**
+     * Creates a new RTK
+     */
     public SpaceRTK() {
         try {
             final Logger rootlog = Logger.getLogger("");
@@ -71,6 +78,9 @@ public class SpaceRTK {
         }
     }
 
+    /**
+     * Called when the RTK is disabled
+     */
     public void onDisable() {
         try {
             panelListener.stopServer();
@@ -79,6 +89,9 @@ public class SpaceRTK {
         }
     }
 
+    /**
+     * Called when the RTK is enabled
+     */
     public void onEnable() {
         spaceRTK = this;
         final Configuration configuration = new Configuration(new File("SpaceModule", "configuration.yml"));
@@ -117,6 +130,10 @@ public class SpaceRTK {
         Scheduler.loadJobs();
     }
 
+    /**
+     * Gets the Backup Manager
+     * @return Backup Manager
+     */
     public BackupManager getBackupManager() {
         return backupManager;
     }

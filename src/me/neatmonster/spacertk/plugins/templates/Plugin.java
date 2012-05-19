@@ -20,15 +20,43 @@ import java.util.List;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 
+/**
+ * Holds BukGet information about a plugin
+ */
 public class Plugin {
+    /**
+     * Authors that currently contribute the the plugin
+     */
     public List<String>  authors     = new ArrayList<String>();
+    /**
+     * Categories the plugin is applicable under
+     */
     public List<String>  categories  = new ArrayList<String>();
+    /**
+     * A description of the plugin
+     */
     public String        description = "";
+    /**
+     * A link to the plugins website
+     */
     public String        link        = "";
+    /**
+     * The name of the plugin
+     */
     public String        name        = "";
+    /**
+     * The status of the plugin
+     */
     public String        status      = "";
+    /**
+     * A list of versions of the plugin (On BukkitDev)
+     */
     public List<Version> versions    = new ArrayList<Version>();
 
+    /**
+     * Creats a new Plugin
+     * @param plugin JSONObject containing the raw information from BukGet
+     */
     public Plugin(final JSONObject plugin) {
         name = (String) plugin.get("name");
         status = (String) plugin.get("status");
@@ -54,6 +82,10 @@ public class Plugin {
             versions.add(new Version(object));
     }
 
+    /**
+     * Gets the latest version of a plugin
+     * @return Latest version
+     */
     public Version getLatestVersion() {
         int index = 0;
         long date = 0;
