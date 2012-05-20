@@ -191,7 +191,7 @@ public class PluginActions {
             aliases = {"update", "pluginUpdate"})
     public String update(final String pluginName, final Boolean override) {
         final String result = checkForUpdates(pluginName);
-        if (!result.startsWith("OUTDATED"))
+        if (!result.startsWith("OUTDATED") && !result.startsWith("UNKNOWN"))
             return result;
         final Plugin plugin = pluginsManager.getPlugin(pluginName);
         final File pluginFile = pluginsManager.getPluginFile(plugin.name);
