@@ -344,7 +344,15 @@ public class ServerActions {
     @Action(
             aliases = {"rollOverLog", "rollOver"})
     public boolean rollOver() {
-        final File oldLog = new File("server.log");
+        File oldLog = null;
+        for (File file : new File("").listFiles()) {
+            if (file.getName().contains("server") && file.getName().endsWith(".log")) {
+               oldLog = file; 
+            }
+        }
+        if (oldLog == null) {
+            return false;
+        }
         final SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd_HH-mm");
         final File newLog = new File("server_" + format.format(new Date()) + ".log");
         try {
@@ -352,6 +360,11 @@ public class ServerActions {
                 newLog.createNewFile();
             FileUtils.writeStringToFile(newLog, FileUtils.readFileToString(oldLog));
             FileUtils.write(oldLog, "");
+            
+            if (SpaceRTK.getInstance().backupLogs) {
+                FileUtils.copyFileToDirectory(oldLog, new File(SpaceRTK.getInstance().backupDirName));
+            }
+            oldLog.delete();
         } catch (final IOException e) {
             e.printStackTrace();
         }

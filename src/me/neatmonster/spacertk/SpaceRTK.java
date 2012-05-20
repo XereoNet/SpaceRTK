@@ -53,6 +53,7 @@ public class SpaceRTK {
     public String         salt;
     public File           worldContainer;
     public String         backupDirName;
+    public boolean        backupLogs;
 
     private BackupManager backupManager;
 
@@ -95,6 +96,7 @@ public class SpaceRTK {
             port = configuration.getInt("SpaceBukkit.Port", 2011);
         rPort = configuration.getInt("SpaceRTK.Port", 2012);
         backupDirName = configuration.getString("General.BackupDirectory", "Backups");
+        backupLogs = configuration.getBoolean("General.BackupLogs", true);
         configuration.save();
 
         File backupDir = new File(SpaceRTK.getInstance().worldContainer.getPath() + File.separator + SpaceRTK.getInstance().backupDirName);
