@@ -21,11 +21,19 @@ import org.apache.commons.io.filefilter.AbstractFileFilter;
 import org.apache.commons.io.filefilter.IOFileFilter;
 import org.apache.commons.io.filefilter.NameFileFilter;
 
+/**
+ * File filter to ignore everything but a world directory
+ */
 @SuppressWarnings("serial")
 public class WorldFileFilter extends AbstractFileFilter implements Serializable {
+    /**
+     * An instance of the WorldFileFilter
+     */
     public static final IOFileFilter INSTANCE = new WorldFileFilter();
-    public static final IOFileFilter WORLD    = new WorldFileFilter();
 
+    /**
+     * Creates a new WorldFileFilter
+     */
     protected WorldFileFilter() {}
 
     @Override

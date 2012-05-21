@@ -26,6 +26,9 @@ import me.neatmonster.spacertk.utilities.Utilities;
 
 import org.json.simple.JSONValue;
 
+/**
+ * Holds information about a task to be preformed
+ */
 public class Job extends TimerTask {
     public final Object[] actionArguments;
     public final String   actionName;
@@ -33,20 +36,29 @@ public class Job extends TimerTask {
     private final Timer   timer = new Timer();
     public final String   timeType;
 
+    /**
+     * Creats a new Job
+     * @param actionName Action to preform
+     * @param actionArguments Arguments to preform the action with
+     * @param timeType Type of time to schedule the action with
+     * @param timeArgument Argument of time to schedule the action with
+     * @param loading If the job is being loaded
+     * @throws UnSchedulableException If the action cannot be scheduled
+     * @throws UnhandledActionException If the action is unknown
+     */
     @SuppressWarnings("deprecation")
     public Job(final String actionName, final Object[] actionArguments, final String timeType,
-            final String timeArgument, final boolean loading) throws UnschedulableException, UnhandledActionException {
+            final String timeArgument, final boolean loading) throws UnSchedulableException, UnhandledActionException {
         if (!SpaceRTK.getInstance().actionsManager.contains(actionName)) {
             if (!loading) {
                 final String result = Utilities.sendMethod("isSchedulable", "[\"" + actionName + "\"]");
-                if (result == null || !result.equals("true"))
-                    if (result == null || result.equals(""))
-                        throw new UnhandledActionException();
-                    else
-                        throw new UnschedulableException("Action " + actionName + " isn't schedulable!");
+                if (result == null || !result.equals("true") || result.equals(""))
+                    throw new UnhandledActionException();
+                else
+                    throw new UnSchedulableException("Action " + actionName + " isn't schedulable!");
             }
         } else if (!SpaceRTK.getInstance().actionsManager.isSchedulable(actionName))
-            throw new UnschedulableException("Action " + actionName + " isn't schedulable!");
+            throw new UnSchedulableException("Action " + actionName + " isn't schedulable!");
         this.actionName = actionName;
         this.actionArguments = actionArguments;
         this.timeType = timeType;
@@ -74,6 +86,9 @@ public class Job extends TimerTask {
         Scheduler.saveJobs();
     }
 
+    /**
+     * Aborts the job
+     */
     public void abort() {
         timer.cancel();
     }

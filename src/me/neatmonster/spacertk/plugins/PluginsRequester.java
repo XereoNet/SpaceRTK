@@ -22,6 +22,9 @@ import java.net.URLConnection;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONValue;
 
+/**
+ * Requests a list of plugins from BukGet
+ */
 public class PluginsRequester implements Runnable {
 
     @Override

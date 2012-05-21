@@ -33,8 +33,17 @@ import org.apache.commons.io.filefilter.DirectoryFileFilter;
 import org.apache.commons.io.filefilter.FileFileFilter;
 import org.apache.commons.io.filefilter.TrueFileFilter;
 
+/**
+ * Actions handler for any File-related actions
+ */
 public class FileActions {
 
+    /**
+     * Copy's a directory to another directory
+     * @param oldDirectory Directory to copy
+     * @param newDirectory Directory to copy to
+     * @return If successful
+     */
     @Action(
             aliases = {"copyDirectory", "copyDir"})
     public boolean copyDirectory(final String oldDirectory, final String newDirectory) {
@@ -47,6 +56,12 @@ public class FileActions {
         return false;
     }
 
+    /**
+     * Copy's a file
+     * @param oldFile File to copy
+     * @param newFile File to copy to
+     * @return
+     */
     @Action(
             aliases = {"copyFile"})
     public boolean copyFile(final String oldFile, final String newFile) {
@@ -59,6 +74,11 @@ public class FileActions {
         return false;
     }
 
+    /**
+     * Creates a directory
+     * @param directory Directory to create
+     * @return If successful
+     */
     @Action(
             aliases = {"createDirectory", "createDir"})
     public boolean createDirectory(final String directory) {
@@ -71,6 +91,11 @@ public class FileActions {
         return false;
     }
 
+    /**
+     * Creates a file
+     * @param file File to create
+     * @return If successful
+     */
     @Action(
             aliases = {"createFile"})
     public boolean createFile(final String file) {
@@ -86,6 +111,11 @@ public class FileActions {
         return true;
     }
 
+    /**
+     * Deletes a directory
+     * @param directory Directory to delete
+     * @return If successful
+     */
     @Action(
             aliases = {"deleteDirectory", "deleteDir"})
     public boolean deleteDirectory(final String directory) {
@@ -98,6 +128,11 @@ public class FileActions {
         return false;
     }
 
+    /**
+     * Deletes a file
+     * @param file File to delete
+     * @return If successful
+     */
     @Action(
             aliases = {"deleteFile"})
     public boolean deleteFile(final String file) {
@@ -105,6 +140,11 @@ public class FileActions {
         return true;
     }
 
+    /**
+     * Reads a file and returns a String representation of the contents
+     * @param file File to read
+     * @return String representation of the File
+     */
     @Action(
             aliases = {"getFileContent", "getContent"})
     public String getFileContent(final String file) {
@@ -116,6 +156,11 @@ public class FileActions {
         return "";
     }
 
+    /**
+     * Gets information about a File
+     * @param file File to get information about
+     * @return Information about a file
+     */
     @Action(
             aliases = {"getFileInformations", "fileInformations", "informations"})
     public TreeMap<String, Object> getFileInformations(final String file) {
@@ -138,24 +183,45 @@ public class FileActions {
         return new TreeMap<String, Object>();
     }
 
+    /**
+     * Gets a list of directories in a directory
+     * @param directory Base directory
+     * @return List of directories
+     */
     @Action(
             aliases = {"listDirectories", "listDirs"})
     public List<String> listDirectories(final String directory) {
         return Arrays.asList(new File(directory).list(DirectoryFileFilter.INSTANCE));
     }
 
+    /**
+     * Gets a list of files in a directory
+     * @param directory Base directory
+     * @return List of files
+     */
     @Action(
             aliases = {"listFiles"})
     public List<String> listFiles(final String directory) {
         return Arrays.asList(new File(directory).list(FileFileFilter.FILE));
     }
 
+    /**
+     * Gets a list of files and directories in a directory
+     * @param directory Base directory
+     * @return List of files and directory
+     */
     @Action(
             aliases = {"listFilesAndDirectories", "listFilesDirs"})
     public List<String> listFilesAndDirectories(final String directory) {
         return Arrays.asList(new File(directory).list(TrueFileFilter.INSTANCE));
     }
 
+    /**
+     * Sends a file to a URL
+     * @param url URL to send to
+     * @param file File to send
+     * @return If successful
+     */
     @Action(
             aliases = {"sendFile", "fileSend"})
     public boolean sendFile(final String url, final String file) {
@@ -175,6 +241,12 @@ public class FileActions {
         return false;
     }
 
+    /**
+     * Sets a files contents
+     * @param file File to set
+     * @param content Contents to set
+     * @return If successful
+     */
     @Action(
             aliases = {"setFileContent", "setContent"})
     public boolean setFileContent(final String file, final String content) {

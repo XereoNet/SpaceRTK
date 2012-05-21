@@ -22,6 +22,10 @@ import me.neatmonster.spacertk.event.BackupEvent;
  */
 public class BackupListener implements ToolkitEventListener {
 
+    /**
+     * Called when the server backs up
+     * @param e Event details
+     */
     public void onBackupEvent(BackupEvent e) {
         if(e.isOfflineBackup()) {
             if(e.getEndTime() == -1) {

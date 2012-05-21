@@ -21,15 +21,24 @@ import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 
+import me.neatmonster.spacemodule.SpaceModule;
 import me.neatmonster.spacemodule.api.UnhandledActionException;
 
 import org.bukkit.util.config.Configuration;
 import org.json.simple.JSONValue;
 
+/**
+ * Stores information about various jobs to be run
+ */
 @SuppressWarnings("deprecation")
 public class Scheduler {
     private static LinkedHashMap<String, Job> jobs = new LinkedHashMap<String, Job>();
 
+    /**
+     * Adds a job to the queue
+     * @param jobName Name of the job
+     * @param job Job to add
+     */
     public static void addJob(final String jobName, final Job job) {
         if (!jobs.containsKey(jobName)) {
             jobs.put(jobName, job);
@@ -37,12 +46,19 @@ public class Scheduler {
         }
     }
 
+    /**
+     * Gets a list of jobs currently queued
+     * @return All jobs
+     */
     public static LinkedHashMap<String, Job> getJobs() {
         return jobs;
     }
 
+    /**
+     * Loads all the saved jobs from the file
+     */
     public static void loadJobs() {
-        final File file = new File("SpaceModule", "jobs.yml");
+        final File file = new File(SpaceModule.MAIN_DIRECTORY, "jobs.yml");
         if (!file.exists())
             try {
                 file.createNewFile();
@@ -66,7 +82,7 @@ public class Scheduler {
                 try {
                     final Job job = new Job(actionName, actionArguments, timeType, timeArgument, true);
                     jobs.put(jobName, job);
-                } catch (final UnschedulableException e) {
+                } catch (final UnSchedulableException e) {
                     e.printStackTrace();
                 } catch (final UnhandledActionException e) {
                     e.printStackTrace();
@@ -75,14 +91,24 @@ public class Scheduler {
         configuration.save();
     }
 
+    /**
+     * Removes a job from the queue
+     * @param jobName Job to remove
+     */
     public static void removeJob(final String jobName) {
-        jobs.get(jobName).abort();
+        if (!(jobs.containsKey(jobName))) {
+            return;
+        }
+        jobs.get(jobName).abort(); 
         jobs.remove(jobName);
         saveJobs();
     }
 
+    /**
+     * Saves all the queued jobs to the file
+     */
     public static void saveJobs() {
-        final File file = new File("SpaceModule", "jobs.yml");
+        final File file = new File(SpaceModule.MAIN_DIRECTORY, "jobs.yml");
         if (!file.exists())
             try {
                 file.createNewFile();

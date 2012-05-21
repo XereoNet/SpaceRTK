@@ -19,9 +19,15 @@ import java.util.Date;
 import java.util.logging.Formatter;
 import java.util.logging.LogRecord;
 
+/**
+ * Formats the log output
+ */
 public class Format extends Formatter {
     SimpleDateFormat dformat;
 
+    /**
+     * Creates a new FOrmatter
+     */
     public Format() {
         dformat = new SimpleDateFormat("HH:mm:ss ");
     }

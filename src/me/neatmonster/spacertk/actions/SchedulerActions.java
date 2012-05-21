@@ -22,10 +22,22 @@ import me.neatmonster.spacemodule.api.Action;
 import me.neatmonster.spacemodule.api.UnhandledActionException;
 import me.neatmonster.spacertk.scheduler.Job;
 import me.neatmonster.spacertk.scheduler.Scheduler;
-import me.neatmonster.spacertk.scheduler.UnschedulableException;
+import me.neatmonster.spacertk.scheduler.UnSchedulableException;
 
+/**
+ * Actions handler for any Scheduler-related actions
+ */
 public class SchedulerActions {
 
+    /**
+     * Adds a job
+     * @param jobName Name of the job
+     * @param actionName Action to execute when the job is run
+     * @param actionArguments Arguments to run the action with
+     * @param timeType Type of time to schedule at
+     * @param timeArgument Amount of time to schedule
+     * @return If successful
+     */
     @Action(
             aliases = {"addJob"})
     public boolean addJob(final String jobName, final String actionName, final Object[] actionArguments,
@@ -36,7 +48,7 @@ public class SchedulerActions {
                 job = new Job(actionName, actionArguments, timeType, timeArgument, false);
                 Scheduler.addJob(jobName, job);
                 return true;
-            } catch (final UnschedulableException e) {
+            } catch (final UnSchedulableException e) {
                 e.printStackTrace();
             } catch (final UnhandledActionException e) {
                 e.printStackTrace();
@@ -46,6 +58,10 @@ public class SchedulerActions {
         return false;
     }
 
+    /**
+     * Gets a list of all the jobs scheduled
+     * @return All jobs currently scheduled
+     */
     @Action(
             aliases = {"getJobs"})
     public LinkedHashMap<String, LinkedList<Object>> getJobs() {
@@ -62,6 +78,11 @@ public class SchedulerActions {
         return jobs;
     }
 
+    /**
+     * Removes a job
+     * @param jobName Job to be removed
+     * @return If successful
+     */
     @Action(
             aliases = {"removeJob"})
     public boolean removeJob(final String jobName) {
@@ -69,6 +90,11 @@ public class SchedulerActions {
         return true;
     }
 
+    /**
+     * Runs a job
+     * @param jobName Job to run
+     * @return If successful
+     */
     @Action(
             aliases = {"runJob"})
     public Object runJob(final String jobName) {
