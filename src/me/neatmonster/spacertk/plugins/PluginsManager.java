@@ -31,15 +31,26 @@ import org.json.simple.JSONObject;
 import org.json.simple.JSONValue;
 
 @SuppressWarnings("deprecation")
+/**
+ * Manages plugins and BukGet interaction
+ */
 public class PluginsManager {
     public static List<String>        pluginsNames = new ArrayList<String>();
 
     private final Map<String, Plugin> plugins      = new HashMap<String, Plugin>();
 
+    /**
+     * Creates a new PluginsManager
+     */
     public PluginsManager() {
         new Thread(new PluginsRequester()).start();
     }
 
+    /**
+     * Adds a plugin
+     * @param pluginName Plugin to add
+     * @return The created plugin object
+     */
     private Plugin addPlugin(final String pluginName) {
         try {
             final URLConnection connection = new URL("http://bukget.org/api/plugin/" + pluginName).openConnection();
@@ -59,6 +70,11 @@ public class PluginsManager {
         return null;
     }
 
+    /**
+     * Checks if the manager is managing a plugin
+     * @param pluginName Plugin to check
+     * @return If the manager is managing a plugin
+     */
     private boolean contains(String pluginName) {
         pluginName = pluginName.toLowerCase();
         if (pluginsNames.contains(pluginName))
@@ -72,6 +88,11 @@ public class PluginsManager {
         return false;
     }
 
+    /**
+     * Gets a plugin by its name
+     * @param pluginName Plugin to get
+     * @return The plugin object
+     */
     public Plugin getPlugin(String pluginName) {
         pluginName = pluginName.toLowerCase();
         if (plugins.containsKey(pluginName))
@@ -108,6 +129,11 @@ public class PluginsManager {
             return null;
     }
 
+    /**
+     * Gets the file of a plugin
+     * @param pluginName Plugin to get
+     * @return File of the plugin
+     */
     public File getPluginFile(String pluginName) {
         pluginName = pluginName.toLowerCase().replace(" ", "");
         final Configuration configuration = new Configuration(new File("SpaceModule" + File.separator + "SpaceBukkit",

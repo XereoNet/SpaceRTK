@@ -31,9 +31,21 @@ import java.util.logging.Logger;
 
 import me.neatmonster.spacertk.SpaceRTK;
 
+/**
+ * Various Utility methods
+ */
 public class Utilities {
+    /**
+     * Logger that handles any output to the console
+     */
     public static Logger logger = Logger.getLogger("Minecraft");
 
+    /**
+     * Adds the HTTP header to a string
+     * @param string String to add to
+     * @return String with the header
+     * @throws UnsupportedEncodingException If the encoding is not UTF-8
+     */
     public static String addHeader(final String string) throws UnsupportedEncodingException {
         String finishedString = "";
         String byteLengthOfFinishedString = "";
@@ -56,6 +68,12 @@ public class Utilities {
         return finishedString;
     }
 
+    /**
+     * Encrypts a string with 
+     * @param string String to encrypt
+     * @return String encrypted with hex
+     * @throws NoSuchAlgorithmException If SHA-256 or UTF-8 is not supported
+     */
     public static String crypt(final String string) throws NoSuchAlgorithmException {
         final MessageDigest digest = MessageDigest.getInstance("SHA-256");
         digest.reset();
@@ -75,7 +93,13 @@ public class Utilities {
         }
         return "UnsupportedEncodingException";
     }
-
+    
+    /**
+     * Gets the MD5 of a file
+     * @param file File to get the MD5 of
+     * @return MD5 of the file
+     * @throws FileNotFoundException If the file cannot be found
+     */
     public static String getMD5(final File file) throws FileNotFoundException {
         try {
             final MessageDigest messageDigest = MessageDigest.getInstance("MD5");
@@ -90,6 +114,12 @@ public class Utilities {
         return null;
     }
 
+    /**
+     * Sends a method to the panel from the plugin
+     * @param method Method to send
+     * @param arguments Arguments to that method
+     * @return Result of the method
+     */
     public static String sendMethod(final String method, final String arguments) {
         try {
             final URL url = new URL("http://localhost:" + SpaceRTK.getInstance().port + "/call?method=" + method

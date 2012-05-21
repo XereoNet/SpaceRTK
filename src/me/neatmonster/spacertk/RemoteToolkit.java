@@ -23,8 +23,15 @@ import com.drdanick.McRKit.Scheduler;
 import com.drdanick.McRKit.ToolkitAction;
 import com.drdanick.McRKit.Wrapper;
 
+/**
+ * Utilities to interact with the RTK
+ */
 public class RemoteToolkit {
 
+    /**
+     * Sends a command from the console
+     * @param command Command to send
+     */
     public static void consoleCommand(String command) {
         try {
             final Field field = Wrapper.getInstance().getClass().getDeclaredField("console");
@@ -39,6 +46,10 @@ public class RemoteToolkit {
         }
     }
 
+    /**
+     * Sends a java command
+     * @param command Command to send
+     */
     public static void externalCommand(final String command) {
         try {
             Runtime.getRuntime().exec(command);
@@ -47,10 +58,16 @@ public class RemoteToolkit {
         }
     }
 
+    /**
+     * Forces the RTK to restart
+     */
     public static void forceRestart() {
         Wrapper.getInterface().performAction(ToolkitAction.FORCERESTART, null);
     }
 
+    /**
+     * Forces the RTK to stop
+     */
     public static void forceStop() {
         try {
             final Field restarting = Wrapper.getInstance().getClass().getDeclaredField("restarting");
@@ -84,6 +101,9 @@ public class RemoteToolkit {
         }
     }
 
+    /**
+     * Holds the server
+     */
     public static void hold() {
         try {
             final Field restarting = Wrapper.getInstance().getClass().getDeclaredField("restarting");
@@ -119,16 +139,28 @@ public class RemoteToolkit {
         }
     }
 
+    /**
+     * Schedules a restart at a date
+     * @param date Date to restart at
+     */
     public static void rescheduleRestart(final String date) {
         Wrapper.getInstance().performAction(ToolkitAction.RESCHEDULE, date);
     }
 
+    /**
+     * Restarts the server, with an option to save
+     * @param save If the server should be save before restarting
+     */
     public static void restart(final boolean save) {
         if (save)
             save();
         Wrapper.getInterface().performAction(ToolkitAction.RESTART, null);
     }
 
+    /**
+     * Checks if the server is running
+     * @return If the server is running
+     */
     public static boolean isRunning() {
         try {
             final Field field = Wrapper.getInstance().getClass().getDeclaredField("serverRunning");
@@ -140,10 +172,16 @@ public class RemoteToolkit {
         return false;
     }
 
+    /**
+     * Saves the server
+     */
     public static void save() {
         consoleCommand("save-all");
     }
 
+    /**
+     * Unholds the RTK
+     */
     public static void unhold() {
         Wrapper.getInterface().performAction(ToolkitAction.UNHOLD, null);
     }

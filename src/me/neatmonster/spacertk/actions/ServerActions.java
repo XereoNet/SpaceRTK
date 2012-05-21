@@ -40,8 +40,18 @@ import org.json.simple.JSONValue;
 
 import chunkster.Chunkster;
 
+/**
+ * Actions handler for any Server-related actions
+ */
 public class ServerActions {
 
+    /**
+     * Backups a directory
+     * @param name Name of the backup
+     * @param directory Directory to backup
+     * @param offlineBackup If the backup is offline
+     * @return If successful
+     */
     @Action(
             aliases = {"backup", "backupDirectory", "backupDir"})
     public boolean backup(String name, String directory, boolean offlineBackup) {
@@ -70,7 +80,7 @@ public class ServerActions {
                 File oldDirectory = new File(SpaceRTK.getInstance().worldContainer.getPath() + File.separator + directory);
                 String dirPath = oldDirectory.getCanonicalPath();
 
-                if(!dirPath.startsWith(SpaceRTK.getInstance().baseDir.getCanonicalPath()))
+                if(!dirPath.startsWith(SpaceRTK.baseDir.getCanonicalPath()))
                     return false;
 
                 File zipFile = new File(backupDir + File.separator + name + "_" + dateFormat.format(date)+ ".zip");
@@ -84,6 +94,10 @@ public class ServerActions {
 
     }
 
+    /**
+     * Gets information about the backup manager
+     * @return Information about the backup manager
+     */
     @Action(
             aliases = {"getBackupInfo", "backupInfo"})
     public List<String> getBackupInfo() {
@@ -103,18 +117,31 @@ public class ServerActions {
         return info;
     }
 
+    /**
+     * Gets the last backup error
+     * @return Last backup error
+     */
     @Action(
             aliases = {"lastBackupError", "getLastBackupError"})
     public String getLastBackupError() {
         return SpaceRTK.getInstance().getBackupManager().getLastError();
     }
 
+    /**
+     * Checks if a backup is currently running
+     * @return Backup is running
+     */
     @Action(
             aliases = {"isBackupRunning", "backupRunning"})
     public boolean isBackupRunning() {
         return SpaceRTK.getInstance().getBackupManager().isBackupRunning();
     }
 
+    /**
+     * Preforms a console command
+     * @param command Command to preform
+     * @return If successful
+     */
     @Action(
             aliases = {"consoleCommand", "serverCommand", "command"})
     public boolean consoleCommand(final String command) {
@@ -122,6 +149,11 @@ public class ServerActions {
         return true;
     }
 
+    /**
+     * Preforms a java command
+     * @param command Command to preform
+     * @return If successful
+     */
     @Action(
             aliases = {"externalCommand"})
     public boolean externalCommand(final String command) {
@@ -129,6 +161,10 @@ public class ServerActions {
         return true;
     }
 
+    /**
+     * Forces the server to restart
+     * @return If successful
+     */
     @Action(
             aliases = {"forceRestart", "forceRestartServer"})
     public boolean forceRestart() {
@@ -136,6 +172,10 @@ public class ServerActions {
         return true;
     }
 
+    /**
+     * Forces the server to stop
+     * @return If successful
+     */
     @Action(
             aliases = {"forceStop", "forceStopServer"})
     public boolean forceStop() {
@@ -143,12 +183,20 @@ public class ServerActions {
         return true;
     }
 
+    /**
+     * Gets all the worlds on the server
+     * @return All worlds
+     */
     @Action(
             aliases = {"getAllWorlds", "allWorlds"})
     public List<String> getAllWorlds() {
         return Arrays.asList(SpaceRTK.getInstance().worldContainer.list(WorldFileFilter.INSTANCE));
     }
 
+    /**
+     * Gets all the backups and their information
+     * @return Backups and their information
+     */
     @Action(
             aliases = {"getBackups", "backups"})
     public List<List<String>> getBackups() {
@@ -184,6 +232,10 @@ public class ServerActions {
         return backups;
     }
 
+    /**
+     * Gets the SpaceModule version
+     * @return SpaceModule version
+     */
     @Action(
             aliases = {"getSpaceModuleVersion", "SpaceModuleVersion", "SpaceModule"})
     public String getSpaceModuleVersion() {
@@ -196,6 +248,10 @@ public class ServerActions {
         }
     }
 
+    /**
+     * Gets the SpaceRTK version
+     * @return SpaceRTK version
+     */
     @Action(
             aliases = {"getVersion", "version"})
     public String getSpaceRTKVersion() {
@@ -208,6 +264,10 @@ public class ServerActions {
         }
     }
 
+    /**
+     * Holds the server
+     * @return If successful
+     */
     @Action(
             aliases = {"hold", "stop", "stopServer"})
     public boolean hold() {
@@ -215,6 +275,11 @@ public class ServerActions {
         return true;
     }
 
+    /**
+     * Schedules a restart at a date
+     * @param date Date to restart
+     * @return If successful
+     */
     @Action(
             aliases = {"rescheduleRestart", "rescheduleServerRestart"})
     public boolean rescheduleRestart(final String date) {
@@ -222,6 +287,11 @@ public class ServerActions {
         return true;
     }
 
+    /**
+     * Restarts the server
+     * @param save If the server should be saved before restarting
+     * @return If successful
+     */
     @Action(
             aliases = {"restart", "restartServer"})
     public boolean restart(final Boolean save) {
@@ -229,6 +299,11 @@ public class ServerActions {
         return true;
     }
 
+    /**
+     * Restarts the server if it's emtpy
+     * @param save If the server should be saved before restarting
+     * @return If successful
+     */
     @Action(
             aliases = {"restartIfEmpty", "restartServerIfEmpty"})
     public boolean restartIfEmpty(final Boolean save) {
@@ -238,6 +313,12 @@ public class ServerActions {
         return true;
     }
 
+    /**
+     * Restores a directory
+     * @param date Date the directory was backuped at
+     * @param directory Directory to restore
+     * @return If successful
+     */
     @Action(
             aliases = {"restore", "restoreDirectory", "restoreDir"})
     public boolean restore(final String date, final String directory) {
@@ -341,6 +422,10 @@ public class ServerActions {
         }
     }
 
+    /**
+     * Rollover's the log
+     * @return If successful
+     */
     @Action(
             aliases = {"rollOverLog", "rollOver"})
     public boolean rollOver() {
@@ -358,6 +443,11 @@ public class ServerActions {
         return true;
     }
 
+    /**
+     * Runs chunkster
+     * @param worldName World to run chunkster on
+     * @return If successful
+     */
     @Action(
             aliases = {"runChunkster", "chunkster"})
     public boolean runChunkster(final String worldName) {
@@ -378,6 +468,13 @@ public class ServerActions {
         return true;
     }
 
+    /**
+     * Runs MapAutoTrim
+     * @param worldName World to run MapAutoTrim on
+     * @param dilation Dilation to run MapAutoTrim with
+     * @param preservedBlocks Any preserved blocks for MapAutoTrim
+     * @return If successful
+     */
     @Action(
             aliases = {"runMapAutoTrim", "mapAutoTrim"})
     public boolean runMapAutoTrim(final String worldName, final String dilation, final String preservedBlocks) {
@@ -414,12 +511,20 @@ public class ServerActions {
         return true;
     }
 
+    /**
+     * Gets if the server is running
+     * @return Server is running
+     */
     @Action(
             aliases = {"isRunning", "isServerRunning", "running"})
     public boolean running() {
         return RemoteToolkit.isRunning();
     }
 
+    /**
+     * Saves the server
+     * @return If successful
+     */
     @Action(
             aliases = {"save", "saveServer"})
     public boolean save() {
@@ -427,6 +532,10 @@ public class ServerActions {
         return true;
     }
 
+    /**
+     * Unholds the server
+     * @return If successful
+     */
     @Action(
             aliases = {"unhold", "start", "startServer"})
     public boolean unhold() {
