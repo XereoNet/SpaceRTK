@@ -17,18 +17,12 @@ package me.neatmonster.spacertk.event;
 
 import com.drdanick.rtoolkit.event.ToolkitEvent;
 
-//import java.io.File;
-
 /**
  * Defines an event that is fired when a backup either starts, or ends.
  */
 public class BackupEvent extends ToolkitEvent {
     private boolean offlineBackup;
-    //private boolean ignoreImmediateFiles;
     private String backupName;
-    /*private File outputFile;
-    private String[] ignoredFolders;
-    private File[] files;*/
     private long startTime;
     private long endTime;
 
@@ -39,29 +33,13 @@ public class BackupEvent extends ToolkitEvent {
      * @param offlineBackup If the backup was offline
      * @param backupName What the backup is called
      */
-    public BackupEvent(long startTime, long endTime, boolean offlineBackup, /*boolean ignoreImmediateFiles, */String backupName/*,
-            File outputFile, String[] ignoredFolders, File... folders*/) {
+    public BackupEvent(long startTime, long endTime, boolean offlineBackup, String backupName) {
         this.startTime = startTime;
         this.endTime = endTime;
         this.offlineBackup = offlineBackup;
-        //this.ignoreImmediateFiles = ignoreImmediateFiles;
         this.backupName = backupName;
-        //this.outputFile = outputFile;
-        //this.ignoredFolders = new String[ignoredFolders.length];
-        //this.files = new File[files.length];
-
-        //System.arraycopy(ignoredFolders, 0, this.ignoredFolders, 0, ignoredFolders.length);
-        //System.arraycopy(files, 0, this.files, 0, files.length);
     }
 
-    /**
-     * Check if immeidate regular files in the backup root should be ignored.
-     * @return True if regular files in the backup directory
-     *         root should be ignored, false otherwise.
-     */
-    //public boolean ignoreImmediateFiles() {
-    //    return ignoreImmediateFiles;
-    //}
 
     /**
      * Get the name of the backup.
@@ -71,13 +49,6 @@ public class BackupEvent extends ToolkitEvent {
         return backupName;
     }
 
-    /**
-     * Get the file the backup is being saved to.
-     * @return The file the backup is being saved to.
-     */
-    //public File getOutputFile() {
-    //    return outputFile;
-    //}
 
     /**
      * Get the time the backup started.
