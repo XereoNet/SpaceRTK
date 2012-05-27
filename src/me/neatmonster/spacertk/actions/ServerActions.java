@@ -357,29 +357,14 @@ public class ServerActions {
         }
         return true;
     }
-
-    @Action(
-            aliases = {"runChunkster", "chunkster"})
-    public boolean runChunkster(final String worldName) {
-        final boolean wasRunning = running();
-        if (wasRunning)
-            hold();
-        while (running())
-            try {
-                Thread.sleep(1000);
-            } catch (final InterruptedException e) {
-                e.printStackTrace();
-            };
-        final String[] chunksterArgs = new String[2];
-        chunksterArgs[1] = worldName;
-        Chunkster.main(chunksterArgs);
-        if (wasRunning)
-            unhold();
-        return true;
+    
+    @Action( aliases = {"runMIDas", "mIDas"})
+    public boolean runMIDas() {
+        return false;
     }
 
     @Action(
-            aliases = {"runMapAutoTrim", "mapAutoTrim"})
+            aliases = {"runMapTrimmer", "mapTrimmer"})
     public boolean runMapAutoTrim(final String worldName, final String dilation, final String preservedBlocks) {
         final boolean wasRunning = running();
         if (wasRunning)
