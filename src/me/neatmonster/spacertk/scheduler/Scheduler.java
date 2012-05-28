@@ -24,7 +24,7 @@ import java.util.List;
 import me.neatmonster.spacemodule.SpaceModule;
 import me.neatmonster.spacemodule.api.UnhandledActionException;
 
-import org.bukkit.util.config.Configuration;
+import org.bukkit.configuration.file.YamlConfiguration;
 import org.json.simple.JSONValue;
 
 /**
@@ -32,6 +32,11 @@ import org.json.simple.JSONValue;
  */
 @SuppressWarnings("deprecation")
 public class Scheduler {
+    /**
+     * Jobs File
+     */
+    public static final File JOBS_FILE = new File("SpaceModule", "jobs.yml");
+    
     private static LinkedHashMap<String, Job> jobs = new LinkedHashMap<String, Job>();
 
     /**
@@ -58,17 +63,15 @@ public class Scheduler {
      * Loads all the saved jobs from the file
      */
     public static void loadJobs() {
-        final File file = new File(SpaceModule.MAIN_DIRECTORY, "jobs.yml");
-        if (!file.exists())
+        if (!JOBS_FILE.exists())
             try {
-                file.createNewFile();
+                JOBS_FILE.createNewFile();
             } catch (final IOException e) {
                 e.printStackTrace();
             }
-        final Configuration configuration = new Configuration(file);
-        configuration.load();
+        final YamlConfiguration configuration = YamlConfiguration.loadConfiguration(JOBS_FILE);
         final LinkedList<String> jobsNames = new LinkedList<String>();
-        for (final String key : configuration.getAll().keySet())
+        for (final String key : configuration.getKeys(false))
             if (key.contains("."))
                 jobsNames.add(key.split("\\.")[0]);
         for (final String jobName : jobsNames)
@@ -78,7 +81,7 @@ public class Scheduler {
                 final String actionName = configuration.getString(jobName + ".ActionName");
                 @SuppressWarnings("unchecked")
                 final Object[] actionArguments = ((List<Object>) JSONValue.parse((String) configuration
-                        .getProperty(jobName + ".ActionArguments"))).toArray();
+                        .get(jobName + ".ActionArguments"))).toArray();
                 try {
                     final Job job = new Job(actionName, actionArguments, timeType, timeArgument, true);
                     jobs.put(jobName, job);
@@ -88,7 +91,11 @@ public class Scheduler {
                     e.printStackTrace();
                 }
             }
-        configuration.save();
+        try {
+            configuration.save(JOBS_FILE);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     /**
