@@ -24,20 +24,21 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import me.neatmonster.spacertk.plugins.templates.Plugin;
+import me.neatmonster.spacemodule.SpaceModule;
+import me.neatmonster.spacertk.plugins.templates.SBPlugin;
 
-import org.bukkit.util.config.Configuration;
+import org.bukkit.configuration.file.YamlConfiguration;
 import org.json.simple.JSONObject;
 import org.json.simple.JSONValue;
 
-@SuppressWarnings("deprecation")
 /**
  * Manages plugins and BukGet interaction
  */
 public class PluginsManager {
+    private final File jarsFile = new File(SpaceModule.MAIN_DIRECTORY.getPath() + File.separator + "SpaceBukkit", "jars.yml");
     public static List<String>        pluginsNames = new ArrayList<String>();
 
-    private final Map<String, Plugin> plugins      = new HashMap<String, Plugin>();
+    private final Map<String, SBPlugin> plugins      = new HashMap<String, SBPlugin>();
 
     /**
      * Creates a new PluginsManager
@@ -51,7 +52,7 @@ public class PluginsManager {
      * @param pluginName Plugin to add
      * @return The created plugin object
      */
-    private Plugin addPlugin(final String pluginName) {
+    private SBPlugin addPlugin(final String pluginName) {
         try {
             final URLConnection connection = new URL("http://bukget.org/api/plugin/" + pluginName).openConnection();
             final BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
@@ -63,7 +64,7 @@ public class PluginsManager {
             final String result = stringBuffer.toString();
             if (result == null || result == "")
                 return null;
-            return new Plugin((JSONObject) JSONValue.parse(result));
+            return new SBPlugin((JSONObject) JSONValue.parse(result));
         } catch (final Exception e) {
             e.printStackTrace();
         }
@@ -93,7 +94,7 @@ public class PluginsManager {
      * @param pluginName Plugin to get
      * @return The plugin object
      */
-    public Plugin getPlugin(String pluginName) {
+    public SBPlugin getPlugin(String pluginName) {
         pluginName = pluginName.toLowerCase();
         if (plugins.containsKey(pluginName))
             return plugins.get(pluginName);
@@ -104,13 +105,13 @@ public class PluginsManager {
         if (plugins.containsKey(pluginName.replace(" ", "-")))
             return plugins.get(pluginName.replace(" ", "-"));
         if (contains(pluginName)) {
-            final Plugin plugin1 = addPlugin(pluginName);
+            final SBPlugin plugin1 = addPlugin(pluginName);
             if (plugin1 == null) {
-                final Plugin plugin2 = addPlugin(pluginName.replace(" ", ""));
+                final SBPlugin plugin2 = addPlugin(pluginName.replace(" ", ""));
                 if (plugin2 == null) {
-                    final Plugin plugin3 = addPlugin(pluginName.replace(" ", "_"));
+                    final SBPlugin plugin3 = addPlugin(pluginName.replace(" ", "_"));
                     if (plugin3 == null) {
-                        final Plugin plugin4 = addPlugin(pluginName.replace(" ", "-"));
+                        final SBPlugin plugin4 = addPlugin(pluginName.replace(" ", "-"));
                         plugins.put(pluginName, plugin4);
                         return plugin4;
                     } else {
@@ -136,11 +137,8 @@ public class PluginsManager {
      */
     public File getPluginFile(String pluginName) {
         pluginName = pluginName.toLowerCase().replace(" ", "");
-        final Configuration configuration = new Configuration(new File("SpaceModule" + File.separator + "SpaceBukkit",
-                "jars.yml"));
-        configuration.load();
+        final YamlConfiguration configuration = YamlConfiguration.loadConfiguration(jarsFile);
         final String fileName = configuration.getString(pluginName);
-        configuration.save();
         if (fileName == null || fileName == "")
             return null;
         else
