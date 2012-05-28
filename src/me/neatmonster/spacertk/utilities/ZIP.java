@@ -17,6 +17,7 @@ package me.neatmonster.spacertk.utilities;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.File;
+import java.io.FileFilter;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -96,7 +97,7 @@ public class ZIP {
      * @throws IOException
      *             Signals that an I/O exception has occurred.
      */
-    public static void unzip(final File archive, final File folder, final boolean jarOnly)
+    public static void unzip(final File archive, final File folder, final boolean jarOnly, final FileFilter filter)
             throws FileNotFoundException, IOException {
         final ZipInputStream zis = new ZipInputStream(new BufferedInputStream(new FileInputStream(
                 archive.getCanonicalFile())));
