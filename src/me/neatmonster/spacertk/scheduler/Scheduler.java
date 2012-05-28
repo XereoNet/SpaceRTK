@@ -30,7 +30,6 @@ import org.json.simple.JSONValue;
 /**
  * Stores information about various jobs to be run
  */
-@SuppressWarnings("deprecation")
 public class Scheduler {
     /**
      * Jobs File
@@ -122,19 +121,23 @@ public class Scheduler {
             } catch (final IOException e) {
                 e.printStackTrace();
             }
-        final Configuration configuration = new Configuration(file);
+        final YamlConfiguration configuration = YamlConfiguration.loadConfiguration(file);
         for (final String jobName : jobs.keySet()) {
             final Job job = jobs.get(jobName);
             final String actionName = job.actionName;
             final List<Object> actionArguments = Arrays.asList(job.actionArguments);
             final String timeType = job.timeType;
             final String timeArgument = job.timeArgument;
-            configuration.setProperty(jobName + ".TimeType", timeType);
-            configuration.setProperty(jobName + ".TimeArgument", timeArgument);
-            configuration.setProperty(jobName + ".ActionName", actionName);
-            configuration.setProperty(jobName + ".ActionArguments",
+            configuration.set(jobName + ".TimeType", timeType);
+            configuration.set(jobName + ".TimeArgument", timeArgument);
+            configuration.set(jobName + ".ActionName", actionName);
+            configuration.set(jobName + ".ActionArguments",
                     JSONValue.toJSONString(actionArguments).replace("[[", "[").replace("],[", ",").replace("]]", "]"));
         }
-        configuration.save();
+        try {
+            configuration.save(file);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }
