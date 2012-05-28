@@ -15,6 +15,7 @@
 package me.neatmonster.spacertk.scheduler;
 
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -37,7 +38,7 @@ public class Job extends TimerTask {
     public final String   timeType;
 
     /**
-     * Creats a new Job
+     * Creates a new Job
      * @param actionName Action to preform
      * @param actionArguments Arguments to preform the action with
      * @param timeType Type of time to schedule the action with
@@ -46,16 +47,16 @@ public class Job extends TimerTask {
      * @throws UnSchedulableException If the action cannot be scheduled
      * @throws UnhandledActionException If the action is unknown
      */
-    @SuppressWarnings("deprecation")
     public Job(final String actionName, final Object[] actionArguments, final String timeType,
             final String timeArgument, final boolean loading) throws UnSchedulableException, UnhandledActionException {
         if (!SpaceRTK.getInstance().actionsManager.contains(actionName)) {
             if (!loading) {
                 final String result = Utilities.sendMethod("isSchedulable", "[\"" + actionName + "\"]");
-                if (result == null || !result.equals("true") || result.equals(""))
-                    throw new UnhandledActionException();
-                else
-                    throw new UnSchedulableException("Action " + actionName + " isn't schedulable!");
+                if (result == null || !result.equals("true"))
+                    if (result == null || result.equals(""))
+                        throw new UnhandledActionException();
+                    else
+                        throw new UnSchedulableException("Action " + actionName + " isn't schedulable!");
             }
         } else if (!SpaceRTK.getInstance().actionsManager.isSchedulable(actionName))
             throw new UnSchedulableException("Action " + actionName + " isn't schedulable!");
@@ -70,18 +71,20 @@ public class Job extends TimerTask {
             timer.scheduleAtFixedRate(this, Integer.parseInt(timeArgument) * 60000L,
                     Integer.parseInt(timeArgument) * 60000L);
         else if (timeType.equals("ONCEPERDAYAT")) {
-            Date nextOccurence = new Date();
-            nextOccurence.setHours(Integer.parseInt(timeArgument.split(":")[0]));
-            nextOccurence.setMinutes(Integer.parseInt(timeArgument.split(":")[1]));
+            Calendar nextOccurence = Calendar.getInstance();
+            nextOccurence.set(Calendar.HOUR, Integer.parseInt(timeArgument.split(":")[0]));
+            nextOccurence.set(Calendar.MINUTE, Integer.parseInt(timeArgument.split(":")[1]));
             if (nextOccurence.before(new Date()))
-                nextOccurence = new Date(nextOccurence.getTime() + 86400000L);
-            timer.scheduleAtFixedRate(this, nextOccurence, 86400000L);
+                nextOccurence = Calendar.getInstance();
+                nextOccurence.setTimeInMillis(nextOccurence.getTimeInMillis() + 86400000L);
+            timer.scheduleAtFixedRate(this, nextOccurence.getTime(), 86400000L);
         } else if (timeType.equals("XMINUTESPASTEVERYHOUR")) {
-            Date nextOccurence = new Date();
-            nextOccurence.setMinutes(Integer.parseInt(timeArgument));
+            Calendar nextOccurence = Calendar.getInstance();
+            nextOccurence.set(Calendar.MINUTE, Integer.parseInt(timeArgument));
             if (nextOccurence.before(new Date()))
-                nextOccurence = new Date(nextOccurence.getTime() + 3600000L);
-            timer.scheduleAtFixedRate(this, nextOccurence, 3600000L);
+                nextOccurence = Calendar.getInstance();
+                nextOccurence.setTimeInMillis(nextOccurence.getTimeInMillis() + 3600000L);
+            timer.scheduleAtFixedRate(this, nextOccurence.getTime(), 3600000L);
         }
         Scheduler.saveJobs();
     }
