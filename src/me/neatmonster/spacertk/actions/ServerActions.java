@@ -38,8 +38,6 @@ import org.apache.commons.io.filefilter.DirectoryFileFilter;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONValue;
 
-import chunkster.Chunkster;
-
 /**
  * Actions handler for any Server-related actions
  */

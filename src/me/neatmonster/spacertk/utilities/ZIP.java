@@ -81,7 +81,7 @@ public class ZIP {
     }
 
     /**
-     * Unzip.
+     * Unzips a ZIP
      *
      * @param archive
      *            the archive
@@ -89,6 +89,8 @@ public class ZIP {
      *            the folder
      * @param jarOnly
      *            the jar only
+     * @param filter
+     *            the filter used in extraction, null if none
      * @throws FileNotFoundException
      *             the file not found exception
      * @throws IOException
@@ -103,33 +105,35 @@ public class ZIP {
             while ((ze = zis.getNextEntry()) != null)
                 if (!jarOnly || ze.getName().toLowerCase().replace(" ", "-").endsWith(".jar")) {
                     final File f = new File(folder.getCanonicalPath(), ze.getName());
-                    if (ze.isDirectory()) {
+                    if (f.isDirectory()) {
                         f.mkdirs();
                         continue;
                     }
-                    f.getParentFile().mkdirs();
-                    final OutputStream fos = new BufferedOutputStream(new FileOutputStream(f));
-                    try {
+                    if (filter == null || !filter.accept(f)) {
+                        f.getParentFile().mkdirs();
+                        final OutputStream fos = new BufferedOutputStream(new FileOutputStream(f));
                         try {
-                            final byte[] buf = new byte[8192];
-                            int bytesRead;
-                            while (-1 != (bytesRead = zis.read(buf)))
-                                fos.write(buf, 0, bytesRead);
-                        } finally {
-                            fos.close();
+                            try {
+                                final byte[] buf = new byte[8192];
+                                int bytesRead;
+                                while (-1 != (bytesRead = zis.read(buf)))
+                                    fos.write(buf, 0, bytesRead);
+                            } finally {
+                                fos.close();
+                            }
+                        } catch (final IOException ioe) {
+                            f.delete();
+                            throw ioe;
                         }
-                    } catch (final IOException ioe) {
-                        f.delete();
-                        throw ioe;
                     }
                 }
-        } finally {
-            zis.close();
-        }
+            } finally {
+                zis.close();
+            }
     }
 
     /**
-     * Zip.
+     * Zips a File
      *
      * @param archive
      *            the archive

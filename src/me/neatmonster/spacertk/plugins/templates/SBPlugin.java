@@ -23,7 +23,7 @@ import org.json.simple.JSONObject;
 /**
  * Holds BukGet information about a plugin
  */
-public class Plugin {
+public class SBPlugin {
     /**
      * Authors that currently contribute the the plugin
      */
@@ -57,7 +57,7 @@ public class Plugin {
      * Creats a new Plugin
      * @param plugin JSONObject containing the raw information from BukGet
      */
-    public Plugin(final JSONObject plugin) {
+    public SBPlugin(final JSONObject plugin) {
         name = (String) plugin.get("name");
         status = (String) plugin.get("status");
         link = (String) plugin.get("bukkitdev_link");
