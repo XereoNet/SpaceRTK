@@ -457,39 +457,14 @@ public class ServerActions {
     }
 
     /**
-     * Runs chunkster
-     * @param worldName World to run chunkster on
+     * Runs MapTrimmer
+     * @param worldName World to run MapTrimmer on
+     * @param dilation Dilation to run MapTrimmer with
+     * @param preservedBlocks Any preserved blocks for MapTrimmer
      * @return If successful
      */
     @Action(
-            aliases = {"runChunkster", "chunkster"})
-    public boolean runChunkster(final String worldName) {
-        final boolean wasRunning = running();
-        if (wasRunning)
-            hold();
-        while (running())
-            try {
-                Thread.sleep(1000);
-            } catch (final InterruptedException e) {
-                e.printStackTrace();
-            };
-        final String[] chunksterArgs = new String[2];
-        chunksterArgs[1] = worldName;
-        Chunkster.main(chunksterArgs);
-        if (wasRunning)
-            unhold();
-        return true;
-    }
-
-    /**
-     * Runs MapAutoTrim
-     * @param worldName World to run MapAutoTrim on
-     * @param dilation Dilation to run MapAutoTrim with
-     * @param preservedBlocks Any preserved blocks for MapAutoTrim
-     * @return If successful
-     */
-    @Action(
-            aliases = {"runMapAutoTrim", "mapAutoTrim"})
+            aliases = {"runMapTrimmer", "mapTrimmer"})
     public boolean runMapAutoTrim(final String worldName, final String dilation, final String preservedBlocks) {
         final boolean wasRunning = running();
         if (wasRunning)
