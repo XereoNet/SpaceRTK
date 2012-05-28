@@ -60,6 +60,7 @@ public class SpaceRTK {
     public boolean        backupLogs;
 
     private BackupManager backupManager;
+    private PingListener pingListener;
 
     public static final File baseDir = new File(System.getProperty("user.dir"));
 
@@ -74,6 +75,7 @@ public class SpaceRTK {
             EventDispatcher edt = SpaceModule.getInstance().getEdt();
             edt.registerListener(new BackupListener(), SpaceModule.getInstance().getEventHandler(), ToolkitEventPriority.SYSTEM, BackupEvent.class);
             backupManager = new BackupManager();
+            pingListener = new PingListener();
         } catch (final Exception e) {
             e.printStackTrace();
         }
@@ -85,6 +87,7 @@ public class SpaceRTK {
     public void onDisable() {
         try {
             panelListener.stopServer();
+            pingListener.shutdown();
         } catch (final Exception e) {
             e.printStackTrace();
         }
@@ -111,6 +114,8 @@ public class SpaceRTK {
         backupDirName = configuration.getString("General.BackupDirectory", "Backups");
         backupLogs = configuration.getBoolean("General.BackupLogs", true);
         configuration.save();
+        
+        pingListener.startup();
 
         File backupDir = new File(SpaceRTK.getInstance().worldContainer.getPath() + File.separator + SpaceRTK.getInstance().backupDirName);
         File userDir = new File(System.getProperty("user.dir"));
