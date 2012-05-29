@@ -31,7 +31,7 @@ public class PingListener extends Thread {
     private long lastRTKPing;
     private long lastModuleResponse;
 
-    private AtomicBoolean running;
+    private AtomicBoolean running = new AtomicBoolean(false);
 
     public PingListener() throws IOException {
         this.rtkSocket = new Socket(InetAddress.getLocalHost(),

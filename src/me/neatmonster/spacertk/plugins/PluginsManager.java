@@ -62,7 +62,7 @@ public class PluginsManager {
                 stringBuffer.append(line);
             bufferedReader.close();
             final String result = stringBuffer.toString();
-            if (result == null || result == "")
+            if (result == null || result.equals(""))
                 return null;
             return new SBPlugin((JSONObject) JSONValue.parse(result));
         } catch (final Exception e) {
