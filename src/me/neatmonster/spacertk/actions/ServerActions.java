@@ -347,7 +347,7 @@ public class ServerActions {
                     result = false;
                 }
             }
-            if (!SpaceRTK.getInstance().worldContainer.equals(".")) {
+            if (!SpaceRTK.getInstance().worldContainer.equals(new File("."))) {
                 backupDirectory = new File(SpaceRTK.getInstance().worldContainer.getPath() + File.separator + "backups"
                         + File.separator + date);
                 for (final String directoryName_ : Arrays.asList(backupDirectory.list(DirectoryFileFilter.INSTANCE))) {
@@ -396,7 +396,7 @@ public class ServerActions {
                     result = false;
                 }
             }
-            if (!SpaceRTK.getInstance().worldContainer.equals(".")) {
+            if (!SpaceRTK.getInstance().worldContainer.equals(new File("."))) {
                 backupDirectory = new File(SpaceRTK.getInstance().worldContainer + File.separator + "backups"
                         + File.separator + date);
                 oldDirectory = new File(backupDirectory.getPath() + File.separator + directory);

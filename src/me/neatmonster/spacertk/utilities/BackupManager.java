@@ -53,6 +53,7 @@ public class BackupManager {
         EventDispatcher edt = SpaceModule.getInstance().getEdt();
 
         ToolkitEventListener backupListener = new ToolkitEventListener() {
+            @SuppressWarnings("unused")
             public void onBackupEvent(BackupEvent e) {
                 if(e.getEndTime() == -1 && !e.isCanceled() && e.getBackupName().equals(bThread.backupName))
                     bThread.start();
