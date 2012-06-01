@@ -78,7 +78,6 @@ public class SpaceRTK {
             EventDispatcher edt = SpaceModule.getInstance().getEdt();
             edt.registerListener(new BackupListener(), SpaceModule.getInstance().getEventHandler(), ToolkitEventPriority.SYSTEM, BackupEvent.class);
             backupManager = new BackupManager();
-            pingListener = new PingListener();
         } catch (final Exception e) {
             e.printStackTrace();
         }
@@ -120,7 +119,12 @@ public class SpaceRTK {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        
+
+        try {
+            pingListener = new PingListener();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         pingListener.startup();
 
         File backupDir = new File(SpaceRTK.getInstance().worldContainer.getPath() + File.separator + SpaceRTK.getInstance().backupDirName);
