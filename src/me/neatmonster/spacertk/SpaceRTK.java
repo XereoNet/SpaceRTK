@@ -71,6 +71,7 @@ public class SpaceRTK {
      * Creates a new RTK
      */
     public SpaceRTK() {
+        spaceRTK = this;
         try {
             final Logger rootlog = Logger.getLogger("");
             for (final Handler h : rootlog.getHandlers())
@@ -100,7 +101,6 @@ public class SpaceRTK {
      * Called when the RTK is enabled
      */
     public void onEnable() {
-        spaceRTK = this;
         final YamlConfiguration configuration = YamlConfiguration.loadConfiguration(SpaceModule.CONFIGURATION);
         type = configuration.getString("SpaceModule.Type", "Bukkit");
         configuration.set("SpaceModule.Type", type = "Bukkit");
