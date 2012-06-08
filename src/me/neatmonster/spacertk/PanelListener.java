@@ -119,6 +119,9 @@ public class PanelListener extends Thread {
             try {
                 final BufferedReader input = new BufferedReader(new InputStreamReader(socket.getInputStream()));
                 String string = input.readLine();
+                if (string == null) {
+                    return;
+                }
                 string = URLDecoder.decode(string, "UTF-8");
                 string = string.substring(5, string.length() - 9);
                 final PrintWriter output = new PrintWriter(socket.getOutputStream());
