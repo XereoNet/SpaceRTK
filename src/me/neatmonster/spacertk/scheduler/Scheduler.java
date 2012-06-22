@@ -34,7 +34,7 @@ public class Scheduler {
     /**
      * Jobs File
      */
-    public static final File JOBS_FILE = new File("SpaceModule", "jobs.yml");
+    public static final File JOBS_FILE = new File(SpaceModule.MAIN_DIRECTORY, "jobs.yml");
     
     private static LinkedHashMap<String, Job> jobs = new LinkedHashMap<String, Job>();
 

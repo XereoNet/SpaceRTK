@@ -31,8 +31,8 @@ SpaceRTK is a project developed over the last 6 months aiming to bring an advanc
     * World management
     * Multiworld support
     * Backups
-    * Chunkster
-    * MapAutoTrim
+    * Map Trimmer
+    * mIDas - Coming soon!
 - Servers
     * Craftbukkit one-click installing and updating
     * Server Properties saving
