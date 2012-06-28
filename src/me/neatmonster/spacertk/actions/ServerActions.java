@@ -315,7 +315,7 @@ public class ServerActions {
      * Restores a directory
      * @param date Date the directory was backuped at
      * @param directory Directory to restore
-     * @return If successful
+     * @return true if successful, false otherwise.
      */
     @Action(
             aliases = {"restore", "restoreDirectory", "restoreDir"})
