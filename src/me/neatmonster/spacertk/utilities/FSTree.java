@@ -23,10 +23,11 @@ public class FSTree implements Iterable<String>, Externalizable {
     private String name;
     private long size;
     private Map<String, FSTree> children;
+    private FSTree parent;
     private Iterator<String> iterator;
 
     /**
-     * Same as FSTree(null, 0L);
+     * Same as FSTree(null, 0L, null);
      */
     public FSTree() {
         children = new HashMap<String, FSTree>();
@@ -45,11 +46,24 @@ public class FSTree implements Iterable<String>, Externalizable {
     /**
      * Constructs an FSTree with an initial file name and size.
      * @param name name of the initial file in the hierarchy.
-     * @param name size of the initial file in the hierarchy in bytes.
+     * @param size size of the initial file in the hierarchy in bytes.
      */
     public FSTree(String name, long size) {
         this.name = name;
         this.size = size;
+        children = new HashMap<String, FSTree>();
+    }
+
+    /**
+     * Constructs an FSTree with an initial file name and size.
+     * @param name name of the initial file in the hierarchy.
+     * @param size size of the initial file in the hierarchy in bytes.
+     * @param parent parent of this node.
+     */
+    public FSTree(String name, long size, FSTree parent) {
+        this.name = name;
+        this.size = size;
+        this.parent = parent;
         children = new HashMap<String, FSTree>();
     }
 
@@ -77,12 +91,12 @@ public class FSTree implements Iterable<String>, Externalizable {
                 FSTree child = children.get(name);
 
                 if(child == null) {
-                    child = new FSTree(name);
+                    child = new FSTree(name, 0L, this);
                     children.put(name, child);
                 }
                 child.addRecurse(tokenizer, size);
             } else {
-                children.put(name, new FSTree(name, size));
+                children.put(name, new FSTree(name, size, this));
             }
 
         }
@@ -135,6 +149,14 @@ public class FSTree implements Iterable<String>, Externalizable {
     }
 
     /**
+     * Get the parent node of this node.
+     * @return the parent node of this node.
+     */
+    public FSTree getParent() {
+        return parent;
+    }
+
+    /**
      * Get an iterator associated with a list returned by enumerateLeaves(List).
      * @return An iterator associated with a list returned by enumerateLeaves(List).
      */
@@ -175,7 +197,7 @@ public class FSTree implements Iterable<String>, Externalizable {
         if(oi.readByte() != serialVersion)
             throw new IOException("Serial version mismatch");
 
-        int nameLength = (short)oi.readByte() & 0xFF;
+        int nameLength = (short)oi.readByte() & 0xFF; //Remove possible negative sign extension from the cast
         byte[] name = new byte[nameLength];
 
         oi.readFully(name, 0, nameLength);
@@ -185,7 +207,7 @@ public class FSTree implements Iterable<String>, Externalizable {
 
         int childCount = (short)oi.readByte() & 0xFF;
         for(int i = 0; i < childCount; i++) {
-            FSTree child = new FSTree();
+            FSTree child = new FSTree(null, 0L, this);
             child.readExternal(oi);
             children.put(child.getName(), child);
         }
