@@ -532,7 +532,7 @@ public class ServerActions {
     /**
      * Gets the server's current Java version
      */
-    @Action(aliases = {"java", "javaversion"})
+    @Action(aliases = {"getJavaVersion", "javaversion", "java"})
     public String getJavaVersion() {
         return System.getProperty("java.version");
     }
