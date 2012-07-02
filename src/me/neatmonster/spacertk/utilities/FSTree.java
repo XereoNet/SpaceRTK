@@ -113,6 +113,33 @@ public class FSTree implements Iterable<String>, Externalizable {
     }
 
     /**
+     * Get a node from the tree given its path relative to
+     * the file that this node represents.
+     * @param name The name of the file to get.
+     */
+    public FSTree get(String name) {
+        StringTokenizer tokenizer = new StringTokenizer(name, "\\/");
+        return get(tokenizer);
+    }
+
+    /**
+     * Recursive helper method for get()
+     */
+    private FSTree get(StringTokenizer tokenizer) {
+        if(tokenizer.hasMoreElements()) {
+            String name = tokenizer.nextToken();
+            FSTree child = children.get(name);
+
+            if(child == null)
+                return null;
+
+            return child.get(tokenizer);
+        } else {
+            return this;
+        }
+    }
+
+    /**
      * Remove a node from the tree given its path relative to
      * the file that this node represents.
      * @param name The name of the file to remove.
@@ -125,15 +152,22 @@ public class FSTree implements Iterable<String>, Externalizable {
     /**
      * Recursive helper method for remove()
      */
-    private void remove(StringTokenizer tokenizer) {
+    private long remove(StringTokenizer tokenizer) {
         if(tokenizer.hasMoreTokens()) {
             String name = tokenizer.nextToken();
-            if(!tokenizer.hasMoreTokens()) {
+            FSTree child = children.get(name);
+            if(!tokenizer.hasMoreTokens() && child != null) {
                 children.remove(name);
-            } else {
-                children.get(name).remove(tokenizer);
+                size -= child.size;
+
+                return child.size;
+            } else if(child != null) {
+                long cSize = child.remove(tokenizer);
+                size -= cSize;
+                return cSize;
             }
         }
+        return 0L;
     }
 
     /**
