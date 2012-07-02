@@ -48,14 +48,13 @@ public class ServerActions {
      * @param name Name of the backup
      * @param directory Directory to backup
      * @param offlineBackup If the backup is offline
-     * @return If successful
+     * @return The UID of the operation
      */
     @Action(
             aliases = {"backup", "backupDirectory", "backupDir"})
-    public boolean backup(String name, String directory, boolean offlineBackup) {
+    public String backup(String name, String directory, boolean offlineBackup) {
         BackupManager bManager = SpaceRTK.getInstance().getBackupManager();
-        if(bManager.isBackupRunning())
-            return false;
+        String uid = null;
 
         DateFormat dateFormat = new SimpleDateFormat("MM_dd_yyyy_HH_mm");
         Date date = new Date();
@@ -68,18 +67,18 @@ public class ServerActions {
                 File oldDirectory = new File(System.getProperty("user.dir"));
                 File zipFile = new File(backupDir + File.separator + name + "_" + dateFormat.format(date)+ ".zip");
 
-                if (!SpaceRTK.getInstance().worldContainer.equals(new File("."))) {
-                    return bManager.performBackup(offlineBackup, false, name, zipFile, new String[]{backupDir.getCanonicalPath()}, oldDirectory,SpaceRTK.getInstance().worldContainer);
-                } else {
-                    return bManager.performBackup(offlineBackup, false, name, zipFile, new String[]{backupDir.getCanonicalPath()}, oldDirectory);
-                }
+//              if (!SpaceRTK.getInstance().worldContainer.equals(new File("."))) {
+//                  return bManager.performBackup(offlineBackup, false, name, zipFile, new String[]{backupDir.getCanonicalPath()}, oldDirectory,SpaceRTK.getInstance().worldContainer);
+//              } else {
+                return bManager.performBackup(offlineBackup, false, name, zipFile, new String[]{backupDir.getCanonicalPath()}, oldDirectory);
+//              }
 
             } else {
                 File oldDirectory = new File(SpaceRTK.getInstance().worldContainer.getPath() + File.separator + directory);
                 String dirPath = oldDirectory.getCanonicalPath();
 
                 if(!dirPath.startsWith(SpaceRTK.baseDir.getCanonicalPath()))
-                    return false;
+                    return null;
 
                 File zipFile = new File(backupDir + File.separator + name + "_" + dateFormat.format(date)+ ".zip");
 
@@ -87,7 +86,7 @@ public class ServerActions {
             }
         } catch(IOException e) {
             e.printStackTrace();
-            return false;
+            return null;
         }
 
     }
@@ -98,19 +97,18 @@ public class ServerActions {
      */
     @Action(
             aliases = {"getBackupInfo", "backupInfo"})
-    public List<String> getBackupInfo() {
+    public List<String> getBackupInfo(String uid) {
         BackupManager bManager = SpaceRTK.getInstance().getBackupManager();
 
         List<String> info = new ArrayList<String>(9);
-        info.add(bManager.getBackupName());
-        info.add(bManager.getBackupFileName());
-        info.add(""+bManager.getStartTime());
-        info.add(""+bManager.getBackupProgress().replaceAll(",", "."));
-        info.add(bManager.getBackupStatus());
-        info.add(bManager.getCurrentFile());
-        info.add(bManager.getCurrentFolder() + File.separator);
-        info.add(""+bManager.getDataBackedUp());
-        info.add(""+bManager.getBackupSize());
+        info.add(bManager.getOperationName(uid));
+        info.add(bManager.getOperationFileName(uid));
+        info.add(""+bManager.getOperationStartTime(uid));
+        info.add(""+bManager.getOperationProgress(uid).replaceAll(",", "."));
+        info.add(bManager.getOperationStatus(uid));
+        info.add(bManager.getOperationFile(uid));
+        info.add(""+bManager.getOperationDataCopied(uid));
+        info.add(""+bManager.getOperationSize(uid));
 
         return info;
     }
@@ -121,8 +119,8 @@ public class ServerActions {
      */
     @Action(
             aliases = {"lastBackupError", "getLastBackupError"})
-    public String getLastBackupError() {
-        return SpaceRTK.getInstance().getBackupManager().getLastError();
+    public String getLastBackupError(String uid) {
+        return SpaceRTK.getInstance().getBackupManager().getError(uid);
     }
 
     /**
@@ -131,8 +129,8 @@ public class ServerActions {
      */
     @Action(
             aliases = {"isBackupRunning", "backupRunning"})
-    public boolean isBackupRunning() {
-        return SpaceRTK.getInstance().getBackupManager().isBackupRunning();
+    public boolean isBackupRunning(String uid) {
+        return SpaceRTK.getInstance().getBackupManager().isOperationRunning(uid);
     }
 
     /**

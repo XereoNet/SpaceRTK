@@ -14,8 +14,12 @@
  */
 package me.neatmonster.spacertk;
 
+import com.drdanick.McRKit.Wrapper;
 import com.drdanick.rtoolkit.event.ToolkitEventListener;
 import me.neatmonster.spacertk.event.BackupEvent;
+import me.neatmonster.spacertk.utilities.BackupManager;
+
+import java.lang.reflect.Field;
 
 /**
  * Listens for BackupEvents and responds to them appropriately.
@@ -32,10 +36,21 @@ public class BackupListener implements ToolkitEventListener {
                 if(RemoteToolkit.isRunning()) {
                     RemoteToolkit.hold();
                     try {
-                        Thread.sleep(10000); // Sleep for 10 seconds
-                    } catch (InterruptedException ex) {}
+                        final Field process = Wrapper.getInstance().getClass().getDeclaredField("mcProcess");
+                        process.setAccessible(true);
+                        Process p = (Process)process.get(Wrapper.getInstance());
+                        Thread.sleep(5000); // Sleep for 5 seconds
+
+                        p.waitFor(); //Make sure the process has terminated
+                    } catch (InterruptedException ex) {
+                        ex.printStackTrace();
+                    } catch (NoSuchFieldException ex) {
+                        ex.printStackTrace();
+                    } catch (IllegalAccessException ex) {
+                        ex.printStackTrace();
+                    }
                 }
-            } else {
+            } else if(!BackupManager.getInstance().hasOperationsQueued()){
                 RemoteToolkit.unhold();
                 e.setCanceled(true);
             }

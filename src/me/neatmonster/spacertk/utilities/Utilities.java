@@ -18,10 +18,12 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 import java.net.ConnectException;
+import java.net.URI;
 import java.net.URL;
 import java.net.URLConnection;
 import java.security.DigestInputStream;
@@ -29,6 +31,7 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.logging.Logger;
 
+import de.schlichtherle.truezip.file.TFile;
 import me.neatmonster.spacertk.SpaceRTK;
 
 /**
@@ -52,24 +55,24 @@ public class Utilities {
         final String newLine = "\r\n";
         if (string != null) {
             byteLengthOfFinishedString = Integer.toString(string.getBytes("UTF8").length);
-            finishedString = finishedString + "HTTP/1.1 200 OK" + newLine;
-            finishedString = finishedString + "Content-Language:en" + newLine;
-            finishedString = finishedString + "Content-Length:" + byteLengthOfFinishedString + newLine;
-            finishedString = finishedString + "Content-Type:text/plain; charset=utf-8" + newLine;
-            finishedString = finishedString + newLine;
-            finishedString = finishedString + string;
+            finishedString += "HTTP/1.1 200 OK" + newLine;
+            finishedString += "Content-Language:en" + newLine;
+            finishedString += "Content-Length:" + byteLengthOfFinishedString + newLine;
+            finishedString += "Content-Type:text/plain; charset=utf-8" + newLine;
+            finishedString += newLine;
+            finishedString += string;
         } else {
-            finishedString = finishedString + "HTTP/1.1 500 Internal Server Error" + newLine;
-            finishedString = finishedString + "Content-Language:en" + newLine;
-            finishedString = finishedString + "Content-Length:0" + newLine;
-            finishedString = finishedString + "Content-Type:text/html; charset=utf-8" + newLine;
-            finishedString = finishedString + newLine;
+            finishedString += "HTTP/1.1 500 Internal Server Error" + newLine;
+            finishedString += "Content-Language:en" + newLine;
+            finishedString += "Content-Length:0" + newLine;
+            finishedString += "Content-Type:text/html; charset=utf-8" + newLine;
+            finishedString += newLine;
         }
         return finishedString;
     }
 
     /**
-     * Encrypts a string with 
+     * Encrypts a string with SHA-256
      * @param string String to encrypt
      * @return String encrypted with hex
      * @throws NoSuchAlgorithmException If SHA-256 or UTF-8 is not supported
@@ -144,4 +147,102 @@ public class Utilities {
         }
         return null;
     }
+
+    /**
+     * Initializes and builds an FSTree rooted at at the specified base directory
+     * and traversed starting at the specified directory.
+     * @param file Directory to begin the traversal from.
+     * @param base directory to relativize paths against.
+     * @return The initialized FSTRee instance.
+     * @throws IOException If an error occurs in the underlying IO operations.
+     */
+    public static FSTree buildFSTree(File file, File base) throws IOException {
+        file = file.getCanonicalFile();
+        FSTree tree = new FSTree();
+        URI baseURI = (base instanceof TFile) ? ((TFile) base).toNonArchiveFile().toURI() : base.toURI();
+        if(file.isDirectory()) {
+            if(file instanceof TFile)
+                buildTFSTree((TFile)file, baseURI, tree);
+            else
+                buildFSTree(file, baseURI, tree);
+        }
+        return tree;
+    }
+
+    /**
+     * Recursive helper method for buildFSTree (used for TrueZIP files).
+     */
+    private static void buildTFSTree(TFile file, URI base, FSTree tree) {
+        for(TFile f : file.listFiles()) {
+            if(!f.isDirectory() || f.isArchive()) {
+                tree.add(base.relativize(f.toNonArchiveFile().toURI()).getPath(), getFileSize(f));
+            } else {
+                buildTFSTree(f, base, tree);
+            }
+        }
+    }
+
+    /**
+     * Recursive helper method for buildFSTree (used for regular files).
+     */
+    private static void buildFSTree(File file, URI base, FSTree tree) {
+        for(File f : file.listFiles()) {
+            if(!f.isDirectory()) {
+                tree.add(base.relativize(f.toURI()).getPath(), getFileSize(f));
+            } else {
+                buildFSTree(f, base, tree);
+            }
+        }
+    }
+
+    /**
+     * Gets the size of a file, measured in bytes.
+     * @param f File to get the size of.
+     * @return Size of the file.
+     */
+    public static long getFileSize(File f) {
+        try {
+            InputStream stream = null;
+            try {
+                URL url = f.toURI().toURL();
+                stream = url.openStream();
+
+                return stream.available();
+            } finally {
+                if(stream != null)
+                    stream.close();
+            }
+        } catch(IOException e) {
+            return f.length();
+        }
+    }
+
+    /**
+     * Generate a random n-length alphanumeric string.
+     * @param length The length of the string to generate.
+     * @param charset The charset to use.
+     * @return The randomly generated String.
+     */
+    public static String generateRandomString(int length, String charset) {
+        String str;
+        try {
+            str = new String(new byte[] {}, charset);
+        } catch (UnsupportedEncodingException ex) {
+            System.err.println("ERROR: Unsupported encoding: " + charset);
+            ex.printStackTrace();
+            return null;
+        }
+
+        for (int i = 0; i < length; i++) {
+            int rand = (int) (Math.random() * 62);
+            if (rand > 9 && rand < 36) {
+                rand += 7;
+            } else if (rand > 35) {
+                rand += 13;
+            }
+            str += (char) (rand + 48);
+        }
+        return str;
+    }
+
 }

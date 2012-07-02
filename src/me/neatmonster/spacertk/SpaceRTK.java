@@ -77,7 +77,7 @@ public class SpaceRTK {
                 h.setFormatter(new Format());
             EventDispatcher edt = SpaceModule.getInstance().getEdt();
             edt.registerListener(new BackupListener(), SpaceModule.getInstance().getEventHandler(), ToolkitEventPriority.SYSTEM, BackupEvent.class);
-            backupManager = new BackupManager();
+            backupManager = BackupManager.getInstance();
         } catch (final Exception e) {
             e.printStackTrace();
         }

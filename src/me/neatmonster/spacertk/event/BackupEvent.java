@@ -23,6 +23,7 @@ import com.drdanick.rtoolkit.event.ToolkitEvent;
 public class BackupEvent extends ToolkitEvent {
     private boolean offlineBackup;
     private String backupName;
+    private String uid;
     private long startTime;
     private long endTime;
 
@@ -33,11 +34,12 @@ public class BackupEvent extends ToolkitEvent {
      * @param offlineBackup If the backup was offline
      * @param backupName What the backup is called
      */
-    public BackupEvent(long startTime, long endTime, boolean offlineBackup, String backupName) {
+    public BackupEvent(long startTime, long endTime, boolean offlineBackup, String backupName, String uid) {
         this.startTime = startTime;
         this.endTime = endTime;
         this.offlineBackup = offlineBackup;
         this.backupName = backupName;
+        this.uid = uid;
     }
 
 
@@ -49,6 +51,13 @@ public class BackupEvent extends ToolkitEvent {
         return backupName;
     }
 
+    /**
+     * Get the internal UID of the backup.
+     * @return the UID of the backup.
+     */
+    public String getUid() {
+        return uid;
+    }
 
     /**
      * Get the time the backup started.
