@@ -1,12 +1,24 @@
+/*
+ * This file is part of SpaceRTK (http://spacebukkit.xereo.net/).
+ *
+ * SpaceRTK is free software: you can redistribute it and/or modify it under the terms of the
+ * Attribution-NonCommercial-ShareAlike Unported (CC BY-NC-SA) license as published by the Creative Common organization,
+ * either version 3.0 of the license, or (at your option) any later version.
+ *
+ * SpaceRTK is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied
+ * warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the Attribution-NonCommercial-ShareAlike
+ * Unported (CC BY-NC-SA) license for more details.
+ *
+ * You should have received a copy of the Attribution-NonCommercial-ShareAlike Unported (CC BY-NC-SA) license along with
+ * this program. If not, see <http://creativecommons.org/licenses/by-nc-sa/3.0/>.
+ */
 package me.neatmonster.spacertk.utilities;
-
 
 import java.io.Externalizable;
 import java.io.File;
 import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
-import java.util.ConcurrentModificationException;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -24,7 +36,6 @@ public class FSTree implements Iterable<String>, Externalizable {
     private long size;
     private Map<String, FSTree> children;
     private FSTree parent;
-    private Iterator<String> iterator;
 
     /**
      * Same as FSTree(null, 0L, null);
@@ -81,7 +92,6 @@ public class FSTree implements Iterable<String>, Externalizable {
      * Recursive helper method for add()
      */
     private void addRecurse(StringTokenizer tokenizer, long size){
-        iterator = null;
         this.size += size;
 
         if(tokenizer.hasMoreTokens()) {
@@ -103,30 +113,71 @@ public class FSTree implements Iterable<String>, Externalizable {
     }
 
     /**
+     * Remove a node from the tree given its path relative to
+     * the file that this node represents.
+     * @param name The name of the file to remove.
+     */
+    public void remove(String name) {
+        StringTokenizer tokenizer = new StringTokenizer(name, "\\/");
+        remove(tokenizer);
+    }
+
+    /**
+     * Recursive helper method for remove()
+     */
+    private void remove(StringTokenizer tokenizer) {
+        if(tokenizer.hasMoreTokens()) {
+            String name = tokenizer.nextToken();
+            if(!tokenizer.hasMoreTokens()) {
+                children.remove(name);
+            } else {
+                children.get(name).remove(tokenizer);
+            }
+        }
+    }
+
+    /**
      * Enumerate the relative paths of the leaves in this tree.
      * @param leaves list to store the enumeration in.
      */
     public void enumerateLeaves(List<String> leaves) {
         if(!children.isEmpty())
-            enumerateRecurse(leaves, new StringBuilder(BUILDER_SIZE));
+            enumerateRecurse(leaves, new StringBuilder(BUILDER_SIZE), false);
         else
             leaves.add(name);
     }
 
     /**
-     * Recursive helper method for enumerateLeaves().
+     * Enumerate the relative paths of all nodes in this tree.
+     * @param nodes list to store the enumeration in.
      */
-    private void enumerateRecurse(List<String> leaves, StringBuilder builder) {
-        int pos = builder.length();
-        if(pos > 0)
-            builder.append(File.separatorChar);
-        builder.append(name);
+    public void enumerateAll(List<String> nodes) {
+        if(!children.isEmpty())
+            enumerateRecurse(nodes, new StringBuilder(BUILDER_SIZE), true);
+        else if(name != null)
+            nodes.add(name);
+    }
 
-        if(children.isEmpty())
-            leaves.add(builder.toString());
-        else
+    /**
+     * Recursive helper method for the enumeration methods.
+     */
+    private void enumerateRecurse(List<String> list, StringBuilder builder, boolean includeAll) {
+        int pos = builder.length();
+        if(name != null) {
+            if(pos > 0)
+                builder.append(File.separatorChar);
+            builder.append(name);
+        }
+
+        if(children.isEmpty()) {
+            list.add(builder.toString());
+        } else {
+            if(includeAll)
+                list.add(builder.toString());
+
             for(FSTree child : children.values())
-                child.enumerateRecurse(leaves, builder);
+                child.enumerateRecurse(list, builder, includeAll);
+        }
 
         builder.setLength(pos);
     }
@@ -161,9 +212,7 @@ public class FSTree implements Iterable<String>, Externalizable {
      * @return An iterator associated with a list returned by enumerateLeaves(List).
      */
     public Iterator<String> iterator() {
-        if(iterator == null)
-            iterator = new FSTreeIterator(this);
-        return iterator;
+        return new FSTreeIterator(this);
     }
 
     @Override
@@ -177,14 +226,19 @@ public class FSTree implements Iterable<String>, Externalizable {
          * byte l+68: children count
          * byte l+69 to n: children (recursive)
          */
-        if(name.length() > Short.MAX_VALUE)
+        if(name != null && name.length() > Short.MAX_VALUE)
             throw new IOException("Name of node exceeds maximum allowed size of "+Short.MAX_VALUE);
         if(children.size() > Short.MAX_VALUE)
             throw new IOException("Number of subfolders in "+name+" exceeds maximum allowed number: "+Short.MAX_VALUE);
 
         oo.writeByte(serialVersion);
-        oo.writeByte(name.length());
-        oo.writeBytes(name);
+        if(name != null) {
+            oo.writeByte(name.length());
+            oo.writeBytes(name);
+        } else {
+            oo.writeByte(1);
+            oo.writeByte(0);
+        }
         oo.writeLong(size);
         oo.writeByte(children.size());
         for(FSTree child : children.values()) {
@@ -201,7 +255,11 @@ public class FSTree implements Iterable<String>, Externalizable {
         byte[] name = new byte[nameLength];
 
         oi.readFully(name, 0, nameLength);
-        this.name = new String(name);
+
+        if(nameLength == 1 && name[0] == 0)
+            this.name = null;
+        else
+            this.name = new String(name);
 
         size = oi.readLong();
 
@@ -220,7 +278,7 @@ public class FSTree implements Iterable<String>, Externalizable {
 
         public FSTreeIterator(FSTree nextNode) {
             leaves = new LinkedList<String>();
-            enumerateLeaves(leaves);
+            nextNode.enumerateLeaves(leaves);
             leavesIterator = leaves.iterator();
         }
 
@@ -231,9 +289,6 @@ public class FSTree implements Iterable<String>, Externalizable {
 
         @Override
         public String next() {
-            if(iterator != this)
-                throw new ConcurrentModificationException();
-
             return leavesIterator.next();
         }
 
