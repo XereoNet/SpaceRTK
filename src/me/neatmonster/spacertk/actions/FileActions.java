@@ -234,6 +234,8 @@ public class FileActions {
             final ReadableByteChannel readableByteChannel = Channels.newChannel(url_.openStream());
             final FileOutputStream fileOutputStream = new FileOutputStream(file_);
             fileOutputStream.getChannel().transferFrom(readableByteChannel, 0, 1 << 24);
+            fileOutputStream.flush();
+            fileOutputStream.close();
             return true;
         } catch (final IOException e) {
             e.printStackTrace();
