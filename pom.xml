@@ -169,6 +169,27 @@
                                 <include>**</include>
                             </includes>
                         </filter>
+
+                        <filter>
+                            <artifact>org.apache.commons:commons-compress</artifact>
+                            <includes>
+                                <include>**</include>
+                            </includes>
+                        </filter>
+
+                        <filter>
+                            <artifact>org.tukaani:xz</artifact>
+                            <includes>
+                                <include>**</include>
+                            </includes>
+                        </filter>
+
+                        <filter>
+                            <artifact>org.bouncycastle:bcprov-jdk16</artifact>
+                            <includes>
+                                <include>**</include>
+                            </includes>
+                        </filter>
                     </filters>
 
                     <minimizeJar>true</minimizeJar>
