@@ -225,20 +225,34 @@ public class FileActions {
     @Action(
             aliases = {"sendFile", "fileSend"})
     public boolean sendFile(final String url, final String file) {
+        FileOutputStream fileOutputStream = null;
+        ReadableByteChannel readableByteChannel = null;
         try {
-            final File file_ = new File(file);
+            File file_ = new File(file);
             if (file_.exists())
                 if (!deleteFile(file_.getPath()))
                     return false;
-            final URL url_ = new URL(url);
-            final ReadableByteChannel readableByteChannel = Channels.newChannel(url_.openStream());
-            final FileOutputStream fileOutputStream = new FileOutputStream(file_);
+            URL url_ = new URL(url);
+            readableByteChannel = Channels.newChannel(url_.openStream());
+            fileOutputStream = new FileOutputStream(file_);
             fileOutputStream.getChannel().transferFrom(readableByteChannel, 0, 1 << 24);
-            fileOutputStream.flush();
-            fileOutputStream.close();
             return true;
-        } catch (final IOException e) {
+        } catch (IOException e) {
             e.printStackTrace();
+        } finally {
+            try {
+                if(fileOutputStream != null)
+                    fileOutputStream.close();
+            } catch(IOException e) {
+                e.printStackTrace();
+            }
+
+            try {
+                if(readableByteChannel != null)
+                    readableByteChannel.close();
+            } catch(IOException e) {
+                e.printStackTrace();
+            }
         }
         return false;
     }
