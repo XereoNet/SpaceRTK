@@ -77,7 +77,6 @@ public class SpaceRTK {
                 h.setFormatter(new Format());
             EventDispatcher edt = SpaceModule.getInstance().getEdt();
             edt.registerListener(new BackupListener(), SpaceModule.getInstance().getEventHandler(), ToolkitEventPriority.SYSTEM, BackupEvent.class);
-            backupManager = BackupManager.getInstance();
         } catch (final Exception e) {
             e.printStackTrace();
         }
@@ -119,6 +118,9 @@ public class SpaceRTK {
         } catch (IOException e) {
             e.printStackTrace();
         }
+
+        if(backupManager == null)
+            backupManager = BackupManager.getInstance();
 
         try {
             pingListener = new PingListener();
