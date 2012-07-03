@@ -526,4 +526,12 @@ public class ServerActions {
         RemoteToolkit.unhold();
         return true;
     }
+    
+    /**
+     * Gets the server's current Java version
+     */
+    @Action(aliases = {"getJavaVersion", "javaversion", "java"})
+    public String getJavaVersion() {
+        return System.getProperty("java.version");
+    }
 }
