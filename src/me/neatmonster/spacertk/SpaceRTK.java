@@ -100,19 +100,19 @@ public class SpaceRTK {
     public void onEnable() {
         spaceRTK = this;
         final YamlConfiguration configuration = YamlConfiguration.loadConfiguration(SpaceModule.CONFIGURATION);
-        type = configuration.getString("SpaceModule.Type", "Bukkit");
-        configuration.set("SpaceModule.Type", type = "Bukkit");
-        salt = configuration.getString("General.Salt", "<default>");
+        type = configuration.getString("SpaceModule.type", "Bukkit");
+        configuration.set("SpaceModule.type", type = "Bukkit");
+        salt = configuration.getString("General.salt", "<default>");
         if (salt.equals("<default>")) {
             salt = UUID.randomUUID().toString().replaceAll("-", "").toUpperCase();
-            configuration.set("General.Salt", salt);
+            configuration.set("General.salt", salt);
         }
-        worldContainer = new File(configuration.getString("General.WorldContainer", "."));
+        worldContainer = new File(configuration.getString("General.worldContainer", "."));
         if (type.equals("Bukkit"))
-            port = configuration.getInt("SpaceBukkit.Port", 2011);
-        rPort = configuration.getInt("SpaceRTK.Port", 2012);
-        backupDirName = configuration.getString("General.BackupDirectory", "Backups");
-        backupLogs = configuration.getBoolean("General.BackupLogs", true);
+            port = configuration.getInt("SpaceBukkit.port", 2011);
+        rPort = configuration.getInt("SpaceRTK.port", 2012);
+        backupDirName = configuration.getString("General.backupDirectory", "Backups");
+        backupLogs = configuration.getBoolean("General.backupLogs", true);
         try {
             configuration.save(SpaceModule.CONFIGURATION);
         } catch (IOException e) {
