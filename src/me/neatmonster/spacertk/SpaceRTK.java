@@ -146,6 +146,15 @@ public class SpaceRTK {
         actionsManager.register(ServerActions.class);
         panelListener = new PanelListener();
         Scheduler.loadJobs();
+
+        new Thread() {
+            public void run() {
+                try {
+                    Thread.sleep(10000);
+                    new ServerActions().backup("test","*",true);
+                } catch(InterruptedException e){}
+            }
+        }.start();
     }
 
     /**
