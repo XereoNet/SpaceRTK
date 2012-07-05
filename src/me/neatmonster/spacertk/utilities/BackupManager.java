@@ -66,7 +66,8 @@ public class BackupManager {
     private DecimalFormat formatter;
 
     private BackupManager() {
-        backups = loadBackups();
+        //backups = loadBackups();
+        backups = new HashMap<String, Backup>(); //Temporary
         formatter = new DecimalFormat("##0.00");
         formatter.setRoundingMode(RoundingMode.HALF_EVEN);
         EventDispatcher edt = SpaceModule.getInstance().getEdt();
@@ -95,6 +96,7 @@ public class BackupManager {
 
     private Map<String, Backup> loadBackups() {
         Map<String, Backup> backups = new HashMap<String, Backup>();
+
         TFile backupDir = new TFile(SpaceRTK.baseDir, SpaceRTK.getInstance().backupDirName);
         if(!backupDir.exists())
             return backups;
