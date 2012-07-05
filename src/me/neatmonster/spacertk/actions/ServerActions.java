@@ -67,11 +67,11 @@ public class ServerActions {
                 File oldDirectory = new File(System.getProperty("user.dir"));
                 File zipFile = new File(backupDir + File.separator + name + "_" + dateFormat.format(date)+ ".zip");
 
-//              if (!SpaceRTK.getInstance().worldContainer.equals(new File("."))) {
-//                  return bManager.performBackup(offlineBackup, false, name, zipFile, new String[]{backupDir.getCanonicalPath()}, oldDirectory,SpaceRTK.getInstance().worldContainer);
-//              } else {
-                return bManager.performBackup(offlineBackup, false, name, zipFile, new String[]{backupDir.getCanonicalPath()}, oldDirectory);
-//              }
+                if (!SpaceRTK.getInstance().worldContainer.equals(new File("."))) {
+                    return bManager.performBackup(offlineBackup, false, name, zipFile, new String[]{backupDir.getCanonicalPath()}, oldDirectory,SpaceRTK.getInstance().worldContainer);
+                } else {
+                    return bManager.performBackup(offlineBackup, false, name, zipFile, new String[]{backupDir.getCanonicalPath()}, oldDirectory);
+                }
 
             } else {
                 File oldDirectory = new File(SpaceRTK.getInstance().worldContainer.getPath() + File.separator + directory);

@@ -32,6 +32,7 @@ import java.util.Map;
 import java.util.Queue;
 import java.util.concurrent.LinkedBlockingQueue;
 
+import com.sun.org.apache.xpath.internal.SourceTree;
 import de.schlichtherle.truezip.file.TFile;
 import de.schlichtherle.truezip.file.TFileInputStream;
 import de.schlichtherle.truezip.file.TFileOutputStream;
@@ -173,10 +174,11 @@ public class BackupManager {
      * @param outputFile The file or folder to save the backup to.
      * @param ignoredFolders Folders to ignore given by their paths relative to the base directory.
      * @param folder The folder to backup.
+     * @param folders Additional folders to backup.
      * @return the uid of the backup.
      */
     public synchronized String performBackup(boolean offline, boolean ignoreImmediateFiles,
-            String backupName, File outputFile, String[] ignoredFolders, File folder) {
+            String backupName, File outputFile, String[] ignoredFolders, File folder, File... folders) {
         String uid = null;
         LinkedList<String> ignoreList = new LinkedList<String>(Arrays.asList(ignoredFolders));
 
@@ -189,8 +191,8 @@ public class BackupManager {
             uid = Utilities.generateRandomString(8,"US-ASCII");
         } while(backups.containsKey(uid));
 
-        BackupThread bThread = new BackupThread(backupName, uid, folder, outputFile,
-                SpaceRTK.baseDir, ignoreList, false, offline);
+        BackupThread bThread = new BackupThread(backupName, uid, SpaceRTK.baseDir,
+                ignoreList, false, offline, outputFile, folder, folders);
 
         backupThreadRegistry.put(bThread.uid, bThread);
         queueOperation(bThread);
@@ -213,13 +215,13 @@ public class BackupManager {
      * @returns true if the backup was queued, false otherwise.
      */
     public synchronized boolean performRestore(boolean offline, boolean clearDest, String uid, String path) {
-        File dest = new File(SpaceRTK.baseDir, "path");
+        File dest = new File(SpaceRTK.baseDir, path);
         Backup backup = backups.get(uid);
         if(backup == null)
             return false;
 
-        BackupThread bThread = new BackupThread(backup.name, backup.uid, backup.backupFile,
-                dest, SpaceRTK.baseDir, Arrays.asList(new String[]{}), clearDest, offline);
+        BackupThread bThread = new BackupThread(backup.name, backup.uid, SpaceRTK.baseDir, Arrays.asList(new String[]{}),
+                clearDest, offline, dest, backup.backupFile);
 
         backupThreadRegistry.put(bThread.uid, bThread);
         queueOperation(bThread);
@@ -454,6 +456,7 @@ public class BackupManager {
 
     private class BackupThread extends Thread {
         private FSTree sourceTree;
+        private File[] additionalSources;
         private File sourceRoot;
         private File destRoot;
         private File base;
@@ -472,16 +475,17 @@ public class BackupManager {
         float progress = 0.0f;
         boolean running = false;
 
-        public BackupThread(String backupName, String uid, File sourceRoot, File destRoot,
-                File base, List<String> ignoreList, boolean clearDst, boolean offline) {
-            this.sourceRoot = sourceRoot;
-            this.destRoot = destRoot;
+        public BackupThread(String backupName, String uid, File base, List<String> ignoreList,
+                boolean clearDst, boolean offline, File destRoot, File sourceRoot, File... additionalSources) {
             this.base = base;
             this.backupName = backupName;
             this.uid = uid;
             this.clearDst = clearDst;
             this.ignoreList = ignoreList;
             this.offline = offline;
+            this.destRoot = destRoot;
+            this.sourceRoot = sourceRoot;
+            this.additionalSources = additionalSources;
         }
 
         public void run() {
@@ -502,6 +506,12 @@ public class BackupManager {
                     base = sourceRoot;
                 } else {
                     sourceTree = Utilities.buildFSTree(new TFile(sourceRoot), base);
+                    if(additionalSources != null) {
+                        for(File f : additionalSources) {
+                            FSTree tree = Utilities.buildFSTree(new TFile(f), base);
+                            sourceTree.merge(tree);
+                        }
+                    }
                     treeFile = new TFile(destRoot, "backup.index");
                 }
 
