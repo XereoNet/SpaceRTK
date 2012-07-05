@@ -93,11 +93,21 @@ public class ServerActions implements ActionHandler {
     }
 
     /**
+     * Lists metadata of all backups.
+     * @return A list of backup metadata.
+     */
+    @Action(
+            aliases = {"getBackups", "listBackups", "listBackupInfo"})
+    public List<String[]> getBackups() {
+        return SpaceRTK.getInstance().getBackupManager().listBackupInfo();
+    }
+
+    /**
      * Gets information about the backup manager
      * @return Information about the backup manager
      */
     @Action(
-            aliases = {"getOperationInfo", "operationInfo"})
+            aliases = {"getBackupInfo", "getOperationInfo", "operationInfo"})
     public List<String> getBackupInfo(String uid) {
         BackupManager bManager = SpaceRTK.getInstance().getBackupManager();
 
@@ -112,6 +122,19 @@ public class ServerActions implements ActionHandler {
         info.add(""+bManager.getOperationSize(uid));
 
         return info;
+    }
+
+    /**
+     * Attempt to restore a backup.
+     *
+     * @param uid the UID of the backup to restore.
+     * @param clearDest true if the destination should be wiped prior to restoring the backup, false otherwise.
+     * @param offline true if the server should be held prior to performing the restore, false otherwise.
+     */
+    @Action(
+            aliases = {"restore", "restoreBackup"})
+    public void restore(String uid, boolean clearDest, boolean offline) {
+        SpaceRTK.getInstance().getBackupManager().performRestore(offline, clearDest, uid, ".");
     }
 
     /**
@@ -198,45 +221,6 @@ public class ServerActions implements ActionHandler {
             aliases = {"getAllWorlds", "allWorlds"})
     public List<String> getAllWorlds() {
         return Arrays.asList(SpaceRTK.getInstance().worldContainer.list(WorldFileFilter.INSTANCE));
-    }
-
-    /**
-     * Gets all the backups and their information
-     * @return Backups and their information
-     */
-    @Action(
-            aliases = {"getBackups", "backups"})
-    public List<List<String>> getBackups() {
-        final List<List<String>> backups = new ArrayList<List<String>>();
-        File backupDirectory = new File(SpaceRTK.getInstance().worldContainer.getPath() + File.separator + SpaceRTK.getInstance().backupDirName);
-        DateFormat dateFormat = new SimpleDateFormat("MM_dd_yyyy_HH_mm");
-
-        if (backupDirectory.exists()) {
-            for (File f : backupDirectory.listFiles()) {
-                if(f.getName().endsWith(".zip")) {
-                    int splitIndex = f.getName().indexOf("_");
-                    String backupName = f.getName().substring(0, splitIndex);
-                    String timeString = f.getName().substring(splitIndex + 1);
-                    Date time;
-                    try {
-                        time = dateFormat.parse(timeString);
-                    } catch(ParseException e) {
-                        e.printStackTrace();
-                        continue;
-                    }
-
-                    List<String> entry = new ArrayList<String>();
-                    entry.add(f.getName());
-                    entry.add(backupName);
-                    entry.add(""+f.length());
-                    entry.add(""+time.getTime());
-
-                    backups.add(entry);
-                }
-            }
-        }
-
-        return backups;
     }
 
     /**

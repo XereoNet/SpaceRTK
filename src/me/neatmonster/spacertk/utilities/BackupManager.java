@@ -25,6 +25,8 @@ import java.math.RoundingMode;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -235,10 +237,18 @@ public class BackupManager {
     }
 
     /**
+     * Retrieve a list of backup UIDs.
+     * @return a list of loaded backup UIDs.
+     */
+    public synchronized List<String> listBackupIds() {
+        return new ArrayList<String>(backups.keySet());
+    }
+
+    /**
      * List metadata of all backups.
      * @return a list of each backup's metadata.
      */
-    public synchronized List<String[]> listBackups() {
+    public synchronized List<String[]> listBackupInfo() {
         refreshBackups();
         List<String[]> backupList = new ArrayList<String[]>(backups.size());
 
@@ -249,7 +259,7 @@ public class BackupManager {
             meta[2] = ""+b.date;
             meta[3] = ""+b.size;
         }
-
+        Collections.sort(backupList, new MetadataComparator());
         return backupList;
     }
 
@@ -499,6 +509,8 @@ public class BackupManager {
                 TFile sourceFile = new TFile(sourceRoot);
                 TFile backupIndex = new TFile(sourceRoot, "backup.index");
                 TFile backupMeta = new TFile(sourceRoot, "backup.info");
+
+                //Initialise the file index.
                 if(backupIndex.exists()) {
                     oi = new ObjectInputStream(new TFileInputStream(backupIndex));
                     sourceTree = (FSTree)oi.readObject();
@@ -659,6 +671,19 @@ public class BackupManager {
             this.date = date;
             this.size = size;
             this.backupFile = backupFile;
+        }
+    }
+
+    private class MetadataComparator implements Comparator<String[]> {
+
+        @Override
+        public int compare(String[] o1, String[] o2) {
+            try {
+                return Integer.parseInt(o1[2]) - Integer.parseInt(o2[2]);
+            } catch(NumberFormatException e) {
+                e.printStackTrace();
+                return 0;
+            }
         }
     }
 }
