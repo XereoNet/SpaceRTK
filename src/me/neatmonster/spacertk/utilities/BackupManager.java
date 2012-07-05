@@ -146,13 +146,7 @@ public class BackupManager {
                 e.printStackTrace();
                 return null;
             }
-
-            try {
-                TVFS.sync(f, FsSyncOption.FORCE_CLOSE_INPUT);
-                TVFS.sync(f, FsSyncOptions.UMOUNT);
-            } catch (FsSyncException e) {
-                e.printStackTrace();
-            }
+            //TODO: unmount the TFile correctly.
         }
 
         return new Backup(meta.get("uid"), meta.get("name"), Long.parseLong(meta.get("date")),
