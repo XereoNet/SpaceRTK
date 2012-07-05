@@ -39,6 +39,8 @@ import de.schlichtherle.truezip.file.TFileOutputStream;
 import de.schlichtherle.truezip.file.TFileReader;
 import de.schlichtherle.truezip.file.TVFS;
 import de.schlichtherle.truezip.fs.FsSyncException;
+import de.schlichtherle.truezip.fs.FsSyncOption;
+import de.schlichtherle.truezip.fs.FsSyncOptions;
 import me.neatmonster.spacemodule.SpaceModule;
 import me.neatmonster.spacertk.SpaceRTK;
 import me.neatmonster.spacertk.event.BackupEvent;
@@ -146,7 +148,8 @@ public class BackupManager {
             }
 
             try {
-                TVFS.umount(metaFile);
+                TVFS.sync(f, FsSyncOption.FORCE_CLOSE_INPUT);
+                TVFS.sync(f, FsSyncOptions.UMOUNT);
             } catch (FsSyncException e) {
                 e.printStackTrace();
             }
