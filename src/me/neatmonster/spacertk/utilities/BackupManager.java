@@ -116,7 +116,9 @@ public class BackupManager {
     }
 
     private synchronized void registerBackup(Backup b) {
-        backups.put(b.uid, b);
+        if(b != null)
+            backups.put(b.uid, b);
+        //TODO: print a warning if the backup is null
     }
 
     /**
