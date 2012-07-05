@@ -19,6 +19,7 @@ import java.util.LinkedHashMap;
 import java.util.LinkedList;
 
 import me.neatmonster.spacemodule.api.Action;
+import me.neatmonster.spacemodule.api.ActionHandler;
 import me.neatmonster.spacemodule.api.UnhandledActionException;
 import me.neatmonster.spacertk.scheduler.Job;
 import me.neatmonster.spacertk.scheduler.Scheduler;
@@ -27,7 +28,7 @@ import me.neatmonster.spacertk.scheduler.UnSchedulableException;
 /**
  * Actions handler for any Scheduler-related actions
  */
-public class SchedulerActions {
+public class SchedulerActions implements ActionHandler {
 
     /**
      * Adds a job

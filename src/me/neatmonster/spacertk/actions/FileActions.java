@@ -28,6 +28,7 @@ import java.util.TreeMap;
 
 import me.neatmonster.spacemodule.api.Action;
 
+import me.neatmonster.spacemodule.api.ActionHandler;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.filefilter.DirectoryFileFilter;
 import org.apache.commons.io.filefilter.FileFileFilter;
@@ -36,7 +37,7 @@ import org.apache.commons.io.filefilter.TrueFileFilter;
 /**
  * Actions handler for any File-related actions
  */
-public class FileActions {
+public class FileActions implements ActionHandler {
 
     /**
      * Copy's a directory to another directory

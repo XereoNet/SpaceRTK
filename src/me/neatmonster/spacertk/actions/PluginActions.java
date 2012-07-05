@@ -20,6 +20,7 @@ import java.io.IOException;
 import java.util.LinkedHashMap;
 
 import me.neatmonster.spacemodule.api.Action;
+import me.neatmonster.spacemodule.api.ActionHandler;
 import me.neatmonster.spacertk.RemoteToolkit;
 import me.neatmonster.spacertk.SpaceRTK;
 import me.neatmonster.spacertk.plugins.PluginsManager;
@@ -33,7 +34,7 @@ import org.apache.commons.io.FileUtils;
 /**
  * Actions handler for any Plugin-related actions
  */
-public class PluginActions {
+public class PluginActions implements ActionHandler {
     private static PluginsManager pluginsManager = SpaceRTK.getInstance().pluginsManager;
     
     private static final FileFilter filter = new FileFilter() {

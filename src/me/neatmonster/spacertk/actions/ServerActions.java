@@ -27,6 +27,7 @@ import java.util.List;
 import me.hwei.mctool.MapAutoTrim;
 import me.neatmonster.spacemodule.SpaceModule;
 import me.neatmonster.spacemodule.api.Action;
+import me.neatmonster.spacemodule.api.ActionHandler;
 import me.neatmonster.spacertk.RemoteToolkit;
 import me.neatmonster.spacertk.SpaceRTK;
 import me.neatmonster.spacertk.utilities.BackupManager;
@@ -41,7 +42,7 @@ import org.json.simple.JSONValue;
 /**
  * Actions handler for any Server-related actions
  */
-public class ServerActions {
+public class ServerActions implements ActionHandler {
 
     /**
      * Backups a directory
