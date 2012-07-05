@@ -113,6 +113,27 @@ public class FSTree implements Iterable<String>, Externalizable {
     }
 
     /**
+     * Merges this tree with the specified tree.
+     * @param tree The tree to merge this tree with.
+     * @returns the size of the added nodes, measured in bytes.
+     */
+    public long merge(FSTree tree) {
+        long oldSize = size;
+        for(FSTree child : tree.children.values()) {
+            if(!children.containsKey(child.name)) {
+                children.put(child.name, child);
+                size += child.size;
+                return child.size;
+            } else {
+                long s = children.get(child.name).merge(child);
+                size += s;
+                return s;
+            }
+        }
+        return size - oldSize;
+    }
+
+    /**
      * Get a node from the tree given its path relative to
      * the file that this node represents.
      * @param name The name of the file to get.
