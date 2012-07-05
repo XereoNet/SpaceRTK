@@ -495,13 +495,12 @@ public class BackupManager {
             ObjectInputStream oi = null;
             ObjectOutputStream oo = null;
             PrintWriter fOut = null;
-            TFile treeFile = null;
             try {
                 TFile sourceFile = new TFile(sourceRoot);
-                TFile restoreIndex = new TFile(sourceRoot, "backup.index");
-                TFile meta = new TFile(sourceRoot, "backup.info");
-                if(restoreIndex.exists()) {
-                    oi = new ObjectInputStream(new TFileInputStream(restoreIndex));
+                TFile backupIndex = new TFile(sourceRoot, "backup.index");
+                TFile backupMeta = new TFile(sourceRoot, "backup.info");
+                if(backupIndex.exists()) {
+                    oi = new ObjectInputStream(new TFileInputStream(backupIndex));
                     sourceTree = (FSTree)oi.readObject();
                     base = sourceRoot;
                 } else {
@@ -512,7 +511,6 @@ public class BackupManager {
                             sourceTree.merge(tree);
                         }
                     }
-                    treeFile = new TFile(destRoot, "backup.index");
                 }
 
                 //Remove ignored files from the index
@@ -541,17 +539,19 @@ public class BackupManager {
                     }
                 }
 
-                if(!restoreIndex.exists()) {
+                if(!backupIndex.exists()) {
+                    backupIndex = new TFile(destRoot, "backup.index");
                     if(!destRoot.exists())
                         new TFile(destRoot).mkdirs();
-                    oo = new ObjectOutputStream(new TFileOutputStream(treeFile));
+                    oo = new ObjectOutputStream(new TFileOutputStream(backupIndex));
                     oo.writeObject(sourceTree);
                 }
 
-                if(!meta.exists()) {
+                if(!backupMeta.exists()) {
+                    backupMeta = new TFile(destRoot, "backup.info");
                     if(!destRoot.exists())
                         new TFile(destRoot).mkdirs();
-                    fOut = new PrintWriter(new TFileOutputStream(meta));
+                    fOut = new PrintWriter(new TFileOutputStream(backupMeta));
                     fOut.println("name:"+backupName);
                     fOut.println("uid:"+ uid);
                     fOut.println("created:"+startTime);
