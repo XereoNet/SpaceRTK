@@ -101,12 +101,6 @@ public class BackupManager {
             if(f.isArchive()) {
                 Backup b = getBackup(f);
                 registerBackup(b);
-
-                try {
-                    TVFS.umount(f);
-                } catch (FsSyncException e) {
-                    e.printStackTrace();
-                }
             }
         }
         backupsLastLoaded = System.currentTimeMillis();
@@ -149,6 +143,12 @@ public class BackupManager {
             } catch(IOException e) {
                 e.printStackTrace();
                 return null;
+            }
+
+            try {
+                TVFS.umount(metaFile);
+            } catch (FsSyncException e) {
+                e.printStackTrace();
             }
         }
 
