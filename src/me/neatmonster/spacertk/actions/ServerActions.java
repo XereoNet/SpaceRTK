@@ -97,7 +97,7 @@ public class ServerActions implements ActionHandler {
      * @return Information about the backup manager
      */
     @Action(
-            aliases = {"getBackupInfo", "backupInfo"})
+            aliases = {"getOperationInfo", "operationInfo"})
     public List<String> getBackupInfo(String uid) {
         BackupManager bManager = SpaceRTK.getInstance().getBackupManager();
 
@@ -119,8 +119,8 @@ public class ServerActions implements ActionHandler {
      * @return Last backup error
      */
     @Action(
-            aliases = {"lastBackupError", "getLastBackupError"})
-    public String getLastBackupError(String uid) {
+            aliases = {"operationError", "getOperationError"})
+    public String getOperationError(String uid) {
         return SpaceRTK.getInstance().getBackupManager().getError(uid);
     }
 
@@ -129,9 +129,19 @@ public class ServerActions implements ActionHandler {
      * @return Backup is running
      */
     @Action(
-            aliases = {"isBackupRunning", "backupRunning"})
+            aliases = {"isOperationRunning", "operationRunning"})
     public boolean isBackupRunning(String uid) {
         return SpaceRTK.getInstance().getBackupManager().isOperationRunning(uid);
+    }
+
+    /**
+     * Gets the UID of the currently running backup.
+     * @return The UID of the currently running backup, null if none are running.
+     */
+    @Action(
+            aliases = {"getRunningOperation", "runningOperation"})
+    public String getRunningOperation() {
+        return SpaceRTK.getInstance().getBackupManager().getOperationRunning();
     }
 
     /**
