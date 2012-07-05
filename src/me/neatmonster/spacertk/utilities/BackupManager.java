@@ -16,7 +16,6 @@ package me.neatmonster.spacertk.utilities;
 
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileReader;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -34,10 +33,10 @@ import java.util.Map;
 import java.util.Queue;
 import java.util.concurrent.LinkedBlockingQueue;
 
-import com.sun.org.apache.xpath.internal.SourceTree;
 import de.schlichtherle.truezip.file.TFile;
 import de.schlichtherle.truezip.file.TFileInputStream;
 import de.schlichtherle.truezip.file.TFileOutputStream;
+import de.schlichtherle.truezip.file.TFileReader;
 import de.schlichtherle.truezip.file.TVFS;
 import de.schlichtherle.truezip.fs.FsSyncException;
 import me.neatmonster.spacemodule.SpaceModule;
@@ -133,7 +132,7 @@ public class BackupManager {
 
         BufferedReader fIn = null;
         try {
-            fIn = new BufferedReader(new FileReader(metaFile));
+            fIn = new BufferedReader(new TFileReader(metaFile));
             String read = fIn.readLine();
 
             while(read != null) {
