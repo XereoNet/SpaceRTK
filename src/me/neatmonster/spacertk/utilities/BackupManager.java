@@ -39,8 +39,6 @@ import de.schlichtherle.truezip.file.TFileOutputStream;
 import de.schlichtherle.truezip.file.TFileReader;
 import de.schlichtherle.truezip.file.TVFS;
 import de.schlichtherle.truezip.fs.FsSyncException;
-import de.schlichtherle.truezip.fs.FsSyncOption;
-import de.schlichtherle.truezip.fs.FsSyncOptions;
 import me.neatmonster.spacemodule.SpaceModule;
 import me.neatmonster.spacertk.SpaceRTK;
 import me.neatmonster.spacertk.event.BackupEvent;
@@ -57,8 +55,8 @@ import com.drdanick.rtoolkit.event.ToolkitEventPriority;
 public class BackupManager {
 
     private static BackupManager instance;
-    private Map<String, Backup> backups;
-    private long backupsLastLoaded;
+    private Map<String, Backup> backups = new HashMap<String, Backup>();
+    private long backupsLastLoaded = 0L;
     private static final long BACKUP_REFRESH_THRESHOLD = 60000; //1 minute
     private Map<String, BackupThread> backupThreadRegistry = new HashMap<String, BackupThread>();
     private Queue<BackupThread> operationQueue = new LinkedBlockingQueue<BackupThread>();
@@ -66,7 +64,8 @@ public class BackupManager {
     private DecimalFormat formatter;
 
     private BackupManager() {
-        backups = loadBackups();
+        loadBackups();
+
         formatter = new DecimalFormat("##0.00");
         formatter.setRoundingMode(RoundingMode.HALF_EVEN);
         EventDispatcher edt = SpaceModule.getInstance().getEdt();
@@ -93,12 +92,10 @@ public class BackupManager {
         edt.registerListener(backupListener, SpaceModule.getInstance().getEventHandler(), ToolkitEventPriority.MONITOR, BackupEvent.class);
     }
 
-    private Map<String, Backup> loadBackups() {
-        Map<String, Backup> backups = new HashMap<String, Backup>();
-
+    private void loadBackups() {
         TFile backupDir = new TFile(SpaceRTK.baseDir, SpaceRTK.getInstance().backupDirName);
         if(!backupDir.exists())
-            return backups;
+            return;
 
         for(TFile f : backupDir.listFiles()) {
             if(f.isArchive()) {
@@ -113,8 +110,6 @@ public class BackupManager {
             }
         }
         backupsLastLoaded = System.currentTimeMillis();
-
-        return backups;
     }
 
     private synchronized void registerBackup(Backup b) {
@@ -162,7 +157,7 @@ public class BackupManager {
 
     private void refreshBackups() {
         if(System.currentTimeMillis() > backupsLastLoaded + BACKUP_REFRESH_THRESHOLD)
-            backups = loadBackups();
+            loadBackups();
     }
 
     public static BackupManager getInstance() {
@@ -686,7 +681,14 @@ public class BackupManager {
         @Override
         public int compare(List<String> o1, List<String> o2) {
             try {
-                return Integer.parseInt(o1.get(2)) - Integer.parseInt(o2.get(2));
+                long l = Long.parseLong(o1.get(2)) - Long.parseLong(o2.get(2));
+                //o1 - o2 is not sufficient here due to possible errors from casting down
+                if(l < 0)
+                    return -1;
+                else if(l > 0)
+                    return 1;
+
+                return 0;
             } catch(NumberFormatException e) {
                 e.printStackTrace();
                 return 0;
