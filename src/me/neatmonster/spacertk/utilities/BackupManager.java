@@ -573,7 +573,7 @@ public class BackupManager {
                     fOut = new PrintWriter(new TFileOutputStream(backupMeta));
                     fOut.println("name:"+backupName);
                     fOut.println("uid:"+ uid);
-                    fOut.println("created:"+startTime);
+                    fOut.println("date:"+startTime);
                     fOut.println("size:"+dataSize);
 
                     Backup backup = new Backup(uid, backupName, startTime, dataSize, destRoot);
