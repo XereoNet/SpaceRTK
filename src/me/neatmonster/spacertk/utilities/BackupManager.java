@@ -66,8 +66,7 @@ public class BackupManager {
     private DecimalFormat formatter;
 
     private BackupManager() {
-        //backups = loadBackups();
-        backups = new HashMap<String, Backup>(); //Temporary
+        backups = loadBackups();
         formatter = new DecimalFormat("##0.00");
         formatter.setRoundingMode(RoundingMode.HALF_EVEN);
         EventDispatcher edt = SpaceModule.getInstance().getEdt();
@@ -105,6 +104,12 @@ public class BackupManager {
             if(f.isArchive()) {
                 Backup b = getBackup(f);
                 registerBackup(b);
+
+                try {
+                    TVFS.umount(f);
+                } catch (FsSyncException e) {
+                    e.printStackTrace();
+                }
             }
         }
         backupsLastLoaded = System.currentTimeMillis();
@@ -136,6 +141,7 @@ public class BackupManager {
             while(read != null) {
                 String[] split = read.split(":");
                 meta.put(split[0], split[1]);
+                read = fIn.readLine();
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -148,7 +154,6 @@ public class BackupManager {
                 e.printStackTrace();
                 return null;
             }
-            //TODO: unmount the TFile correctly.
         }
 
         return new Backup(meta.get("uid"), meta.get("name"), Long.parseLong(meta.get("date")),
