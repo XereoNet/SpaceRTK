@@ -253,9 +253,9 @@ public class BackupManager {
      * List metadata of all backups.
      * @return a list of each backup's metadata.
      */
-    public synchronized List<String[]> listBackupInfo() {
+    public synchronized List<List<String>> listBackupInfo() {
         refreshBackups();
-        List<String[]> backupList = new ArrayList<String[]>(backups.size());
+        List<List<String>> backupList = new ArrayList<List<String>>(backups.size());
 
         for(Backup b : backups.values()) {
             String[] meta = new String[4];
@@ -263,6 +263,8 @@ public class BackupManager {
             meta[1] = b.name;
             meta[2] = ""+b.date;
             meta[3] = ""+b.size;
+
+            backupList.add(Arrays.asList(meta));
         }
         Collections.sort(backupList, new MetadataComparator());
         return backupList;
@@ -679,12 +681,12 @@ public class BackupManager {
         }
     }
 
-    private class MetadataComparator implements Comparator<String[]> {
+    private class MetadataComparator implements Comparator<List<String>> {
 
         @Override
-        public int compare(String[] o1, String[] o2) {
+        public int compare(List<String> o1, List<String> o2) {
             try {
-                return Integer.parseInt(o1[2]) - Integer.parseInt(o2[2]);
+                return Integer.parseInt(o1.get(2)) - Integer.parseInt(o2.get(2));
             } catch(NumberFormatException e) {
                 e.printStackTrace();
                 return 0;

@@ -98,7 +98,7 @@ public class ServerActions implements ActionHandler {
      */
     @Action(
             aliases = {"getBackups", "listBackups", "listBackupInfo"})
-    public List<String[]> getBackups() {
+    public List<List<String>> getBackups() {
         return SpaceRTK.getInstance().getBackupManager().listBackupInfo();
     }
 
