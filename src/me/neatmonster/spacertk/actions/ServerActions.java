@@ -16,6 +16,7 @@ package me.neatmonster.spacertk.actions;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URI;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -69,9 +70,9 @@ public class ServerActions implements ActionHandler {
                 File zipFile = new File(backupDir + File.separator + name + "_" + dateFormat.format(date)+ ".zip");
 
                 if (!SpaceRTK.getInstance().worldContainer.equals(new File("."))) {
-                    return bManager.performBackup(offlineBackup, false, name, zipFile, new String[]{backupDir.getCanonicalPath()}, oldDirectory,SpaceRTK.getInstance().worldContainer);
+                    return bManager.performBackup(offlineBackup, false, name, zipFile, new URI[]{backupDir.toURI()}, oldDirectory,SpaceRTK.getInstance().worldContainer);
                 } else {
-                    return bManager.performBackup(offlineBackup, false, name, zipFile, new String[]{backupDir.getCanonicalPath()}, oldDirectory);
+                    return bManager.performBackup(offlineBackup, false, name, zipFile, new URI[]{backupDir.toURI()}, oldDirectory);
                 }
 
             } else {
@@ -83,7 +84,7 @@ public class ServerActions implements ActionHandler {
 
                 File zipFile = new File(backupDir + File.separator + name + "_" + dateFormat.format(date)+ ".zip");
 
-                return bManager.performBackup(offlineBackup, false, name, zipFile, new String[]{backupDir.getCanonicalPath()}, oldDirectory);
+                return bManager.performBackup(offlineBackup, false, name, zipFile, new URI[]{backupDir.toURI()}, oldDirectory);
             }
         } catch(IOException e) {
             e.printStackTrace();
