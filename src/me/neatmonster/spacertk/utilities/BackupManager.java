@@ -21,6 +21,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.PrintWriter;
 import java.math.RoundingMode;
+import java.net.URI;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -180,14 +181,14 @@ public class BackupManager {
      * @return the uid of the backup.
      */
     public synchronized String performBackup(boolean offline, boolean ignoreImmediateFiles,
-            String backupName, File outputFile, String[] ignoredFolders, File folder, File... folders) {
+            String backupName, File outputFile, URI[] ignoredFolders, File folder, File... folders) {
         String uid = null;
-        LinkedList<String> ignoreList = new LinkedList<String>(Arrays.asList(ignoredFolders));
+        List<URI> ignoreList = new LinkedList<URI>(Arrays.asList(ignoredFolders));
 
         if(ignoreImmediateFiles && folder.isDirectory())
             for(File f : folder.listFiles())
                 if(!f.isDirectory())
-                    ignoreList.add(SpaceRTK.baseDir.toURI().relativize(f.toURI()).getPath());
+                    ignoreList.add(f.toURI());
 
         do {
             uid = Utilities.generateRandomString(8,"US-ASCII");
@@ -222,7 +223,7 @@ public class BackupManager {
         if(backup == null)
             return false;
 
-        BackupThread bThread = new BackupThread(backup.name, backup.uid, SpaceRTK.baseDir, Arrays.asList(new String[]{}),
+        BackupThread bThread = new BackupThread(backup.name, backup.uid, SpaceRTK.baseDir, Arrays.asList(new URI[]{}),
                 clearDest, offline, dest, backup.backupFile);
 
         backupThreadRegistry.put(bThread.uid, bThread);
@@ -473,7 +474,7 @@ public class BackupManager {
         private File destRoot;
         private File base;
         private boolean clearDst;
-        private List<String> ignoreList;
+        private List<URI> ignoreList;
         boolean offline;
         long startTime = -1L;
         long endTime = -1L;
@@ -487,7 +488,7 @@ public class BackupManager {
         float progress = 0.0f;
         boolean running = false;
 
-        public BackupThread(String backupName, String uid, File base, List<String> ignoreList,
+        public BackupThread(String backupName, String uid, File base, List<URI> ignoreList,
                 boolean clearDst, boolean offline, File destRoot, File sourceRoot, File... additionalSources) {
             this.base = base;
             this.backupName = backupName;
@@ -528,8 +529,8 @@ public class BackupManager {
                 }
 
                 //Remove ignored files from the index
-                for(String s : ignoreList)
-                    sourceTree.remove(s);
+                for(URI u : ignoreList)
+                    sourceTree.remove(SpaceRTK.baseDir.toURI().relativize(u).getPath());
                 sourceTree.remove(base.getName()+"/"+"backup.index");
                 sourceTree.remove(base.getName()+"/"+"backup.info");
 
