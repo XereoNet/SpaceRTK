@@ -52,7 +52,11 @@ public class BackupListener implements ToolkitEventListener {
                 }
             } else if(!BackupManager.getInstance().hasOperationsQueued()){
                 RemoteToolkit.unhold();
-                e.setCanceled(true);
+                try {
+                    Thread.sleep(5000); //Give the toolkit 5 seconds to bring the server back up
+                } catch(InterruptedException ex) {
+                    ex.printStackTrace();
+                }
             }
         }
     }

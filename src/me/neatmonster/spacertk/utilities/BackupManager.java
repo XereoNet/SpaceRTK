@@ -40,6 +40,7 @@ import de.schlichtherle.truezip.file.TFileOutputStream;
 import de.schlichtherle.truezip.file.TFileReader;
 import de.schlichtherle.truezip.file.TVFS;
 import de.schlichtherle.truezip.fs.FsSyncException;
+import de.schlichtherle.truezip.fs.FsSyncOptions;
 import me.neatmonster.spacemodule.SpaceModule;
 import me.neatmonster.spacertk.SpaceRTK;
 import me.neatmonster.spacertk.event.BackupEvent;
@@ -49,10 +50,10 @@ import com.drdanick.rtoolkit.event.ToolkitEventListener;
 import com.drdanick.rtoolkit.event.ToolkitEventPriority;
 
 /**
-* Manages backups.
-*
-* @author drdanick
-*/
+ * Manages backups.
+ *
+ * @author drdanick
+ */
 public class BackupManager {
 
     private static BackupManager instance;
@@ -63,8 +64,10 @@ public class BackupManager {
     private Queue<BackupThread> operationQueue = new LinkedBlockingQueue<BackupThread>();
     private BackupThread currentOperation;
     private DecimalFormat formatter;
+    private Object lock;
 
     private BackupManager() {
+        lock = this;
         loadBackups();
 
         formatter = new DecimalFormat("##0.00");
@@ -76,16 +79,18 @@ public class BackupManager {
             public void onBackupEvent(BackupEvent e) {
                 if(e.isCanceled())
                     return;
-                if(e.getEndTime() == -1 && operationQueue.peek().uid.equals(e.getUid())) {
-                    currentOperation = operationQueue.remove();
-                    currentOperation.start();
-                } else if(e.getEndTime() != -1) {
-                    if(hasOperationsQueued()) {
-                        BackupThread next = operationQueue.peek();
-                        BackupEvent b = new BackupEvent(next.startTime, next.endTime, next.offline, next.backupName, next.uid);
-                        SpaceModule.getInstance().getEdt().fireToolkitEvent(b);
-                    } else
-                        currentOperation = null;
+                synchronized(lock){
+                    if(e.getEndTime() == -1 && operationQueue.peek().uid.equals(e.getUid())) {
+                        currentOperation = operationQueue.remove();
+                        currentOperation.start();
+                    } else if(e.getEndTime() != -1) {
+                        if(hasOperationsQueued()) {
+                            BackupThread next = operationQueue.peek();
+                            BackupEvent b = new BackupEvent(next.startTime, next.endTime, next.offline, next.backupName, next.uid);
+                            SpaceModule.getInstance().getEdt().fireToolkitEvent(b);
+                        } else
+                            currentOperation = null;
+                    }
                 }
             }
         };
@@ -200,7 +205,8 @@ public class BackupManager {
         backupThreadRegistry.put(bThread.uid, bThread);
         queueOperation(bThread);
 
-        if(currentOperation == null) {
+        if(getOperationRunning() == null) {
+            setCurrentOperation(bThread);
             BackupEvent e = new BackupEvent(-1, -1, offline, backupName, uid);
             SpaceModule.getInstance().getEdt().fireToolkitEvent(e);
         }
@@ -229,7 +235,8 @@ public class BackupManager {
         backupThreadRegistry.put(bThread.uid, bThread);
         queueOperation(bThread);
 
-        if(currentOperation == null) {
+        if(getOperationRunning() == null) {
+            setCurrentOperation(bThread);
             BackupEvent e = new BackupEvent(-1, -1, offline, backup.name, uid);
             SpaceModule.getInstance().getEdt().fireToolkitEvent(e);
         }
@@ -467,12 +474,15 @@ public class BackupManager {
         operationQueue.add(bThread);
     }
 
+    private synchronized void setCurrentOperation(BackupThread operation) {
+        this.currentOperation = operation;
+    }
+
     private class BackupThread extends Thread {
-        private FSTree sourceTree;
         private File[] additionalSources;
-        private File sourceRoot;
-        private File destRoot;
-        private File base;
+        private TFile sourceRoot;
+        private TFile destRoot;
+        private TFile base;
         private boolean clearDst;
         private List<URI> ignoreList;
         boolean offline;
@@ -490,24 +500,26 @@ public class BackupManager {
 
         public BackupThread(String backupName, String uid, File base, List<URI> ignoreList,
                 boolean clearDst, boolean offline, File destRoot, File sourceRoot, File... additionalSources) {
-            this.base = base;
+            this.base = new TFile(base);
             this.backupName = backupName;
             this.uid = uid;
             this.clearDst = clearDst;
             this.ignoreList = ignoreList;
             this.offline = offline;
-            this.destRoot = destRoot;
-            this.sourceRoot = sourceRoot;
+            this.destRoot = new TFile(destRoot);
+            this.sourceRoot = new TFile(sourceRoot);
             this.additionalSources = additionalSources;
         }
 
         public void run() {
-            running  = true;
-            startTime = System.currentTimeMillis();
-            status = "Initializing";
+            FSTree sourceTree;
             ObjectInputStream oi = null;
             ObjectOutputStream oo = null;
             PrintWriter fOut = null;
+            running  = true;
+            startTime = System.currentTimeMillis();
+            status = "Initializing";
+
             try {
                 TFile sourceFile = new TFile(sourceRoot);
                 TFile backupIndex = new TFile(sourceRoot, "backup.index");
@@ -518,6 +530,7 @@ public class BackupManager {
                     oi = new ObjectInputStream(new TFileInputStream(backupIndex));
                     sourceTree = (FSTree)oi.readObject();
                     base = sourceRoot;
+                    oi.close();
                 } else {
                     sourceTree = Utilities.buildFSTree(new TFile(sourceRoot), base);
                     if(additionalSources != null) {
@@ -527,7 +540,6 @@ public class BackupManager {
                         }
                     }
                 }
-
                 //Remove ignored files from the index
                 for(URI u : ignoreList)
                     sourceTree.remove(SpaceRTK.baseDir.toURI().relativize(u).getPath());
@@ -541,8 +553,8 @@ public class BackupManager {
 
                 if(clearDst) {
                     status = "Wiping out destination directories";
-                    if(new TFile(destRoot).isArchive())
-                        destRoot.delete();
+                    if(destRoot.isArchive())
+                        destRoot.toNonArchiveFile().rm();
                     else {
                         for(String s : sourceTree) {
                             File file = new File(destRoot, s);
@@ -560,6 +572,7 @@ public class BackupManager {
                         new TFile(destRoot).mkdirs();
                     oo = new ObjectOutputStream(new TFileOutputStream(backupIndex));
                     oo.writeObject(sourceTree);
+                    oo.close();
                 }
 
                 if(!backupMeta.exists()) {
@@ -571,12 +584,16 @@ public class BackupManager {
                     fOut.println("uid:"+ uid);
                     fOut.println("date:"+startTime);
                     fOut.println("size:"+dataSize);
+                    fOut.close();
 
                     Backup backup = new Backup(uid, backupName, startTime, dataSize, destRoot);
                     registerBackup(backup);
                 }
 
-                for(String path : sourceTree) {
+                List<String> sourceFiles = sourceTree.enumerateLeaves(null);
+                sourceTree.removeAll();
+
+                for(String path : sourceFiles) {
                     TFile src = new TFile(base, path);
                     TFile dst = new TFile(destRoot, path);
                     status = "Processing "+src.getName();
@@ -601,6 +618,7 @@ public class BackupManager {
                         dataCopied += Utilities.getFileSize(src);
 
                     progress = dataCopied / (dataSize + (0.15f * dataSize));
+
                 }
 
                 progress = 0.85f; //Temporary
@@ -618,7 +636,7 @@ public class BackupManager {
                 }
                 status = "Error";
             } finally {
-                try {
+                try { //Attempt to close the streams again in the case that an exception was thrown before closing them.
                     if(oi != null)
                         oi.close();
                     if(oo != null)
@@ -635,13 +653,13 @@ public class BackupManager {
                 if(error.isEmpty())
                     status = "Finalizing";
                 try {
-                    TVFS.umount(new TFile(sourceRoot));
+                    TVFS.umount(sourceRoot);
                 } catch(FsSyncException e){
                     e.printStackTrace();
                 }
 
                 try {
-                    TVFS.umount(new TFile(destRoot));
+                    TVFS.umount(destRoot);
                 } catch(FsSyncException e){
                     e.printStackTrace();
                 }

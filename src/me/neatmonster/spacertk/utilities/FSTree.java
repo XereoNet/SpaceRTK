@@ -49,7 +49,7 @@ public class FSTree implements Iterable<String>, Externalizable {
      * @param name name of the initial file in the hierarchy.
      */
     public FSTree(String name) {
-        this.name = name;
+        this.name = new String(name.toCharArray()); //Remove bytes beyond the internal String offset.
         size = 0L;
         children = new HashMap<String, FSTree>();
     }
@@ -60,7 +60,7 @@ public class FSTree implements Iterable<String>, Externalizable {
      * @param size size of the initial file in the hierarchy in bytes.
      */
     public FSTree(String name, long size) {
-        this.name = name;
+        this.name = new String(name.toCharArray()); //Remove bytes beyond the internal String offset.
         this.size = size;
         children = new HashMap<String, FSTree>();
     }
@@ -72,7 +72,7 @@ public class FSTree implements Iterable<String>, Externalizable {
      * @param parent parent of this node.
      */
     public FSTree(String name, long size, FSTree parent) {
-        this.name = name;
+        this.name = new String(name.toCharArray()); //Remove bytes beyond the internal String offset.
         this.size = size;
         this.parent = parent;
         children = new HashMap<String, FSTree>();
@@ -96,17 +96,16 @@ public class FSTree implements Iterable<String>, Externalizable {
 
         if(tokenizer.hasMoreTokens()) {
             String name = tokenizer.nextToken();
-
             if(tokenizer.hasMoreTokens()) {
                 FSTree child = children.get(name);
 
                 if(child == null) {
                     child = new FSTree(name, 0L, this);
-                    children.put(name, child);
+                    children.put(new String(name.toCharArray()), child);
                 }
                 child.addRecurse(tokenizer, size);
             } else {
-                children.put(name, new FSTree(name, size, this));
+                children.put(new String(name.toCharArray()), new FSTree(name, size, this));
             }
 
         }
@@ -121,7 +120,7 @@ public class FSTree implements Iterable<String>, Externalizable {
         long oldSize = size;
         for(FSTree child : tree.children.values()) {
             if(!children.containsKey(child.name)) {
-                children.put(child.name, child);
+                children.put(new String(child.name.toCharArray()), child);
                 size += child.size;
                 return child.size;
             } else {
@@ -192,25 +191,42 @@ public class FSTree implements Iterable<String>, Externalizable {
     }
 
     /**
+     * Remove all children under this tree.
+     */
+    public void removeAll() {
+        children.clear();
+    }
+
+    /**
      * Enumerate the relative paths of the leaves in this tree.
      * @param leaves list to store the enumeration in.
      */
-    public void enumerateLeaves(List<String> leaves) {
+    public List<String> enumerateLeaves(List<String> leaves) {
+        if(leaves == null)
+            leaves = new LinkedList<String>();
+
         if(!children.isEmpty())
             enumerateRecurse(leaves, new StringBuilder(BUILDER_SIZE), false);
         else
             leaves.add(name);
+
+        return leaves;
     }
 
     /**
      * Enumerate the relative paths of all nodes in this tree.
      * @param nodes list to store the enumeration in.
      */
-    public void enumerateAll(List<String> nodes) {
+    public List<String> enumerateAll(List<String> nodes) {
+        if(nodes == null)
+            nodes = new LinkedList<String>();
+
         if(!children.isEmpty())
             enumerateRecurse(nodes, new StringBuilder(BUILDER_SIZE), true);
         else if(name != null)
             nodes.add(name);
+
+        return nodes;
     }
 
     /**
