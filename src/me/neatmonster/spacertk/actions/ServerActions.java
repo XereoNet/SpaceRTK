@@ -16,6 +16,7 @@ package me.neatmonster.spacertk.actions;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URI;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -69,9 +70,9 @@ public class ServerActions implements ActionHandler {
                 File zipFile = new File(backupDir + File.separator + name + "_" + dateFormat.format(date)+ ".zip");
 
                 if (!SpaceRTK.getInstance().worldContainer.equals(new File("."))) {
-                    return bManager.performBackup(offlineBackup, false, name, zipFile, new String[]{backupDir.getCanonicalPath()}, oldDirectory,SpaceRTK.getInstance().worldContainer);
+                    return bManager.performBackup(offlineBackup, false, name, zipFile, new URI[]{backupDir.toURI()}, oldDirectory,SpaceRTK.getInstance().worldContainer);
                 } else {
-                    return bManager.performBackup(offlineBackup, false, name, zipFile, new String[]{backupDir.getCanonicalPath()}, oldDirectory);
+                    return bManager.performBackup(offlineBackup, false, name, zipFile, new URI[]{backupDir.toURI()}, oldDirectory);
                 }
 
             } else {
@@ -83,7 +84,7 @@ public class ServerActions implements ActionHandler {
 
                 File zipFile = new File(backupDir + File.separator + name + "_" + dateFormat.format(date)+ ".zip");
 
-                return bManager.performBackup(offlineBackup, false, name, zipFile, new String[]{backupDir.getCanonicalPath()}, oldDirectory);
+                return bManager.performBackup(offlineBackup, false, name, zipFile, new URI[]{backupDir.toURI()}, oldDirectory);
             }
         } catch(IOException e) {
             e.printStackTrace();
@@ -98,7 +99,7 @@ public class ServerActions implements ActionHandler {
      */
     @Action(
             aliases = {"getBackups", "listBackups", "listBackupInfo"})
-    public List<String[]> getBackups() {
+    public List<List<String>> getBackups() {
         return SpaceRTK.getInstance().getBackupManager().listBackupInfo();
     }
 
@@ -302,115 +303,6 @@ public class ServerActions implements ActionHandler {
         if (players == null || players.size() == 0)
             RemoteToolkit.restart(save);
         return true;
-    }
-
-    /**
-     * Restores a directory
-     * @param date Date the directory was backuped at
-     * @param directory Directory to restore
-     * @return true if successful, false otherwise.
-     */
-    @Action(
-            aliases = {"restore", "restoreDirectory", "restoreDir"})
-    public boolean restore(final String date, final String directory) {
-        if (directory.equals("*")) {
-            boolean result = true;
-            final boolean wasRunning = RemoteToolkit.isRunning();
-            if (wasRunning) {
-                RemoteToolkit.hold();
-                while (RemoteToolkit.isRunning())
-                    try {
-                        Thread.sleep(1000);
-                    } catch (final InterruptedException e) {
-                        e.printStackTrace();
-                    }
-            }
-            File backupDirectory = new File("backups" + File.separator + date);
-            for (final String directoryName_ : Arrays.asList(backupDirectory.list(DirectoryFileFilter.INSTANCE))) {
-                final File oldDirectory = new File(backupDirectory.getPath() + File.separator + directoryName_);
-                final File newDirectory = new File(directoryName_);
-                if (newDirectory.exists()) {
-                    newDirectory.delete();
-                    newDirectory.mkdir();
-                }
-                try {
-                    FileUtils.copyDirectory(oldDirectory, newDirectory);
-                } catch (final IOException e) {
-                    e.printStackTrace();
-                    result = false;
-                }
-            }
-            if (!SpaceRTK.getInstance().worldContainer.equals(new File("."))) {
-                backupDirectory = new File(SpaceRTK.getInstance().worldContainer.getPath() + File.separator + "backups"
-                        + File.separator + date);
-                for (final String directoryName_ : Arrays.asList(backupDirectory.list(DirectoryFileFilter.INSTANCE))) {
-                    final File oldDirectory = new File(backupDirectory.getPath() + File.separator + directoryName_);
-                    final File newDirectory = new File(SpaceRTK.getInstance().worldContainer.getPath() + File.separator
-                            + directoryName_);
-                    if (newDirectory.exists()) {
-                        newDirectory.delete();
-                        newDirectory.mkdir();
-                    }
-                    try {
-                        FileUtils.copyDirectory(oldDirectory, newDirectory);
-                    } catch (final IOException e) {
-                        e.printStackTrace();
-                        result = false;
-                    }
-                }
-            }
-            if (wasRunning)
-                RemoteToolkit.unhold();
-            return result;
-        } else {
-            boolean result = true;
-            final boolean wasRunning = RemoteToolkit.isRunning();
-            if (wasRunning) {
-                RemoteToolkit.hold();
-                while (RemoteToolkit.isRunning())
-                    try {
-                        Thread.sleep(1000);
-                    } catch (final InterruptedException e) {
-                        e.printStackTrace();
-                    }
-            }
-            File backupDirectory = new File("backups" + File.separator + date);
-            File oldDirectory = new File(backupDirectory.getPath() + File.separator + directory);
-            File newDirectory = new File(directory);
-            if (oldDirectory.exists()) {
-                if (newDirectory.exists()) {
-                    newDirectory.delete();
-                    newDirectory.mkdir();
-                }
-                try {
-                    FileUtils.copyDirectory(oldDirectory, newDirectory);
-                } catch (final IOException e) {
-                    e.printStackTrace();
-                    result = false;
-                }
-            }
-            if (!SpaceRTK.getInstance().worldContainer.equals(new File("."))) {
-                backupDirectory = new File(SpaceRTK.getInstance().worldContainer + File.separator + "backups"
-                        + File.separator + date);
-                oldDirectory = new File(backupDirectory.getPath() + File.separator + directory);
-                newDirectory = new File(SpaceRTK.getInstance().worldContainer + File.separator + directory);
-                if (oldDirectory.exists()) {
-                    if (newDirectory.exists()) {
-                        newDirectory.delete();
-                        newDirectory.mkdir();
-                    }
-                    try {
-                        FileUtils.copyDirectory(oldDirectory, newDirectory);
-                    } catch (final IOException e) {
-                        e.printStackTrace();
-                        result = false;
-                    }
-                }
-            }
-            if (wasRunning)
-                RemoteToolkit.unhold();
-            return result;
-        }
     }
 
     /**

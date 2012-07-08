@@ -21,6 +21,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.PrintWriter;
 import java.math.RoundingMode;
+import java.net.URI;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -39,8 +40,6 @@ import de.schlichtherle.truezip.file.TFileOutputStream;
 import de.schlichtherle.truezip.file.TFileReader;
 import de.schlichtherle.truezip.file.TVFS;
 import de.schlichtherle.truezip.fs.FsSyncException;
-import de.schlichtherle.truezip.fs.FsSyncOption;
-import de.schlichtherle.truezip.fs.FsSyncOptions;
 import me.neatmonster.spacemodule.SpaceModule;
 import me.neatmonster.spacertk.SpaceRTK;
 import me.neatmonster.spacertk.event.BackupEvent;
@@ -57,8 +56,8 @@ import com.drdanick.rtoolkit.event.ToolkitEventPriority;
 public class BackupManager {
 
     private static BackupManager instance;
-    private Map<String, Backup> backups;
-    private long backupsLastLoaded;
+    private Map<String, Backup> backups = new HashMap<String, Backup>();
+    private long backupsLastLoaded = 0L;
     private static final long BACKUP_REFRESH_THRESHOLD = 60000; //1 minute
     private Map<String, BackupThread> backupThreadRegistry = new HashMap<String, BackupThread>();
     private Queue<BackupThread> operationQueue = new LinkedBlockingQueue<BackupThread>();
@@ -66,8 +65,8 @@ public class BackupManager {
     private DecimalFormat formatter;
 
     private BackupManager() {
-        //backups = loadBackups();
-        backups = new HashMap<String, Backup>(); //Temporary
+        loadBackups();
+
         formatter = new DecimalFormat("##0.00");
         formatter.setRoundingMode(RoundingMode.HALF_EVEN);
         EventDispatcher edt = SpaceModule.getInstance().getEdt();
@@ -94,22 +93,24 @@ public class BackupManager {
         edt.registerListener(backupListener, SpaceModule.getInstance().getEventHandler(), ToolkitEventPriority.MONITOR, BackupEvent.class);
     }
 
-    private Map<String, Backup> loadBackups() {
-        Map<String, Backup> backups = new HashMap<String, Backup>();
-
+    private void loadBackups() {
         TFile backupDir = new TFile(SpaceRTK.baseDir, SpaceRTK.getInstance().backupDirName);
         if(!backupDir.exists())
-            return backups;
+            return;
 
         for(TFile f : backupDir.listFiles()) {
             if(f.isArchive()) {
                 Backup b = getBackup(f);
                 registerBackup(b);
+
+                try {
+                    TVFS.umount(f);
+                } catch (FsSyncException e) {
+                    e.printStackTrace();
+                }
             }
         }
         backupsLastLoaded = System.currentTimeMillis();
-
-        return backups;
     }
 
     private synchronized void registerBackup(Backup b) {
@@ -136,6 +137,7 @@ public class BackupManager {
             while(read != null) {
                 String[] split = read.split(":");
                 meta.put(split[0], split[1]);
+                read = fIn.readLine();
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -148,7 +150,6 @@ public class BackupManager {
                 e.printStackTrace();
                 return null;
             }
-            //TODO: unmount the TFile correctly.
         }
 
         return new Backup(meta.get("uid"), meta.get("name"), Long.parseLong(meta.get("date")),
@@ -157,7 +158,7 @@ public class BackupManager {
 
     private void refreshBackups() {
         if(System.currentTimeMillis() > backupsLastLoaded + BACKUP_REFRESH_THRESHOLD)
-            backups = loadBackups();
+            loadBackups();
     }
 
     public static BackupManager getInstance() {
@@ -180,14 +181,14 @@ public class BackupManager {
      * @return the uid of the backup.
      */
     public synchronized String performBackup(boolean offline, boolean ignoreImmediateFiles,
-            String backupName, File outputFile, String[] ignoredFolders, File folder, File... folders) {
+            String backupName, File outputFile, URI[] ignoredFolders, File folder, File... folders) {
         String uid = null;
-        LinkedList<String> ignoreList = new LinkedList<String>(Arrays.asList(ignoredFolders));
+        List<URI> ignoreList = new LinkedList<URI>(Arrays.asList(ignoredFolders));
 
         if(ignoreImmediateFiles && folder.isDirectory())
             for(File f : folder.listFiles())
                 if(!f.isDirectory())
-                    ignoreList.add(SpaceRTK.baseDir.toURI().relativize(f.toURI()).getPath());
+                    ignoreList.add(f.toURI());
 
         do {
             uid = Utilities.generateRandomString(8,"US-ASCII");
@@ -222,7 +223,7 @@ public class BackupManager {
         if(backup == null)
             return false;
 
-        BackupThread bThread = new BackupThread(backup.name, backup.uid, SpaceRTK.baseDir, Arrays.asList(new String[]{}),
+        BackupThread bThread = new BackupThread(backup.name, backup.uid, SpaceRTK.baseDir, Arrays.asList(new URI[]{}),
                 clearDest, offline, dest, backup.backupFile);
 
         backupThreadRegistry.put(bThread.uid, bThread);
@@ -248,9 +249,9 @@ public class BackupManager {
      * List metadata of all backups.
      * @return a list of each backup's metadata.
      */
-    public synchronized List<String[]> listBackupInfo() {
+    public synchronized List<List<String>> listBackupInfo() {
         refreshBackups();
-        List<String[]> backupList = new ArrayList<String[]>(backups.size());
+        List<List<String>> backupList = new ArrayList<List<String>>(backups.size());
 
         for(Backup b : backups.values()) {
             String[] meta = new String[4];
@@ -258,6 +259,8 @@ public class BackupManager {
             meta[1] = b.name;
             meta[2] = ""+b.date;
             meta[3] = ""+b.size;
+
+            backupList.add(Arrays.asList(meta));
         }
         Collections.sort(backupList, new MetadataComparator());
         return backupList;
@@ -471,7 +474,7 @@ public class BackupManager {
         private File destRoot;
         private File base;
         private boolean clearDst;
-        private List<String> ignoreList;
+        private List<URI> ignoreList;
         boolean offline;
         long startTime = -1L;
         long endTime = -1L;
@@ -485,7 +488,7 @@ public class BackupManager {
         float progress = 0.0f;
         boolean running = false;
 
-        public BackupThread(String backupName, String uid, File base, List<String> ignoreList,
+        public BackupThread(String backupName, String uid, File base, List<URI> ignoreList,
                 boolean clearDst, boolean offline, File destRoot, File sourceRoot, File... additionalSources) {
             this.base = base;
             this.backupName = backupName;
@@ -526,8 +529,8 @@ public class BackupManager {
                 }
 
                 //Remove ignored files from the index
-                for(String s : ignoreList)
-                    sourceTree.remove(s);
+                for(URI u : ignoreList)
+                    sourceTree.remove(SpaceRTK.baseDir.toURI().relativize(u).getPath());
                 sourceTree.remove(base.getName()+"/"+"backup.index");
                 sourceTree.remove(base.getName()+"/"+"backup.info");
 
@@ -566,7 +569,7 @@ public class BackupManager {
                     fOut = new PrintWriter(new TFileOutputStream(backupMeta));
                     fOut.println("name:"+backupName);
                     fOut.println("uid:"+ uid);
-                    fOut.println("created:"+startTime);
+                    fOut.println("date:"+startTime);
                     fOut.println("size:"+dataSize);
 
                     Backup backup = new Backup(uid, backupName, startTime, dataSize, destRoot);
@@ -674,12 +677,19 @@ public class BackupManager {
         }
     }
 
-    private class MetadataComparator implements Comparator<String[]> {
+    private class MetadataComparator implements Comparator<List<String>> {
 
         @Override
-        public int compare(String[] o1, String[] o2) {
+        public int compare(List<String> o1, List<String> o2) {
             try {
-                return Integer.parseInt(o1[2]) - Integer.parseInt(o2[2]);
+                long l = Long.parseLong(o1.get(2)) - Long.parseLong(o2.get(2));
+                //o1 - o2 is not sufficient here due to possible errors from casting down
+                if(l < 0)
+                    return -1;
+                else if(l > 0)
+                    return 1;
+
+                return 0;
             } catch(NumberFormatException e) {
                 e.printStackTrace();
                 return 0;
