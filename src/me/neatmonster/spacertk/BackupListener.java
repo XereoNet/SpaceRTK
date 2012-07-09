@@ -17,7 +17,7 @@ package me.neatmonster.spacertk;
 import com.drdanick.McRKit.Wrapper;
 import com.drdanick.rtoolkit.event.ToolkitEventListener;
 import me.neatmonster.spacertk.event.BackupEvent;
-import me.neatmonster.spacertk.utilities.BackupManager;
+import me.neatmonster.spacertk.utilities.backup.BackupManager;
 
 import java.lang.reflect.Field;
 

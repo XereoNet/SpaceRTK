@@ -19,6 +19,7 @@ import java.io.OutputStream;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 
+import com.drdanick.McRKit.PropertiesFile;
 import com.drdanick.McRKit.Scheduler;
 import com.drdanick.McRKit.ToolkitAction;
 import com.drdanick.McRKit.Wrapper;
@@ -27,6 +28,11 @@ import com.drdanick.McRKit.Wrapper;
  * Utilities to interact with the RTK
  */
 public class RemoteToolkit {
+
+    /**
+     * The main toolkit configuration properties.
+     */
+    public static final PropertiesFile PROPERTIES = getProperties();
 
     /**
      * Sends a command from the console
@@ -184,5 +190,23 @@ public class RemoteToolkit {
      */
     public static void unhold() {
         Wrapper.getInterface().performAction(ToolkitAction.UNHOLD, null);
+    }
+
+    /**
+     * Get the main Properties instance associated with the toolkit.
+     * @return the toolkit configuration properties.
+     */
+    private static PropertiesFile getProperties() {
+        try {
+            Field field = Wrapper.getInstance().getClass().getDeclaredField("toolkitProperties");
+            field.setAccessible(true);
+            PropertiesFile properties = (PropertiesFile)field.get(Wrapper.getInstance());
+            return properties;
+        } catch (NoSuchFieldException e) {
+            e.printStackTrace();
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 }

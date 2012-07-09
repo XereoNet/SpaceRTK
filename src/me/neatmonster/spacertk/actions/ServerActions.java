@@ -18,7 +18,6 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.text.DateFormat;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -31,12 +30,11 @@ import me.neatmonster.spacemodule.api.Action;
 import me.neatmonster.spacemodule.api.ActionHandler;
 import me.neatmonster.spacertk.RemoteToolkit;
 import me.neatmonster.spacertk.SpaceRTK;
-import me.neatmonster.spacertk.utilities.BackupManager;
+import me.neatmonster.spacertk.utilities.backup.BackupManager;
 import me.neatmonster.spacertk.utilities.Utilities;
 import me.neatmonster.spacertk.utilities.WorldFileFilter;
 
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.filefilter.DirectoryFileFilter;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONValue;
 

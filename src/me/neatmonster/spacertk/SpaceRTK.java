@@ -31,7 +31,7 @@ import me.neatmonster.spacertk.actions.ServerActions;
 import me.neatmonster.spacertk.event.BackupEvent;
 import me.neatmonster.spacertk.plugins.PluginsManager;
 import me.neatmonster.spacertk.scheduler.Scheduler;
-import me.neatmonster.spacertk.utilities.BackupManager;
+import me.neatmonster.spacertk.utilities.backup.BackupManager;
 import me.neatmonster.spacertk.utilities.Format;
 
 import org.bukkit.configuration.file.YamlConfiguration;

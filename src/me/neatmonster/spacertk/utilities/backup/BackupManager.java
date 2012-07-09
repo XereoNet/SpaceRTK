@@ -12,14 +12,11 @@
 * You should have received a copy of the Attribution-NonCommercial-ShareAlike Unported (CC BY-NC-SA) license along with
 * this program. If not, see <http://creativecommons.org/licenses/by-nc-sa/3.0/>.
 */
-package me.neatmonster.spacertk.utilities;
+package me.neatmonster.spacertk.utilities.backup;
 
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.io.PrintWriter;
 import java.math.RoundingMode;
 import java.net.URI;
 import java.text.DecimalFormat;
@@ -35,12 +32,9 @@ import java.util.Queue;
 import java.util.concurrent.LinkedBlockingQueue;
 
 import de.schlichtherle.truezip.file.TFile;
-import de.schlichtherle.truezip.file.TFileInputStream;
-import de.schlichtherle.truezip.file.TFileOutputStream;
 import de.schlichtherle.truezip.file.TFileReader;
 import de.schlichtherle.truezip.file.TVFS;
 import de.schlichtherle.truezip.fs.FsSyncException;
-import de.schlichtherle.truezip.fs.FsSyncOptions;
 import me.neatmonster.spacemodule.SpaceModule;
 import me.neatmonster.spacertk.SpaceRTK;
 import me.neatmonster.spacertk.event.BackupEvent;
@@ -48,6 +42,7 @@ import me.neatmonster.spacertk.event.BackupEvent;
 import com.drdanick.rtoolkit.EventDispatcher;
 import com.drdanick.rtoolkit.event.ToolkitEventListener;
 import com.drdanick.rtoolkit.event.ToolkitEventPriority;
+import me.neatmonster.spacertk.utilities.Utilities;
 
 /**
  * Manages backups.
@@ -55,11 +50,12 @@ import com.drdanick.rtoolkit.event.ToolkitEventPriority;
  * @author drdanick
  */
 public class BackupManager {
+    private static final long BACKUP_REFRESH_THRESHOLD = 60000; //1 minute
+    static final char STDOUT_LINE_DELIMITER = 30;
 
     private static BackupManager instance;
     private Map<String, Backup> backups = new HashMap<String, Backup>();
     private long backupsLastLoaded = 0L;
-    private static final long BACKUP_REFRESH_THRESHOLD = 60000; //1 minute
     private Map<String, BackupThread> backupThreadRegistry = new HashMap<String, BackupThread>();
     private Queue<BackupThread> operationQueue = new LinkedBlockingQueue<BackupThread>();
     private BackupThread currentOperation;
@@ -80,10 +76,14 @@ public class BackupManager {
                 if(e.isCanceled())
                     return;
                 synchronized(lock){
-                    if(e.getEndTime() == -1 && operationQueue.peek().uid.equals(e.getUid())) {
+                    if(e.getEndTime() == -1 && !operationQueue.isEmpty() && operationQueue.peek().uid.equals(e.getUid())) {
                         currentOperation = operationQueue.remove();
                         currentOperation.start();
                     } else if(e.getEndTime() != -1) {
+                        Backup lastBackup = currentOperation.backup;
+                        if(lastBackup != null)
+                            registerBackup(lastBackup);
+
                         if(hasOperationsQueued()) {
                             BackupThread next = operationQueue.peek();
                             BackupEvent b = new BackupEvent(next.startTime, next.endTime, next.offline, next.backupName, next.uid);
@@ -196,23 +196,34 @@ public class BackupManager {
                     ignoreList.add(f.toURI());
 
         do {
-            uid = Utilities.generateRandomString(8,"US-ASCII");
+            uid = Utilities.generateRandomString(8, "US-ASCII");
         } while(backups.containsKey(uid));
+        BackupThread bThread;
 
-        BackupThread bThread = new BackupThread(backupName, uid, SpaceRTK.baseDir,
-                ignoreList, false, offline, outputFile, folder, folders);
+        try {
+            if(offline)
+                bThread = new IsolatedBackupThread(backupName, uid, SpaceRTK.baseDir,
+                        ignoreList, false, outputFile, folder, folders);
+            else
+                bThread = new BackupThread(false, true, backupName, uid, SpaceRTK.baseDir,
+                        ignoreList, false, offline, outputFile, folder, folders);
 
-        backupThreadRegistry.put(bThread.uid, bThread);
-        queueOperation(bThread);
+            backupThreadRegistry.put(bThread.uid, bThread);
+            queueOperation(bThread);
 
-        if(getOperationRunning() == null) {
-            setCurrentOperation(bThread);
-            BackupEvent e = new BackupEvent(-1, -1, offline, backupName, uid);
-            SpaceModule.getInstance().getEdt().fireToolkitEvent(e);
+            if(getOperationRunning() == null) {
+                setCurrentOperation(bThread);
+                BackupEvent e = new BackupEvent(-1, -1, offline, backupName, uid);
+                SpaceModule.getInstance().getEdt().fireToolkitEvent(e);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+            return "null";
         }
 
         return uid;
     }
+
 
     /**
      * Attempt to queue a restore operation.
@@ -228,9 +239,19 @@ public class BackupManager {
         Backup backup = backups.get(uid);
         if(backup == null)
             return false;
+        BackupThread bThread = null;
 
-        BackupThread bThread = new BackupThread(backup.name, backup.uid, SpaceRTK.baseDir, Arrays.asList(new URI[]{}),
-                clearDest, offline, dest, backup.backupFile);
+        try {
+            if(offline)
+                bThread = new IsolatedBackupThread(backup.name, backup.uid, SpaceRTK.baseDir,
+                        Arrays.asList(new URI[]{}), clearDest, dest, backup.backupFile);
+            else
+                bThread = new BackupThread(false, true, backup.name, backup.uid, SpaceRTK.baseDir,
+                        Arrays.asList(new URI[]{}), clearDest, offline, dest, backup.backupFile);
+        } catch (IOException e) {
+            e.printStackTrace();
+            return false;
+        }
 
         backupThreadRegistry.put(bThread.uid, bThread);
         queueOperation(bThread);
@@ -326,7 +347,7 @@ public class BackupManager {
             return b.backupFile.getName();
         }
 
-        return bThread.destRoot.getName();
+        return bThread.getDestRoot().getName();
     }
 
     /**
@@ -478,208 +499,12 @@ public class BackupManager {
         this.currentOperation = operation;
     }
 
-    private class BackupThread extends Thread {
-        private File[] additionalSources;
-        private TFile sourceRoot;
-        private TFile destRoot;
-        private TFile base;
-        private boolean clearDst;
-        private List<URI> ignoreList;
-        boolean offline;
-        long startTime = -1L;
-        long endTime = -1L;
-        String status = "Idle";
-        String error = "";
-        String backupName;
-        String uid;
-        String currentFile;
-        long dataSize = 0L;
-        long dataCopied = 0L;
-        float progress = 0.0f;
-        boolean running = false;
 
-        public BackupThread(String backupName, String uid, File base, List<URI> ignoreList,
-                boolean clearDst, boolean offline, File destRoot, File sourceRoot, File... additionalSources) {
-            this.base = new TFile(base);
-            this.backupName = backupName;
-            this.uid = uid;
-            this.clearDst = clearDst;
-            this.ignoreList = ignoreList;
-            this.offline = offline;
-            this.destRoot = new TFile(destRoot);
-            this.sourceRoot = new TFile(sourceRoot);
-            this.additionalSources = additionalSources;
-        }
-
-        public void run() {
-            FSTree sourceTree;
-            ObjectInputStream oi = null;
-            ObjectOutputStream oo = null;
-            PrintWriter fOut = null;
-            running  = true;
-            startTime = System.currentTimeMillis();
-            status = "Initializing";
-
-            try {
-                TFile sourceFile = new TFile(sourceRoot);
-                TFile backupIndex = new TFile(sourceRoot, "backup.index");
-                TFile backupMeta = new TFile(sourceRoot, "backup.info");
-
-                //Initialise the file index.
-                if(backupIndex.exists()) {
-                    oi = new ObjectInputStream(new TFileInputStream(backupIndex));
-                    sourceTree = (FSTree)oi.readObject();
-                    base = sourceRoot;
-                    oi.close();
-                } else {
-                    sourceTree = Utilities.buildFSTree(new TFile(sourceRoot), base);
-                    if(additionalSources != null) {
-                        for(File f : additionalSources) {
-                            FSTree tree = Utilities.buildFSTree(new TFile(f), base);
-                            sourceTree.merge(tree);
-                        }
-                    }
-                }
-                //Remove ignored files from the index
-                for(URI u : ignoreList)
-                    sourceTree.remove(SpaceRTK.baseDir.toURI().relativize(u).getPath());
-                sourceTree.remove(base.getName()+"/"+"backup.index");
-                sourceTree.remove(base.getName()+"/"+"backup.info");
-
-                if(sourceFile.isArchive())
-                    dataSize = Utilities.getFileSize(sourceFile.toNonArchiveFile());
-                else
-                    dataSize = sourceTree.getSize();
-
-                if(clearDst) {
-                    status = "Wiping out destination directories";
-                    if(destRoot.isArchive())
-                        destRoot.toNonArchiveFile().rm();
-                    else {
-                        for(String s : sourceTree) {
-                            File file = new File(destRoot, s);
-                            if(file.isDirectory())
-                                for(File f : file.listFiles())
-                                    if(!f.isDirectory())
-                                        f.delete();
-                        }
-                    }
-                }
-
-                if(!backupIndex.exists()) {
-                    backupIndex = new TFile(destRoot, "backup.index");
-                    if(!destRoot.exists())
-                        new TFile(destRoot).mkdirs();
-                    oo = new ObjectOutputStream(new TFileOutputStream(backupIndex));
-                    oo.writeObject(sourceTree);
-                    oo.close();
-                }
-
-                if(!backupMeta.exists()) {
-                    backupMeta = new TFile(destRoot, "backup.info");
-                    if(!destRoot.exists())
-                        new TFile(destRoot).mkdirs();
-                    fOut = new PrintWriter(new TFileOutputStream(backupMeta));
-                    fOut.println("name:"+backupName);
-                    fOut.println("uid:"+ uid);
-                    fOut.println("date:"+startTime);
-                    fOut.println("size:"+dataSize);
-                    fOut.close();
-
-                    Backup backup = new Backup(uid, backupName, startTime, dataSize, destRoot);
-                    registerBackup(backup);
-                }
-
-                List<String> sourceFiles = sourceTree.enumerateLeaves(null);
-                sourceTree.removeAll();
-
-                for(String path : sourceFiles) {
-                    TFile src = new TFile(base, path);
-                    TFile dst = new TFile(destRoot, path);
-                    status = "Processing "+src.getName();
-                    currentFile = src.getName();
-                    if(!dst.isDirectory())
-                        dst.getParentFile().mkdirs();
-                    else
-                        dst.mkdirs();
-
-                    try {
-                        if(!src.isArchive())
-                            src.cp_p(dst);
-                        else
-                            src.toNonArchiveFile().cp_p(dst.toNonArchiveFile());
-                    } catch(IOException e) {
-                        e.printStackTrace();
-                    }
-
-                    if(sourceFile.isArchive())
-                        dataCopied += src.length();
-                    else
-                        dataCopied += Utilities.getFileSize(src);
-
-                    progress = dataCopied / (dataSize + (0.15f * dataSize));
-
-                }
-
-                progress = 0.85f; //Temporary
-
-            } catch (IOException e) {
-                e.printStackTrace();
-                for (StackTraceElement el : e.getStackTrace()) {
-                    error += el + "\n";
-                }
-                status = "Error";
-            } catch (ClassNotFoundException e) {
-                e.printStackTrace();
-                for (StackTraceElement el : e.getStackTrace()) {
-                    error += el + "\n";
-                }
-                status = "Error";
-            } finally {
-                try { //Attempt to close the streams again in the case that an exception was thrown before closing them.
-                    if(oi != null)
-                        oi.close();
-                    if(oo != null)
-                        oo.close();
-                    if(fOut != null)
-                        fOut.close();
-                } catch(IOException e){
-                    for (StackTraceElement el : e.getStackTrace()) {
-                        error += el + "\n";
-                    }
-                    status = "Error";
-                }
-
-                if(error.isEmpty())
-                    status = "Finalizing";
-                try {
-                    TVFS.umount(sourceRoot);
-                } catch(FsSyncException e){
-                    e.printStackTrace();
-                }
-
-                try {
-                    TVFS.umount(destRoot);
-                } catch(FsSyncException e){
-                    e.printStackTrace();
-                }
-                if(error.isEmpty())
-                    status = "Done";
-
-                endTime = System.currentTimeMillis();
-                running = false;
-                progress = 1.0f;
-
-                BackupEvent e = new BackupEvent(startTime, endTime, offline, backupName, uid);
-                SpaceModule.getInstance().getEdt().fireToolkitEvent(e);
-            }
-        }
-    }
 
     /**
      * Represents a single backup archive
      */
-    private class Backup {
+    static class Backup {
         String name;
         String uid;
         long date;
