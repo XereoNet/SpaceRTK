@@ -219,4 +219,9 @@ public class IsolatedBackupThread extends BackupThread {
 
     }
 
+    @Override
+    TFile getDestRoot() {
+        return destRoot;
+    }
+
 }
