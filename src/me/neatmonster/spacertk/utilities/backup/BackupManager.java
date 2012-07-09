@@ -295,6 +295,26 @@ public class BackupManager {
     }
 
     /**
+     * Lists metadata of current and older operations.
+     * @return A list of operation metadata.
+     */
+    public synchronized List<List<String>> listOperationInfo() {
+        List<List<String>> operationList = new ArrayList<List<String>>(backups.size());
+
+        for(BackupThread b : backupThreadRegistry.values()) {
+            String[] meta = new String[4];
+            meta[0] = b.uid;
+            meta[1] = b.backupName;
+            meta[2] = ""+b.startTime;
+            meta[3] = ""+b.dataSize;
+
+            operationList.add(Arrays.asList(meta));
+        }
+        Collections.sort(operationList, new MetadataComparator());
+        return operationList;
+    }
+
+    /**
      * Retrieve the metadata of a single backup given its UID.
      * @param uid the UID of the backup.
      * @returns an array of metadata entries.
@@ -531,6 +551,11 @@ public class BackupManager {
         @Override
         public int compare(List<String> o1, List<String> o2) {
             try {
+                if(Long.parseLong(o1.get(2)) == -1L) //Handle operations that have not been started.
+                    return 1;
+                else if(Long.parseLong(o2.get(2)) == -1L)
+                    return -1;
+
                 long l = Long.parseLong(o1.get(2)) - Long.parseLong(o2.get(2));
                 //o1 - o2 is not sufficient here due to possible errors from casting down
                 if(l < 0)

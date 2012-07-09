@@ -102,6 +102,16 @@ public class ServerActions implements ActionHandler {
     }
 
     /**
+     * Lists metadata of current and older operations.
+     * @return A list of operation metadata.
+     */
+    @Action(
+            aliases = {"getOperations", "listOperations", "listOperationInfo"})
+    public List<List<String>> getOperations() {
+        return SpaceRTK.getInstance().getBackupManager().listOperationInfo();
+    }
+
+    /**
      * Gets information about the backup manager
      * @return Information about the backup manager
      */
