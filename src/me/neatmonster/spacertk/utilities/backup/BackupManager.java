@@ -491,6 +491,12 @@ public class BackupManager {
         return !operationQueue.isEmpty();
     }
 
+    public synchronized boolean nextOperationIsOffline() {
+        if(!operationQueue.isEmpty())
+            return operationQueue.peek().offline;
+        return false;
+    }
+
     private synchronized void queueOperation(BackupThread bThread) {
         operationQueue.add(bThread);
     }
