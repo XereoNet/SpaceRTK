@@ -203,10 +203,10 @@ public class BackupManager {
         try {
             if(offline)
                 bThread = new IsolatedBackupThread(backupName, uid, SpaceRTK.baseDir,
-                        ignoreList, false, outputFile, folder, folders);
+                        SpaceRTK.baseDir.toURI(), ignoreList, false, outputFile, folder, folders);
             else
                 bThread = new BackupThread(false, true, backupName, uid, SpaceRTK.baseDir,
-                        ignoreList, false, offline, outputFile, folder, folders);
+                        SpaceRTK.baseDir.toURI(), ignoreList, false, offline, outputFile, folder, folders);
 
             backupThreadRegistry.put(bThread.uid, bThread);
             queueOperation(bThread);
@@ -243,10 +243,10 @@ public class BackupManager {
 
         try {
             if(offline)
-                bThread = new IsolatedBackupThread(backup.name, backup.uid, SpaceRTK.baseDir,
+                bThread = new IsolatedBackupThread(backup.name, backup.uid, SpaceRTK.baseDir, SpaceRTK.baseDir.toURI(),
                         Arrays.asList(new URI[]{}), clearDest, dest, backup.backupFile);
             else
-                bThread = new BackupThread(false, true, backup.name, backup.uid, SpaceRTK.baseDir,
+                bThread = new BackupThread(false, true, backup.name, backup.uid, SpaceRTK.baseDir, SpaceRTK.baseDir.toURI(),
                         Arrays.asList(new URI[]{}), clearDest, offline, dest, backup.backupFile);
         } catch (IOException e) {
             e.printStackTrace();
@@ -290,7 +290,8 @@ public class BackupManager {
 
             backupList.add(Arrays.asList(meta));
         }
-        Collections.sort(backupList, new MetadataComparator());
+        if(!backupList.isEmpty())
+            Collections.sort(backupList, new MetadataComparator());
         return backupList;
     }
 
@@ -310,7 +311,8 @@ public class BackupManager {
 
             operationList.add(Arrays.asList(meta));
         }
-        Collections.sort(operationList, new MetadataComparator());
+        if(!operationList.isEmpty())
+            Collections.sort(operationList, new MetadataComparator());
         return operationList;
     }
 

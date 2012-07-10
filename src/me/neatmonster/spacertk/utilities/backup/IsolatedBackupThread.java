@@ -38,13 +38,15 @@ public class IsolatedBackupThread extends BackupThread {
     private TFile sourceRoot;
     private TFile destRoot;
     private TFile base;
+    private URI userDir;
     private boolean clearDst;
     private List<URI> ignoreList;
     private ProcessBuilder pBuilder;
 
-    public IsolatedBackupThread(String backupName, String uid, File base, List<URI> ignoreList,
+    public IsolatedBackupThread(String backupName, String uid, File base, URI userDir, List<URI> ignoreList,
             boolean clearDst, File destRoot, File sourceRoot, File... additionalSources) throws IOException{
         this.base = new TFile(base);
+        this.userDir = userDir;
         this.backupName = backupName;
         this.uid = uid;
         this.clearDst = clearDst;
@@ -91,7 +93,7 @@ public class IsolatedBackupThread extends BackupThread {
 
 
         pBuilder = new ProcessBuilder(jvmCommand, maxMem,"-cp", artifactPath, IsolatedBackupLauncher.class.getName(),
-                "backupName:="+backupName, "uid:="+uid, "baseDir:="+base.getCanonicalPath(),
+                "backupName:="+backupName, "uid:="+uid, "baseDir:="+base.getCanonicalPath(), "userDir:="+userDir.getRawPath(),
                 "ignoreList:="+ignore, "clearDst:="+clearDst, "additionalSources:="+additional,
                 "sourceRoot:="+sourceRoot.getCanonicalPath(), "destRoot:="+destRoot.getCanonicalPath());
     }

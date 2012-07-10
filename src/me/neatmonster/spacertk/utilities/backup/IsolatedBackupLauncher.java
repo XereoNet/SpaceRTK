@@ -45,6 +45,13 @@ public class IsolatedBackupLauncher {
         String backupName = settings.get("backupName");
         String uid = settings.get("uid");
         File base = new File(settings.get("baseDir"));
+        URI userDir = null;
+        try {
+            userDir = new URI(settings.get("userDir"));
+        } catch (URISyntaxException e) {
+            e.printStackTrace();
+            System.exit(0);
+        }
         List<URI> ignoreList = new ArrayList<URI>();
         boolean clearDst = Boolean.parseBoolean(settings.get("clearDst"));
         File destRoot = new File(settings.get("destRoot"));
@@ -68,7 +75,7 @@ public class IsolatedBackupLauncher {
             additionalSources[i] = additionalSrcList.get(i);
 
 
-        BackupThread bThread = new BackupThread(true, false, backupName, uid, base, ignoreList,
+        BackupThread bThread = new BackupThread(true, false, backupName, uid, base, userDir, ignoreList,
                 clearDst, true, destRoot, sourceRoot, additionalSources);
 
         bThread.start();

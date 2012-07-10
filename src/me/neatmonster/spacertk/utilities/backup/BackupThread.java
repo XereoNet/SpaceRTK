@@ -20,7 +20,6 @@ import de.schlichtherle.truezip.file.TFileOutputStream;
 import de.schlichtherle.truezip.file.TVFS;
 import de.schlichtherle.truezip.fs.FsSyncException;
 import me.neatmonster.spacemodule.SpaceModule;
-import me.neatmonster.spacertk.SpaceRTK;
 import me.neatmonster.spacertk.event.BackupEvent;
 import me.neatmonster.spacertk.utilities.FSTree;
 import me.neatmonster.spacertk.utilities.Utilities;
@@ -40,6 +39,7 @@ class BackupThread extends Thread {
     private TFile sourceRoot;
     private TFile destRoot;
     private TFile base;
+    private URI userDir;
     private boolean clearDst;
     private List<URI> ignoreList;
     private boolean printData;
@@ -57,11 +57,12 @@ class BackupThread extends Thread {
     float progress = 0.0f;
     boolean running = false;
 
-    public BackupThread(boolean printData, boolean sendEvent, String backupName, String uid, File base, List<URI> ignoreList,
+    public BackupThread(boolean printData, boolean sendEvent, String backupName, String uid, File base, URI userDir, List<URI> ignoreList,
             boolean clearDst, boolean offline, File destRoot, File sourceRoot, File... additionalSources) {
         this.printData = printData;
         this.sendEvent = sendEvent;
         this.base = new TFile(base);
+        this.userDir = userDir;
         this.backupName = backupName;
         this.uid = uid;
         this.clearDst = clearDst;
@@ -77,7 +78,7 @@ class BackupThread extends Thread {
     protected BackupThread() {
         isolated = true;
     }
-
+    //XXX: This needs a serious cleanup
     public void run() {
         if(isolated) //Do not run if class was constructed from an IsolatedBackupThread.
             return;
@@ -117,7 +118,7 @@ class BackupThread extends Thread {
             }
             //Remove ignored files from the index
             for(URI u : ignoreList)
-                sourceTree.remove(SpaceRTK.baseDir.toURI().relativize(u).getPath());
+                sourceTree.remove(userDir.relativize(u).getPath());
             sourceTree.remove(base.getName()+"/"+"backup.index");
             sourceTree.remove(base.getName()+"/"+"backup.info");
 

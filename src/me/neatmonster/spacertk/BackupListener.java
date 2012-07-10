@@ -50,7 +50,7 @@ public class BackupListener implements ToolkitEventListener {
                         ex.printStackTrace();
                     }
                 }
-            } else if(BackupManager.getInstance().nextOperationIsOffline()){
+            } else if(!BackupManager.getInstance().nextOperationIsOffline()){
                 RemoteToolkit.unhold();
                 try {
                     Thread.sleep(5000); //Give the toolkit 5 seconds to bring the server back up
