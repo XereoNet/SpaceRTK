@@ -112,12 +112,12 @@ public class ServerActions implements ActionHandler {
     }
 
     /**
-     * Gets information about the backup manager
-     * @return Information about the backup manager
+     * Gets information about an operation
+     * @return Information about an operation
      */
     @Action(
-            aliases = {"getBackupInfo", "getOperationInfo", "operationInfo"})
-    public List<String> getBackupInfo(String uid) {
+            aliases = {"getOperationInfo", "operationInfo"})
+    public List<String> getOperationInfo(String uid) {
         BackupManager bManager = SpaceRTK.getInstance().getBackupManager();
 
         List<String> info = new ArrayList<String>(9);
@@ -162,7 +162,7 @@ public class ServerActions implements ActionHandler {
      */
     @Action(
             aliases = {"isOperationRunning", "operationRunning"})
-    public boolean isBackupRunning(String uid) {
+    public boolean isOperationRunning(String uid) {
         return SpaceRTK.getInstance().getBackupManager().isOperationRunning(uid);
     }
 
@@ -175,6 +175,19 @@ public class ServerActions implements ActionHandler {
     public String getRunningOperation() {
         return SpaceRTK.getInstance().getBackupManager().getOperationRunning();
     }
+
+    /**
+     * Get information about the currently running backup.
+     * @return information about the currently running backup.
+     */
+    @Action(
+            aliases = {"getRunningOperationInfo", "runningOperationInfo"})
+    public List<String> getRunningOperationInfo() {
+        BackupManager bManager = SpaceRTK.getInstance().getBackupManager();
+        return getOperationInfo(bManager.getOperationRunning());
+    }
+
+
 
     /**
      * Preforms a console command
