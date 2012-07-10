@@ -18,7 +18,6 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.text.DateFormat;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -36,7 +35,6 @@ import me.neatmonster.spacertk.utilities.Utilities;
 import me.neatmonster.spacertk.utilities.WorldFileFilter;
 
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.filefilter.DirectoryFileFilter;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONValue;
 
@@ -56,7 +54,6 @@ public class ServerActions implements ActionHandler {
             aliases = {"backup", "backupDirectory", "backupDir"})
     public String backup(String name, String directory, boolean offlineBackup) {
         BackupManager bManager = SpaceRTK.getInstance().getBackupManager();
-        String uid = null;
 
         DateFormat dateFormat = new SimpleDateFormat("MM_dd_yyyy_HH_mm");
         Date date = new Date();

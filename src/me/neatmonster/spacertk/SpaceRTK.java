@@ -122,12 +122,8 @@ public class SpaceRTK {
         if(backupManager == null)
             backupManager = BackupManager.getInstance();
 
-        try {
-            pingListener = new PingListener();
-            pingListener.startup();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        pingListener = new PingListener();
+        pingListener.startup();
 
         File backupDir = new File(SpaceRTK.getInstance().worldContainer.getPath() + File.separator + SpaceRTK.getInstance().backupDirName);
         for(File f : baseDir.listFiles()) {
