@@ -54,7 +54,6 @@ public class ServerActions implements ActionHandler {
             aliases = {"backup", "backupDirectory", "backupDir"})
     public String backup(String name, String directory, boolean offlineBackup) {
         BackupManager bManager = SpaceRTK.getInstance().getBackupManager();
-        String uid = null;
 
         DateFormat dateFormat = new SimpleDateFormat("MM_dd_yyyy_HH_mm");
         Date date = new Date();
