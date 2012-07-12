@@ -16,12 +16,9 @@ package me.neatmonster.spacertk;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.UUID;
 import java.util.logging.Handler;
 import java.util.logging.Logger;
 
-import com.drdanick.rtoolkit.EventDispatcher;
-import com.drdanick.rtoolkit.event.ToolkitEventPriority;
 import me.neatmonster.spacemodule.SpaceModule;
 import me.neatmonster.spacemodule.api.ActionsManager;
 import me.neatmonster.spacertk.actions.FileActions;
@@ -36,6 +33,9 @@ import me.neatmonster.spacertk.utilities.Format;
 
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.json.simple.JSONValue;
+
+import com.drdanick.rtoolkit.EventDispatcher;
+import com.drdanick.rtoolkit.event.ToolkitEventPriority;
 
 /**
  * Main class of SpaceRTK
@@ -103,11 +103,6 @@ public class SpaceRTK {
         final YamlConfiguration configuration = YamlConfiguration.loadConfiguration(SpaceModule.CONFIGURATION);
         type = configuration.getString("SpaceModule.type", "Bukkit");
         configuration.set("SpaceModule.type", type = "Bukkit");
-        salt = configuration.getString("General.salt", "<default>");
-        if (salt.equals("<default>")) {
-            salt = UUID.randomUUID().toString().replaceAll("-", "").toUpperCase();
-            configuration.set("General.salt", salt);
-        }
         worldContainer = new File(configuration.getString("General.worldContainer", "."));
         if (type.equals("Bukkit"))
             port = configuration.getInt("SpaceBukkit.port", 2011);
