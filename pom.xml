@@ -135,6 +135,20 @@
                             <addDefaultSpecificationEntries>false</addDefaultSpecificationEntries>
                             <addDefaultImplementationEntries>false</addDefaultImplementationEntries>
                         </manifest>
+                        <manifestSections>
+                            <manifestSection>
+                                <name>me/neatmonster/spacertk/</name>
+                                <manifestEntries>
+                                    <Specification-Title>${project.name}</Specification-Title>
+                                    <Specification-Version>${project.version}</Specification-Version>
+                                    <Specification-Vendor>XereoNet</Specification-Vendor>
+
+                                    <Implementation-Title>${project.groupId}.${project.artifactId}</Implementation-Title>
+                                    <Implementation-Version>build ${BUILD_NUMBER}</Implementation-Version>
+                                    <Implementation-Vendor>XereoNet</Implementation-Vendor>
+                                </manifestEntries>
+                            </manifestSection>
+                        </manifestSections>
                     </archive>
                 </configuration>
             </plugin>
