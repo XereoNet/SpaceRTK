@@ -27,7 +27,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * Pings the Module to ensure it is functioning correctly
  */
 public class PingListener extends Thread {
-    public static final int REQUEST_BUFFER = 60000; // Sixty seconds
+    public static final int REQUEST_THRESHOLD = 60000; // Sixty seconds
     public static final int SLEEP_TIME = 30000; // Thirty seconds
 
     private boolean lostModule;
@@ -67,7 +67,7 @@ public class PingListener extends Thread {
     @Override
     public void run() {
         try {
-            socket.setSoTimeout(REQUEST_BUFFER);
+            socket.setSoTimeout(REQUEST_THRESHOLD);
         } catch (SocketException e) {
             handleException(e, "Error setting the So Timeout!");
         }
