@@ -109,6 +109,7 @@ public class SpaceRTK {
         rPort = configuration.getInt("SpaceRTK.port", 2012);
         backupDirName = configuration.getString("General.backupDirectory", "Backups");
         backupLogs = configuration.getBoolean("General.backupLogs", true);
+        salt = configuration.getString("General.salt", "<default>");
         try {
             configuration.save(SpaceModule.CONFIGURATION);
         } catch (IOException e) {
