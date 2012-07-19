@@ -333,8 +333,8 @@ public class ServerActions implements ActionHandler {
             aliases = {"rollOverLog", "rollOver"})
     public boolean rollOver() {
         File oldLog = null;
-        for (File file : new File("").listFiles()) {
-            if (file.getName().contains("server") && file.getName().endsWith(".log")) {
+        for (File file : new File(".").listFiles()) {
+            if (file.getName().contains("server") && file.getPath().endsWith("log")) {
                oldLog = file; 
             }
         }
