@@ -57,6 +57,7 @@ public class SpaceRTK {
     public String         type = null;
     public int            port;
     public int            rPort;
+    public int            rPingPort;
     public String         salt;
     public File           worldContainer;
     public String         backupDirName;
@@ -99,18 +100,19 @@ public class SpaceRTK {
      */
     public void onEnable() {
         spaceRTK = this;
-        final YamlConfiguration configuration = YamlConfiguration.loadConfiguration(SpaceModule.CONFIGURATION);
-        type = configuration.getString("SpaceModule.type", "Bukkit");
-        configuration.set("SpaceModule.type", type = "Bukkit");
-        worldContainer = new File(configuration.getString("General.worldContainer", "."));
+        final YamlConfiguration config = YamlConfiguration.loadConfiguration(SpaceModule.CONFIGURATION);
+        type = config.getString("SpaceModule.type", "Bukkit");
+        config.set("SpaceModule.type", type = "Bukkit");
+        worldContainer = new File(config.getString("General.worldContainer", "."));
         if (type.equals("Bukkit"))
-            port = configuration.getInt("SpaceBukkit.port", 2011);
-        rPort = configuration.getInt("SpaceRTK.port", 2012);
-        backupDirName = configuration.getString("General.backupDirectory", "Backups");
-        backupLogs = configuration.getBoolean("General.backupLogs", true);
-        salt = configuration.getString("General.salt", "<default>");
+            port = config.getInt("SpaceBukkit.port", 2011);
+        rPort = config.getInt("SpaceRTK.port", 2012);
+        rPingPort = config.getInt("SpaceRTK.pingPort", 2013);
+        backupDirName = config.getString("General.backupDirectory", "Backups");
+        backupLogs = config.getBoolean("General.backupLogs", true);
+        salt = config.getString("General.salt", "<default>");
         try {
-            configuration.save(SpaceModule.CONFIGURATION);
+            config.save(SpaceModule.CONFIGURATION);
         } catch (IOException e) {
             e.printStackTrace();
         }

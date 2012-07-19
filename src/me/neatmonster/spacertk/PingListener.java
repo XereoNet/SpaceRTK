@@ -74,7 +74,7 @@ public class PingListener extends Thread {
         while (running.get()) {
             byte[] buffer = new byte[512];
             try {
-                DatagramPacket packet = new DatagramPacket(buffer, buffer.length, localHost, 2013);
+                DatagramPacket packet = new DatagramPacket(buffer, buffer.length, localHost, SpaceRTK.getInstance().rPingPort);
                 socket.send(packet);
                 try {
                     Thread.sleep(SLEEP_TIME);
