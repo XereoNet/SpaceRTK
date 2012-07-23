@@ -72,7 +72,6 @@ public class PingListener extends Thread {
             handleException(e, "Error setting the So Timeout!");
         }
         while (running.get()) {
-            System.out.println("Run");
             byte[] buffer = new byte[512];
             try {
                 DatagramPacket packet = new DatagramPacket(buffer, buffer.length, localHost, SpaceRTK.getInstance().rPingPort);
