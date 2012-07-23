@@ -15,6 +15,7 @@
 package me.neatmonster.spacertk.plugins;
 
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URL;
 import java.net.URLConnection;
@@ -40,7 +41,11 @@ public class PluginsRequester implements Runnable {
             bufferedReader.close();
             PluginsManager.pluginsNames = (JSONArray) JSONValue.parse(stringBuffer.toString());
         } catch (final Exception e) {
-            e.printStackTrace();
+            if (e instanceof IOException) {
+        	System.out.println("[SpaceBukkit] Unable to connect to BukGet, BukGet features will be disabled");
+            } else {
+        	e.printStackTrace();
+            }
         }
     }
 }
