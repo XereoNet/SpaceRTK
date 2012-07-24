@@ -22,6 +22,7 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.net.SocketTimeoutException;
 import java.net.URLDecoder;
 import java.util.List;
 
@@ -63,6 +64,8 @@ public class PanelListener extends Thread {
         return null;
     }
 
+    private static final int SO_BACKLOG = 128;
+    private static final int SO_TIMEOUT = 30000; //30 seconds
     private final int    mode;
     private ServerSocket serverSocket = null;
     private Socket       socket;
@@ -100,7 +103,8 @@ public class PanelListener extends Thread {
         if (mode == 0) {
 
             try {
-                serverSocket = new ServerSocket(SpaceRTK.getInstance().rPort);
+                serverSocket = new ServerSocket(SpaceRTK.getInstance().rPort, SO_BACKLOG);
+                serverSocket.setSoTimeout(SO_TIMEOUT);
             } catch(IOException e) {
                 e.printStackTrace();
                 return;
@@ -110,6 +114,8 @@ public class PanelListener extends Thread {
                 try {
                     final Socket clientSocket = serverSocket.accept();
                     new PanelListener(clientSocket);
+                } catch(SocketTimeoutException e) {
+                    System.err.println("ERROR: API connection timeout! \n"+e.getMessage());
                 } catch (Exception e) {
                     if (!e.getMessage().contains("socket closed"))
                         e.printStackTrace();
