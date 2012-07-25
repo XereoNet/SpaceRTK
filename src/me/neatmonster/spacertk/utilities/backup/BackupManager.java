@@ -17,6 +17,7 @@ package me.neatmonster.spacertk.utilities.backup;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.math.RoundingMode;
 import java.net.URI;
 import java.text.DecimalFormat;
@@ -30,11 +31,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Queue;
 import java.util.concurrent.LinkedBlockingQueue;
+import java.util.zip.ZipException;
+import java.util.zip.ZipFile;
+import java.util.zip.ZipEntry;
 
 import de.schlichtherle.truezip.file.TFile;
-import de.schlichtherle.truezip.file.TFileReader;
-import de.schlichtherle.truezip.file.TVFS;
-import de.schlichtherle.truezip.fs.FsSyncException;
 import me.neatmonster.spacemodule.SpaceModule;
 import me.neatmonster.spacertk.SpaceRTK;
 import me.neatmonster.spacertk.event.BackupEvent;
@@ -99,18 +100,27 @@ public class BackupManager {
     }
 
     private void loadBackups() {
-        TFile backupDir = new TFile(SpaceRTK.baseDir, SpaceRTK.getInstance().backupDirName);
+        File backupDir = new TFile(SpaceRTK.baseDir, SpaceRTK.getInstance().backupDirName);
         if(!backupDir.exists())
             return;
 
-        for(TFile f : backupDir.listFiles()) {
-            if(f.isArchive()) {
-                Backup b = getBackup(f);
-                registerBackup(b);
+        for(File f : backupDir.listFiles()) {
+            ZipFile zFile = null;
 
+            try {
+                zFile = new ZipFile(f);
+                Backup b = getBackup(zFile, f);
+
+                registerBackup(b);
+            } catch (ZipException e) {
+                //Probably not a valid zip file.
+            } catch (IOException e) {
+                System.err.println("Unexpected exception loading backup metadata for \""+f.getName()+"\": "+e.getMessage());
+            } finally {
                 try {
-                    TVFS.umount(f);
-                } catch (FsSyncException e) {
+                    if(zFile != null)
+                        zFile.close();
+                } catch(IOException e) {
                     e.printStackTrace();
                 }
             }
@@ -127,16 +137,16 @@ public class BackupManager {
     /**
      * Returns a Backup representation of an archive file.
      */
-    private Backup getBackup(TFile f) {
+    private Backup getBackup(ZipFile zFile, File f) {
         Map<String, String> meta = new HashMap<String, String>();
-        TFile metaFile = new TFile(f,"backup.info");
+        ZipEntry metaEntry = zFile.getEntry("backup.info");
 
-        if(!metaFile.exists())
+        if(metaEntry == null)
             return null;
 
         BufferedReader fIn = null;
         try {
-            fIn = new BufferedReader(new TFileReader(metaFile));
+            fIn = new BufferedReader(new InputStreamReader(zFile.getInputStream(metaEntry)));
             String read = fIn.readLine();
 
             while(read != null) {
@@ -158,7 +168,7 @@ public class BackupManager {
         }
 
         return new Backup(meta.get("uid"), meta.get("name"), Long.parseLong(meta.get("date")),
-                Long.parseLong(meta.get("size")), f.toNonArchiveFile());
+                Long.parseLong(meta.get("size")), f);
     }
 
     private void refreshBackups() {
