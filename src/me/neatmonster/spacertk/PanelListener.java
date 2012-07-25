@@ -115,7 +115,7 @@ public class PanelListener extends Thread {
                     final Socket clientSocket = serverSocket.accept();
                     new PanelListener(clientSocket);
                 } catch(SocketTimeoutException e) {
-                    System.err.println("ERROR: API connection timeout! \n"+e.getMessage());
+                    // Do nothing.
                 } catch (Exception e) {
                     if (!e.getMessage().contains("socket closed"))
                         e.printStackTrace();
