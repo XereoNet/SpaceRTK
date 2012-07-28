@@ -72,7 +72,6 @@ public class PingListener extends Thread {
             handleException(e, "Error setting the So Timeout!");
         }
         while (running.get()) {
-            System.out.println("Run");
             byte[] buffer = new byte[512];
             buffer[0] = 1;
             try {

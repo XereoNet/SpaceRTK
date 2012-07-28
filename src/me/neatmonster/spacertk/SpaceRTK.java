@@ -99,7 +99,6 @@ public class SpaceRTK {
      * Called when the RTK is enabled
      */
     public void onEnable() {
-	System.out.println("onEnable");
         spaceRTK = this;
         final YamlConfiguration config = YamlConfiguration.loadConfiguration(SpaceModule.CONFIGURATION);
         type = config.getString("SpaceModule.type", "Bukkit");
