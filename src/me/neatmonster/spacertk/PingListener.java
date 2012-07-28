@@ -74,6 +74,7 @@ public class PingListener extends Thread {
         while (running.get()) {
             System.out.println("Run");
             byte[] buffer = new byte[512];
+            buffer[0] = 1;
             try {
                 DatagramPacket packet = new DatagramPacket(buffer, buffer.length, localHost, SpaceRTK.getInstance().rPingPort);
                 socket.send(packet);
