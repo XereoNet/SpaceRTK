@@ -292,13 +292,7 @@ public class BackupManager {
         List<List<String>> backupList = new ArrayList<List<String>>(backups.size());
 
         for(Backup b : backups.values()) {
-            String[] meta = new String[4];
-            meta[0] = b.uid;
-            meta[1] = b.name;
-            meta[2] = ""+b.date;
-            meta[3] = ""+b.size;
-
-            backupList.add(Arrays.asList(meta));
+            backupList.add(Arrays.asList(new String[]{b.uid, b.name, ""+b.date, ""+b.size}));
         }
         if(!backupList.isEmpty())
             Collections.sort(backupList, new MetadataComparator());
@@ -313,14 +307,9 @@ public class BackupManager {
         List<List<String>> operationList = new ArrayList<List<String>>(backups.size());
 
         for(BackupThread b : backupThreadRegistry.values()) {
-            String[] meta = new String[4];
-            meta[0] = b.uid;
-            meta[1] = b.backupName;
-            meta[2] = ""+b.startTime;
-            meta[3] = ""+b.dataSize;
-
-            operationList.add(Arrays.asList(meta));
+            operationList.add(Arrays.asList(new String[]{b.uid, b.backupName, ""+b.startTime, ""+b.dataSize}));
         }
+
         if(!operationList.isEmpty())
             Collections.sort(operationList, new MetadataComparator());
         return operationList;
@@ -333,13 +322,8 @@ public class BackupManager {
      */
     public synchronized String[] getBackupInfo(String uid) {
         Backup b = backups.get(uid);
-        String[] meta = new String[4];
-        meta[0] = b.uid;
-        meta[1] = b.name;
-        meta[2] = ""+b.date;
-        meta[3] = ""+b.size;
 
-        return meta;
+        return new String[]{b.uid, b.name, ""+b.date, ""+b.size};
     }
 
     /**
