@@ -59,6 +59,7 @@ public class SpaceRTK {
     public int            rPort;
     public int            rPingPort;
     public String         salt;
+    public String         bindIp;
     public File           worldContainer;
     public String         backupDirName;
     public boolean        backupLogs;
@@ -111,6 +112,7 @@ public class SpaceRTK {
         backupDirName = config.getString("General.backupDirectory", "Backups");
         backupLogs = config.getBoolean("General.backupLogs", true);
         salt = config.getString("General.salt", "<default>");
+        bindIp = config.getString("General.bindIp", "0.0.0.0");
         try {
             config.save(SpaceModule.CONFIGURATION);
         } catch (IOException e) {
