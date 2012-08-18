@@ -20,6 +20,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
+import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketTimeoutException;
@@ -32,6 +33,7 @@ import me.neatmonster.spacertk.utilities.Utilities;
 import me.neatmonster.spacertk.utilities.ZIP;
 
 import org.json.simple.JSONValue;
+import sun.nio.ch.SocketOpts;
 
 /**
  * Listens and accepts requests from the panel
@@ -103,7 +105,7 @@ public class PanelListener extends Thread {
         if (mode == 0) {
 
             try {
-                serverSocket = new ServerSocket(SpaceRTK.getInstance().rPort, SO_BACKLOG);
+                serverSocket = new ServerSocket(SpaceRTK.getInstance().rPort, SO_BACKLOG, InetAddress.getByName(SpaceRTK.getInstance().bindIp));
                 serverSocket.setSoTimeout(SO_TIMEOUT);
             } catch(IOException e) {
                 e.printStackTrace();
