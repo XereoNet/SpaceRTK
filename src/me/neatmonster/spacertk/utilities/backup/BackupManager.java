@@ -35,7 +35,6 @@ import java.util.zip.ZipException;
 import java.util.zip.ZipFile;
 import java.util.zip.ZipEntry;
 
-import de.schlichtherle.truezip.file.TFile;
 import me.neatmonster.spacemodule.SpaceModule;
 import me.neatmonster.spacertk.SpaceRTK;
 import me.neatmonster.spacertk.event.BackupEvent;
@@ -100,7 +99,7 @@ public class BackupManager {
     }
 
     private void loadBackups() {
-        File backupDir = new TFile(SpaceRTK.baseDir, SpaceRTK.getInstance().backupDirName);
+        File backupDir = new File(SpaceRTK.baseDir, SpaceRTK.getInstance().backupDirName);
         if(!backupDir.exists())
             return;
 
