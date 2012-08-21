@@ -113,7 +113,7 @@ public class SpaceRTK {
         backupLogs = config.getBoolean("General.backupLogs", true);
         salt = config.getString("General.salt", "<default>");
         bindIp = config.getString("General.bindIp", "0.0.0.0");
-        if(bindIp.equals("")) {
+        if(bindIp.trim().isEmpty()) {
             bindIp = "0.0.0.0";
         }
         try {
