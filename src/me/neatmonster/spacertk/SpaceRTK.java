@@ -16,6 +16,7 @@ package me.neatmonster.spacertk;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.InetAddress;
 import java.util.logging.Handler;
 import java.util.logging.Logger;
 
@@ -57,12 +58,12 @@ public class SpaceRTK {
     public String         type = null;
     public int            port;
     public int            rPort;
-    public int            rPingPort;
     public String         salt;
-    public String         bindIp;
+    public InetAddress    bindAddress;
     public File           worldContainer;
     public String         backupDirName;
     public boolean        backupLogs;
+    public SpaceModule    spaceModule;
 
     private BackupManager backupManager;
     private PingListener pingListener;
@@ -101,32 +102,28 @@ public class SpaceRTK {
      */
     public void onEnable() {
         spaceRTK = this;
+        spaceModule = SpaceModule.getInstance();
         final YamlConfiguration config = YamlConfiguration.loadConfiguration(SpaceModule.CONFIGURATION);
-        type = config.getString("SpaceModule.type", "Bukkit");
-        config.set("SpaceModule.type", type = "Bukkit");
         worldContainer = new File(config.getString("General.worldContainer", "."));
-        if (type.equals("Bukkit"))
-            port = config.getInt("SpaceBukkit.port", 2011);
-        rPort = config.getInt("SpaceRTK.port", 2012);
-        rPingPort = config.getInt("SpaceRTK.pingPort", 2013);
         backupDirName = config.getString("General.backupDirectory", "Backups");
         backupLogs = config.getBoolean("General.backupLogs", true);
-        salt = config.getString("General.salt", "<default>");
-        bindIp = config.getString("General.bindIp", "0.0.0.0");
-        if(bindIp.trim().isEmpty()) {
-            bindIp = "0.0.0.0";
-        }
+
+        bindAddress = spaceModule.bindAddress;
+        salt = spaceModule.salt;
+        type = spaceModule.type;
+        port = spaceModule.port;
+        rPort = spaceModule.rPort;
+
         try {
             config.save(SpaceModule.CONFIGURATION);
         } catch (IOException e) {
             e.printStackTrace();
         }
 
+        pingListener = new PingListener();
+
         if(backupManager == null)
             backupManager = BackupManager.getInstance();
-
-        pingListener = new PingListener();
-        pingListener.startup();
 
         File backupDir = new File(SpaceRTK.getInstance().worldContainer.getPath() + File.separator + SpaceRTK.getInstance().backupDirName);
         for(File f : baseDir.listFiles()) {
@@ -146,6 +143,7 @@ public class SpaceRTK {
         panelListener = new PanelListener();
         Scheduler.loadJobs();
 
+        pingListener.start();
     }
 
     /**

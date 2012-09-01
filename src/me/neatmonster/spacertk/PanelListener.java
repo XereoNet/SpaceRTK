@@ -33,7 +33,6 @@ import me.neatmonster.spacertk.utilities.Utilities;
 import me.neatmonster.spacertk.utilities.ZIP;
 
 import org.json.simple.JSONValue;
-import sun.nio.ch.SocketOpts;
 
 /**
  * Listens and accepts requests from the panel
@@ -105,7 +104,7 @@ public class PanelListener extends Thread {
         if (mode == 0) {
 
             try {
-                serverSocket = new ServerSocket(SpaceRTK.getInstance().rPort, SO_BACKLOG, InetAddress.getByName(SpaceRTK.getInstance().bindIp));
+                serverSocket = new ServerSocket(SpaceRTK.getInstance().rPort, SO_BACKLOG, SpaceRTK.getInstance().bindAddress);
                 serverSocket.setSoTimeout(SO_TIMEOUT);
             } catch(IOException e) {
                 e.printStackTrace();
