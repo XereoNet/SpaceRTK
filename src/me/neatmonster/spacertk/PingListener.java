@@ -46,7 +46,7 @@ public class PingListener {
             if(hostAddress.isAnyLocalAddress())
                 hostAddress = InetAddress.getLocalHost();
 
-            pingUrl = new URL("http", hostAddress.getHostAddress(), SpaceRTK.getInstance().port, "ping");
+            pingUrl = new URL("http", hostAddress.getHostAddress(), SpaceRTK.getInstance().port, "/ping");
 
         } catch (UnknownHostException e) {
             System.err.println(
