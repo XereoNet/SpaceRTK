@@ -19,9 +19,11 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URL;
 import java.net.URLConnection;
+import java.util.List;
 
 import org.json.simple.JSONArray;
 import org.json.simple.JSONValue;
+import org.json.simple.JSONObject;
 
 /**
  * Requests a list of plugins from BukGet
@@ -32,16 +34,24 @@ public class PluginsRequester implements Runnable {
     @SuppressWarnings("unchecked")
     public void run() {
         try {
-            final URLConnection connection = new URL("http://api.bukget.org/api2/bukkit/").openConnection();
+            final URLConnection connection = new URL("http://api.bukget.org/api2/bukkit/plugins").openConnection();
             final BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
             final StringBuffer stringBuffer = new StringBuffer();
             String line;
             while ((line = bufferedReader.readLine()) != null)
                 stringBuffer.append(line);
             bufferedReader.close();
-            PluginsManager.pluginsNames = (JSONArray) JSONValue.parse(stringBuffer.toString());
-        } catch (final Exception e) {
-        	System.out.println("[SpaceBukkit] Unable to connect to BukGet, BukGet features will be disabled");
+            List<JSONObject> apiResponse = (JSONArray) JSONValue.parse(stringBuffer.toString());
+
+            System.out.println("Loading plugins...");
+            for(JSONObject o : apiResponse) {
+                PluginsManager.pluginsNames.add((String)o.get("name"));
+                System.out.println((String)o.get("name"));
+            }
+        } catch (Exception e) {
+            System.out.println(e);
+            System.out.println(e.getMessage());
+            System.out.println("[SpaceBukkit] Unable to connect to BukGet, BukGet features will be disabled");
         }
     }
 }
