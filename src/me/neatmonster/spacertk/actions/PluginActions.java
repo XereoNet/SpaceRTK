@@ -173,7 +173,7 @@ public class PluginActions implements ActionHandler {
         final File pluginFile = pluginsManager.getPluginFile(plugin.name);
         if (pluginFile != null && pluginFile.exists())
             return "ALREADYINSTALLED";
-        new FileActions().sendFile(plugin.getLatestVersion().link + "/" + plugin.getLatestVersion().filename,
+        new FileActions().sendFile(plugin.getLatestVersion().link,
                 "plugins" + File.separator + plugin.getLatestVersion().filename);
         final File file = new File("plugins", plugin.getLatestVersion().filename);
         if (file.getName().endsWith(".zip")) {
@@ -281,7 +281,7 @@ public class PluginActions implements ActionHandler {
                 }
         }
         pluginFile.delete();
-        new FileActions().sendFile(plugin.getLatestVersion().link + "/" + plugin.getLatestVersion().filename,
+        new FileActions().sendFile(plugin.getLatestVersion().link,
                 "plugins" + File.separator + plugin.getLatestVersion().filename);
         final File file = new File("plugins", plugin.getLatestVersion().filename);
         if (file.getName().toLowerCase().endsWith(".zip")) {
