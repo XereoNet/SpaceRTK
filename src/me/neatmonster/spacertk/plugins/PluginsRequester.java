@@ -43,14 +43,10 @@ public class PluginsRequester implements Runnable {
             bufferedReader.close();
             List<JSONObject> apiResponse = (JSONArray) JSONValue.parse(stringBuffer.toString());
 
-            System.out.println("Loading plugins...");
-            for(JSONObject o : apiResponse) {
+            for(JSONObject o : apiResponse) 
                 PluginsManager.pluginsNames.add((String)o.get("name"));
-                System.out.println((String)o.get("name"));
-            }
+
         } catch (Exception e) {
-            System.out.println(e);
-            System.out.println(e.getMessage());
             System.out.println("[SpaceBukkit] Unable to connect to BukGet, BukGet features will be disabled");
         }
     }
