@@ -54,7 +54,7 @@ public class PluginsManager {
      */
     private SBPlugin addPlugin(final String pluginName) {
         try {
-            final URLConnection connection = new URL("http://api.bukget.org/api2/bukkit/" + pluginName).openConnection();
+            final URLConnection connection = new URL("http://api.bukget.org/api2/bukkit/plugin/" + pluginName).openConnection();
             final BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
             final StringBuffer stringBuffer = new StringBuffer();
             String line;
