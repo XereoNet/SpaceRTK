@@ -284,7 +284,7 @@ public class PluginActions implements ActionHandler {
         new FileActions().sendFile(plugin.getLatestVersion().link,
                 "plugins" + File.separator + plugin.getLatestVersion().filename);
         final File file = new File("plugins", plugin.getLatestVersion().filename);
-        if (file.getName().endsWith(".zip")) {
+        if (file.getName().toLowerCase().endsWith(".zip")) {
             try {
                 ZIP.unzip(file, new File("plugins"), override, filter);
             } catch (final Exception e) {

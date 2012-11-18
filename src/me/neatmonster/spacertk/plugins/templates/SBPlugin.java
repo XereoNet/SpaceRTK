@@ -58,15 +58,11 @@ public class SBPlugin {
      * @param plugin JSONObject containing the raw information from BukGet
      */
     public SBPlugin(final JSONObject plugin) {
+		//TODO: should not crash if a field is missing
         name = (String) plugin.get("name");
         status = (String) plugin.get("status");
         link = (String) plugin.get("bukkitdev_link");
         description = (String) plugin.get("desc");
-        final JSONArray authorsJSONArray = (JSONArray) plugin.get("authors");
-        @SuppressWarnings("unchecked")
-        final List<Object> authorsListObject = authorsJSONArray.subList(0, authorsJSONArray.size());
-        for (final Object object : authorsListObject)
-            authors.add((String) object);
         final JSONArray categoriesJSONArray = (JSONArray) plugin.get("categories");
         @SuppressWarnings("unchecked")
         final List<Object> categoriesListObject = categoriesJSONArray.subList(0, categoriesJSONArray.size());
