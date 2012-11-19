@@ -67,23 +67,29 @@ public class Version {
         name = (String) version.get("name");
         filename = (String) version.get("filename");
         md5 = (String) version.get("md5");
-        link = (String) version.get("dl_link");
-        final JSONArray buildsJSONArray = (JSONArray) version.get("game_builds");
+        link = (String) version.get("download");
+        final JSONArray buildsJSONArray = (JSONArray) version.get("game_versions");
         @SuppressWarnings("unchecked")
         final List<Object> buildsListObject = buildsJSONArray.subList(0, buildsJSONArray.size());
         for (final Object object : buildsListObject)
             builds.add((String) object);
-        final JSONArray softDependenciesJSONArray = (JSONArray) version.get("soft_dependencies");
-        @SuppressWarnings("unchecked")
-        final List<Object> softDependenciesListObject = softDependenciesJSONArray.subList(0,
+
+        if(!(version.get("soft_dependencies") instanceof String)) {//Assuming empty list if String
+            final JSONArray softDependenciesJSONArray = (JSONArray) version.get("soft_dependencies");
+            @SuppressWarnings("unchecked")
+            final List<Object> softDependenciesListObject = softDependenciesJSONArray.subList(0,
                 softDependenciesJSONArray.size());
-        for (final Object object : softDependenciesListObject)
-            softDependencies.add((String) object);
-        final JSONArray hardDependenciesJSONArray = (JSONArray) version.get("hard_dependencies");
-        @SuppressWarnings("unchecked")
-        final List<Object> hardDependenciesListObject = hardDependenciesJSONArray.subList(0,
+            for (final Object object : softDependenciesListObject)
+                softDependencies.add((String) object);
+        }
+
+        if(!(version.get("hard_dependencies") instanceof String)) { //Assuming empty list if String
+            final JSONArray hardDependenciesJSONArray = (JSONArray) version.get("hard_dependencies");
+            @SuppressWarnings("unchecked")
+            final List<Object> hardDependenciesListObject = hardDependenciesJSONArray.subList(0,
                 hardDependenciesJSONArray.size());
-        for (final Object object : hardDependenciesListObject)
-            hardDependencies.add((String) object);
+            for (final Object object : hardDependenciesListObject)
+                hardDependencies.add((String) object);
+        }
     }
 }

@@ -107,6 +107,7 @@ public class ZIP {
      */
     public static void unzip(final File archive, final File folder, final boolean jarOnly, final FileFilter filter)
             throws FileNotFoundException, IOException {
+            //XXX: This is way too inflexible.
         final ZipInputStream zis = new ZipInputStream(new BufferedInputStream(new FileInputStream(
                 archive.getCanonicalFile())));
         ZipEntry ze = null;

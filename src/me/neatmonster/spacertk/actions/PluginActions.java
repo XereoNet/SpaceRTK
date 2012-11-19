@@ -38,6 +38,7 @@ public class PluginActions implements ActionHandler {
     private static PluginsManager pluginsManager = SpaceRTK.getInstance().pluginsManager;
     
     private static final FileFilter filter = new FileFilter() {
+        //TODO: Fix: does not work with directories
         public boolean accept(File file) {
             String name = file.getName();
             if (name.contains(".jar") || name.contains(".yml") || file.isDirectory()) {
@@ -178,14 +179,12 @@ public class PluginActions implements ActionHandler {
         final File file = new File("plugins", plugin.getLatestVersion().filename);
         if (file.getName().endsWith(".zip")) {
             try {
-                ZIP.unzip(file, new File("plugins"), false, filter);
+                ZIP.unzip(file, new File("plugins"), false, null);
             } catch (final Exception e) {
                 e.printStackTrace();
             }
             file.delete();
         }
-        if (RemoteToolkit.isRunning())
-            Utilities.sendMethod("reload", "[]");
         return "SUCCESS";
     }
 
@@ -203,7 +202,7 @@ public class PluginActions implements ActionHandler {
         final File file_ = new File("plugins", file);
         if (file.endsWith(".zip")) {
             try {
-                ZIP.unzip(file_, new File("plugins"), false, filter);
+                ZIP.unzip(file_, new File("plugins"), false, null);
             } catch (final Exception e) {
                 e.printStackTrace();
             }
@@ -286,7 +285,7 @@ public class PluginActions implements ActionHandler {
         final File file = new File("plugins", plugin.getLatestVersion().filename);
         if (file.getName().toLowerCase().endsWith(".zip")) {
             try {
-                ZIP.unzip(file, new File("plugins"), override, filter);
+                ZIP.unzip(file, new File("plugins"), override, null);
             } catch (final Exception e) {
                 e.printStackTrace();
             }
