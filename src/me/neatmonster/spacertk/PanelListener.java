@@ -1,5 +1,5 @@
 /*
- * This file is part of SpaceRTK (http://spacebukkit.xereo.net/).
+ * This file is part of SpaceRTK (http://SpaceRTK.xereo.net/).
  *
  * SpaceRTK is free software: you can redistribute it and/or modify it under the terms of the
  * Attribution-NonCommercial-ShareAlike Unported (CC BY-NC-SA) license as published by the Creative Common organization,
@@ -64,7 +64,41 @@ public class PanelListener extends Thread {
         }
         return null;
     }
-
+    /**
+     * Interprets a raw command from the panel (multiple)
+     * @param string input from panel
+     * @return result of the action
+     * @throws InvalidArgumentsException Thrown when the wrong arguments are used by the panel
+     * @throws UnhandledActionException Thrown when there is no handler for the action
+     */
+    @SuppressWarnings("unchecked")
+    private static Object interpretm(final String string) throws InvalidArgumentsException, UnhandledActionException {
+        final int indexOfMethod = string.indexOf("?method=");
+        final int indexOfArguments = string.indexOf("&args=");
+        final int indexOfKey = string.indexOf("&key=");
+        final String methodString = string.substring(indexOfMethod + 8, indexOfArguments);
+        final String argumentsString = string.substring(indexOfArguments + 6, indexOfKey);
+        final List<Object> methods = (List<Object>) JSONValue.parse(methodString);
+        final List<Object> arguments = (List<Object>) JSONValue.parse(argumentsString);
+        final List<Object> result = (List<Object>) JSONValue.parse("[]");
+        for (int i = 0; i < methods.size(); i++) {
+        	String argsString = arguments.toArray()[i].toString();
+    		List<Object> args = (List<Object>) JSONValue.parse(argsString);
+            try {
+                if (SpaceRTK.getInstance().actionsManager.contains(methods.toArray()[i].toString()))
+                    result.add(SpaceRTK.getInstance().actionsManager.execute(methods.toArray()[i].toString(), args.toArray()));
+            } catch (final InvalidArgumentsException e) {
+            	result.add(null);
+                e.printStackTrace();
+            } catch (final UnhandledActionException e) {
+            	result.add(null);
+                e.printStackTrace();
+            }
+            
+    	}
+        return result;
+    }
+    
     private static final int SO_BACKLOG = 128;
     private static final int SO_TIMEOUT = 30000; //30 seconds
     private final int    mode;
@@ -167,6 +201,17 @@ public class PanelListener extends Thread {
                             else
                                 output.println(Utilities.addHeader(null));
                         }
+                    } else
+                        output.println(Utilities.addHeader("Incorrect Salt supplied. Access denied!"));
+                }
+                else if (string.startsWith("multiple") && string.contains("?method=") && string.contains("&args=")) {
+                    final String method = string.substring(16, string.indexOf("&args="));
+                    if (string.contains("&key=" + Utilities.crypt(method + SpaceRTK.getInstance().salt))) {
+                        final Object result = interpretm(string);
+                        if (result != null)
+                            output.println(Utilities.addHeader(JSONValue.toJSONString(result)));
+                        else
+                            output.println(Utilities.addHeader(null));
                     } else
                         output.println(Utilities.addHeader("Incorrect Salt supplied. Access denied!"));
                 } else if (string.startsWith("ping"))
