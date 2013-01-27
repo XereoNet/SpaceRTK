@@ -39,7 +39,7 @@ import me.neatmonster.spacemodule.SpaceModule;
 import me.neatmonster.spacertk.SpaceRTK;
 import me.neatmonster.spacertk.event.BackupEvent;
 
-import com.drdanick.rtoolkit.EventDispatcher;
+import com.drdanick.rtoolkit.system.EventDispatcher;
 import com.drdanick.rtoolkit.event.ToolkitEventListener;
 import com.drdanick.rtoolkit.event.ToolkitEventPriority;
 import me.neatmonster.spacertk.utilities.Utilities;

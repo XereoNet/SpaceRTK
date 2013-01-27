@@ -34,7 +34,7 @@ import me.neatmonster.spacertk.utilities.Format;
 
 import org.bukkit.configuration.file.YamlConfiguration;
 
-import com.drdanick.rtoolkit.EventDispatcher;
+import com.drdanick.rtoolkit.system.EventDispatcher;
 import com.drdanick.rtoolkit.event.ToolkitEventPriority;
 
 /**
